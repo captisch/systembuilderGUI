@@ -194,15 +194,62 @@ public partial class ConfigFile : ObservableObject
             {
                 foreach (var module in modules)
                 {
+                    var instCnt = 0;
+                    var instanceName = $"{module.Name}_{instCnt}";
+
+                    while (subModules.Any(sm => sm.Instance == instanceName))
+                    {
+                        instCnt++;
+                        instanceName = $"{module.Name}_{instCnt}";
+                    }
+
                     subModules.Add(new SubModule()
                     {
                         Module = module,
                         Source = verilogPath,
                         Filename = Path.GetFileName(verilogPath),
-                        Instance = $"Ext_Mod_{subModules.Count}",
+                        Instance = instanceName,
                     });
                 }
             }
         }
+    }
+
+    public async Task CopySubmodule(SubModule subModule)
+    {
+        var instanceName = subModule.Instance;
+        var baseInstanceName = instanceName;
+        var number = 0;
+
+        // Prüfe ob der Instanzname mit Zahlen endet
+        var match = System.Text.RegularExpressions.Regex.Match(instanceName, @"_(\d+)$");
+        if (match.Success)
+        {
+            baseInstanceName = instanceName[..match.Index];
+            number = int.Parse(match.Groups[1].Value);
+        }
+        else
+        {
+            baseInstanceName = instanceName;
+        }
+
+        // Generiere einen eindeutigen Namen
+        do
+        {
+            number++;
+            instanceName = $"{baseInstanceName}_{number}";
+        } while (subModules.Any(m => m.Instance == instanceName));
+
+        // Erstelle eine Kopie des Moduls
+        var newModule = new SubModule
+        {
+            Source = subModule.Source,
+            Filename = subModule.Filename,
+            Module = subModule.Module.Copy(),
+            Instance = instanceName,
+            IsExternalModule = subModule.IsExternalModule
+        };
+
+        subModules.Add(newModule);
     }
 }
