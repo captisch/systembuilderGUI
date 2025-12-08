@@ -11,8 +11,30 @@ public class Module
     public string Name { get; set; }
     public List<Port>? Ports { get; set; }
     public string? Logic { get; set; }
-    
     public List<Parameter> Parameters { get; set; }
+
+    public Module Copy()
+    {
+        return new Module
+        {
+            Name = this.Name,
+            Logic = this.Logic,
+            Parameters = this.Parameters
+                .Select(p => new Parameter { Name = p.Name, Value = p.Value })
+                .ToList(),
+            Ports = this.Ports?
+                .Select(p => new Port
+                {
+                    Direction = p.Direction,
+                    Type = p.Type,
+                    Signed = p.Signed,
+                    Width = p.Width,
+                    Name = p.Name,
+                    RouteToTopmodule = p.RouteToTopmodule
+                })
+                .ToList()
+        };
+    }
 }
 
 public enum PortTypes{
