@@ -48,6 +48,19 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private Task RemoveSubModuleFromConfig(SubModule subModule)
+    {
+        ConfigFile.subModules.Remove(subModule);
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private Task CopySubModule(SubModule subModule)
+    {
+        return ConfigFile.CopySubmodule(subModule);
+    }
+
+    [RelayCommand]
     private async Task GenerateSystem()
     {
         ConfigFile.Save();
