@@ -163,7 +163,7 @@ public partial class ConfigFile : ObservableObject
         }
     }
     
-    public async Task AddExternalModule()
+    public async Task AddSubModule()
     {
         var lifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
         var window = lifetime?.MainWindow;

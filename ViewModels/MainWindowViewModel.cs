@@ -42,9 +42,9 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private Task AddExternalModulesToConfig()
+    private Task AddSubModulesToConfig()
     {
-        return ConfigFile.AddExternalModule();
+        return ConfigFile.AddSubModule();
     }
 
     [RelayCommand]

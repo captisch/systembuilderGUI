@@ -97,7 +97,7 @@
                 </Grid>
             </DataTemplate>
             
-            <DataTemplate x:Key="ExternalModuleTemplate" DataType="models:SubModule">
+            <DataTemplate x:Key="SubModuleTemplate" DataType="models:SubModule">
                 <Expander Width="400"
                           Margin="3"
                           Padding="0">
@@ -239,7 +239,7 @@
                     <Button Content="Save"
                             Command="{Binding SaveConfigCommand}"/>
                     <Button Content="Add Ext. Module"
-                            Command="{Binding AddExternalModulesToConfigCommand}"/>
+                            Command="{Binding AddSubModulesToConfigCommand}"/>
                     <Button Content="Run SystemBuilder"
                             Command="{Binding GenerateSystemCommand}"></Button>
                 </StackPanel>
@@ -256,7 +256,7 @@
                         <ScrollViewer AllowAutoHide="True"
                                       Padding="0,0,10,0">
                             <ItemsControl ItemsSource="{Binding ConfigFile.subModules}"
-                                          ItemTemplate="{StaticResource ExternalModuleTemplate}"/>
+                                          ItemTemplate="{StaticResource SubModuleTemplate}"/>
                         </ScrollViewer>
                     </TabItem>
                 </TabControl>
