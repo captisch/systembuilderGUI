@@ -54,7 +54,7 @@ public partial class ConfigItem : ObservableObject
             case "OpenString":
                 if (string.IsNullOrWhiteSpace(entry) && !string.IsNullOrWhiteSpace(DefaultValue)) entry = DefaultValue;
                 return entry;
-            case "RestrictedString":
+            case "OptionList":
                 return entry;
             case "Integer":
                 if (int.TryParse(entry, NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out int intValue))
