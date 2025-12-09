@@ -94,6 +94,7 @@
   description   : Bus data width in bits
   type          : OptionList
   defaultValue  : 32
+  options       : [32, 64, 128, 256, 512]
   access        : True
 
 - name          : bus_address_width
