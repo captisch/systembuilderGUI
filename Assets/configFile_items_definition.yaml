@@ -85,14 +85,14 @@
 
 - name          : bus_standard
   description   : Bus standard
-  type          : RestrictedString
+  type          : OptionList
   defaultValue  : "wishbone"
-  options       : ["wishbone", "axi", "apb"]
+  options       : ["wishbone", "axi", "axi-lite"]
   access        : True
 
 - name          : bus_data_width
   description   : Bus data width in bits
-  type          : Integer
+  type          : OptionList
   defaultValue  : 32
   access        : True
 
@@ -116,14 +116,14 @@
 
 - name          : bus_interconnect
   description   : Bus interconnect
-  type          : RestrictedString
+  type          : OptionList
   defaultValue  : "shared"
   options       : ["shared", "crossbar"]
   access        : True
 
 - name          : cpu_type
   description   : CPU type
-  type          : RestrictedString
+  type          : OptionList
   defaultValue  : "vexriscv"
   options       : ["vexriscv", "picorv32"]
   access        : True
@@ -172,9 +172,9 @@
 
 - name          : csr_ordering
   description   : CSR ordering
-  type          : RestrictedString
+  type          : OptionList
   defaultValue  : "big"
-  options       : ["big", "small"]
+  options       : ["big", "little"]
   access        : True
 
 - name          : no_ident_version
@@ -191,7 +191,7 @@
 
 - name          : uart_name
   description   : UART name
-  type          : RestrictedString
+  type          : OptionList
   defaultValue  : "serial"
   options       : ["serial", "uart"]
   access        : True
