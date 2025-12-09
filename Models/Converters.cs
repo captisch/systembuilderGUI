@@ -3,7 +3,7 @@ using System.Globalization;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 
-namespace YamlProcessing.Converters;
+namespace systembuilderGUI.Converters;
 
 public sealed class StringToBoolConverter : IValueConverter
 {

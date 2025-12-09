@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace YamlProcessing.ViewModels;
+namespace systembuilderGUI.ViewModels;
 
 public class ViewModelBase : ObservableObject
 {

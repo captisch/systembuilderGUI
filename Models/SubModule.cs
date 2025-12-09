@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace YamlProcessing.Models;
+namespace systembuilderGUI.Models;
 
 public partial class SubModule : ObservableObject
 {

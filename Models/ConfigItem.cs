@@ -7,7 +7,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace YamlProcessing.Models;
+namespace systembuilderGUI.Models;
 
 enum ConfigItemTypes
 {

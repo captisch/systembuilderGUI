@@ -8,7 +8,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace YamlProcessing.Models;
+namespace systembuilderGUI.Models;
 
 public partial class ConfigFile : ObservableObject
 {

@@ -1,17 +1,17 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:YamlProcessing.ViewModels"
+        xmlns:vm="using:systembuilderGUI.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:models="clr-namespace:YamlProcessing.Models"
-        xmlns:t="using:YamlProcessing.Templates"
-        xmlns:conv="using:YamlProcessing.Converters"
+        xmlns:models="clr-namespace:systembuilderGUI.Models"
+        xmlns:t="using:systembuilderGUI.Templates"
+        xmlns:conv="using:systembuilderGUI.Converters"
         mc:Ignorable="d"
         Width="600" Height="600"
-        x:Class="YamlProcessing.Views.MainWindow"
+        x:Class="systembuilderGUI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="YamlProcessing">
+        Title="systembuilderGUI">
         
         <Window.Resources>
             <conv:StringToBoolConverter x:Key="StringToBoolConverter" />
@@ -37,8 +37,8 @@
                 </Grid>
             </DataTemplate>
 
-            <!-- Template für RestrictedString -->
-            <DataTemplate x:Key="RestrictedStringItemTemplate" DataType="models:ConfigItem">
+            <!-- Template für OptionList -->
+            <DataTemplate x:Key="OptionListItemTemplate" DataType="models:ConfigItem">
                 <Grid ColumnDefinitions="250,*" 
                       ColumnSpacing="8"
                       IsEnabled="{Binding Access}"
@@ -72,7 +72,8 @@
                             Content="Choose..."
                             Command="{Binding Path=$parent[Window].DataContext.ChooseOutputDirectoryOfConfigCommand}"
                             CommandParameter="{Binding .}"
-                            VerticalAlignment="Center"/>
+                            VerticalAlignment="Center"
+                            IsEnabled="False"/>
                     <TextBox Grid.Column="2"
                              Text="{Binding Value, Mode=TwoWay}"
                              VerticalAlignment="Center"/>
@@ -102,7 +103,7 @@
             
             <!-- Template für SubModule -->
             <DataTemplate x:Key="SubModuleTemplate" DataType="models:SubModule">
-                <Expander Width="500"
+                <Expander Width="550"
                           Margin="3"
                           Padding="0">
                     <Expander.Header>
@@ -213,9 +214,6 @@
                             </StackPanel>
                         </Expander>
                         
-                        
-                        
-                        
                         <Grid ColumnDefinitions="Auto,*"
                               Background="DimGray"
                               >
@@ -249,7 +247,7 @@
                 x:Key="ConfigItemTemplateSelector"
                 OpenStringTemplate="{StaticResource OpenStringItemTemplate}"
                 BooleanTemplate="{StaticResource BooleanItemTemplate}"
-                RestrictedStringTemplate="{StaticResource RestrictedStringItemTemplate}"
+                OptionListTemplate="{StaticResource OptionListItemTemplate}"
                 IntegerTemplate="{StaticResource IntegerItemTemplate}"
                 FilePathTemplate="{StaticResource FilePathTemplate}"
                 DefaultTemplate="{StaticResource DefaultItemTemplate}" />

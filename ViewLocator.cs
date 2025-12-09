@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using YamlProcessing.ViewModels;
+using systembuilderGUI.ViewModels;
 
-namespace YamlProcessing;
+namespace systembuilderGUI;
 
 public class ViewLocator : IDataTemplate
 {

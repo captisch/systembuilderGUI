@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace YamlProcessing.Models;
+namespace systembuilderGUI.Models;
 
 public class Module
 {

@@ -10,11 +10,11 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using systembuilderGUI.Models;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization.NamingConventions;
-using YamlProcessing.Models;
 
-namespace YamlProcessing.ViewModels;
+namespace systembuilderGUI.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {

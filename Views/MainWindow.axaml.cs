@@ -2,9 +2,9 @@ using System;
 using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using YamlProcessing.Models;
+using systembuilderGUI.Models;
 
-namespace YamlProcessing.Views;
+namespace systembuilderGUI.Views;
 
 public partial class MainWindow : Window
 {

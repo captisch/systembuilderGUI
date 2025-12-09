@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace YamlProcessing.Models;
+namespace systembuilderGUI.Models;
 
 public class WSL
 {

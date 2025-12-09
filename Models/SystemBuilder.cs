@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using YamlProcessing.ViewModels;
+using systembuilderGUI.ViewModels;
 
-namespace YamlProcessing.Models;
+namespace systembuilderGUI.Models;
 
 public class SystemBuilder
 {

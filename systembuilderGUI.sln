@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YamlProcessing", "YamlProcessing.csproj", "{5BAC3810-CB50-415D-8332-ADDA99619D61}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "systembuilderGUI", "systembuilderGUI.csproj", "{5BAC3810-CB50-415D-8332-ADDA99619D61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
