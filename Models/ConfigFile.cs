@@ -41,16 +41,6 @@ public partial class ConfigFile : ObservableObject
             if (string.IsNullOrWhiteSpace(item.Value) && !string.IsNullOrWhiteSpace(item.DefaultValue))
                 item.Value = item.DefaultValue;
         }
-
-
-        foreach (var item in items)
-        {
-            Console.WriteLine($"Name: {item.Name}, Description: {item.Description}, Access: {item.Access}");
-            foreach (var option in item.options)
-            {
-                Console.WriteLine($"   {option}");
-            }
-        }
     }
 
     private string indentBy(int level)
