@@ -45,9 +45,11 @@
                       Margin="2">
                     <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
                     <ComboBox Grid.Column="1"
+                              HorizontalAlignment="Stretch"
                               ItemsSource="{Binding options}"
                               SelectedItem="{Binding Value, Mode=TwoWay}"
-                              VerticalAlignment="Center"/>
+                              VerticalAlignment="Center"
+                              />
                 </Grid>
             </DataTemplate>
             
