@@ -1,0 +1,11 @@
+- User Input Validation
+	|-> See MVVM sample (ObservableVallidator)
+
+- Refactoring
+	
+
+- Status bar
+	|-> Notifications on Errors, Process, etc
+	
+- Save / Load config files
+

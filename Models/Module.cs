@@ -55,7 +55,7 @@ public partial class Port : ObservableObject
     [ObservableProperty] private PortDirections direction;
     [ObservableProperty] private PortTypes type;
     [ObservableProperty] private bool signed;
-    [ObservableProperty] private string width;
+    [ObservableProperty] private string? width;
     [ObservableProperty] private string? name;
     [ObservableProperty] private bool routeToTopmodule = true;
 }
