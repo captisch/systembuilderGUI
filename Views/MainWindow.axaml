@@ -76,9 +76,13 @@
                             CommandParameter="{Binding .}"
                             VerticalAlignment="Center"
                             IsEnabled="False"/>
+                    
+                    <!-- Deaktiviert für WSL workaround -->
                     <TextBox Grid.Column="2"
+                             IsEnabled="False" 
                              Text="{Binding Value, Mode=TwoWay}"
                              VerticalAlignment="Center"/>
+                    
                 </Grid>
             </DataTemplate>
             

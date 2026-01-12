@@ -7,9 +7,11 @@ namespace systembuilderGUI.Models;
 
 public class SystemBuilder
 {
-    public int call(string? pathToConfig)
+    public int call(string? pathToConfig, string? SOCName)
     {
-        var wslPath = WSL.BuildWslPath(pathToConfig);
+        var wslPathToConfig = WSL.BuildWslPath(pathToConfig);
+        
+        if (string.IsNullOrWhiteSpace(wslPathToConfig)) return -1;
         
         var psi = new ProcessStartInfo()
         {
@@ -26,20 +28,23 @@ public class SystemBuilder
             
             FileName = "wsl.exe",
             Arguments = "cd ~/liteX\n" +                                // Path to LiteX directory
-                        $"cp {wslPath} configFile_output.yaml\n" +      // Copy config file to LiteX directory
+                        $"cp {wslPathToConfig} configFile_demo_soc.yaml\n" +      // Copy config file to LiteX directory
                         "source venv/bin/activate\n" +                  // Activate virtual environment
                         "python3 SystemBuilder/LiteX-related/Python/litex_generator.py\n" + // Run LiteX generator
-                        "\nread -p \"Press enter to continue...\" x",   // Wait for user input
+                        $"cp -r build/{SOCName} /mnt/c/fentwumsGUI/systembuilderOutput/\n",
             UseShellExecute = true,
             CreateNoWindow = false
         };
 
         try
         {
-            using var process = Process.Start(psi);
-            if (process is null) return -1;
-            process.WaitForExit();
-            return process.ExitCode;
+            using (var process = Process.Start(psi))
+            {
+                if (process is null) return -1;
+                process.WaitForExit();
+                return process.ExitCode;
+            }
+            
         }
         catch ( Exception ex)
         {

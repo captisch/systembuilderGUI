@@ -98,6 +98,12 @@ public partial class ConfigFile : ObservableObject
         return items.FirstOrDefault(item => item.Name == name);
     }
 
+    public string? GetSOCName()
+    {
+        var nameItem = FindItemByName("Name");
+        return nameItem?.Value;
+    }
+
     
     public Task Save()
     {
@@ -107,7 +113,7 @@ public partial class ConfigFile : ObservableObject
         if (nameItem is null)
             return Task.CompletedTask;
 
-        string saveFilePath = Path.Combine(rootPath, "fentwumsGUI", "systembuilder", $"configFile_{nameItem.Value}.yaml");
+        string saveFilePath = Path.Combine(rootPath, "fentwumsGUI", "configFiles", $"configFile_{nameItem.Value}.yaml");
         
         OutputPath = saveFilePath;
 
