@@ -30,7 +30,8 @@ public class Module
                     Signed = p.Signed,
                     Width = p.Width,
                     Name = p.Name,
-                    RouteToTopmodule = p.RouteToTopmodule
+                    RouteToSOC = p.RouteToSOC
+                    ,RouteToWrapper = p.RouteToWrapper
                 })
                 .ToList()
         };
@@ -55,9 +56,10 @@ public partial class Port : ObservableObject
     [ObservableProperty] private PortDirections direction;
     [ObservableProperty] private PortTypes type;
     [ObservableProperty] private bool signed;
-    [ObservableProperty] private string width;
+    [ObservableProperty] private string? width;
     [ObservableProperty] private string? name;
-    [ObservableProperty] private bool routeToTopmodule = true;
+    [ObservableProperty] private bool routeToSOC = true;
+    [ObservableProperty] private bool routeToWrapper = true;
 }
 
 public partial class Parameter : ObservableObject

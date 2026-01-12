@@ -76,22 +76,39 @@
                             CommandParameter="{Binding .}"
                             VerticalAlignment="Center"
                             IsEnabled="False"/>
+                    
+                    <!-- Deaktiviert für WSL workaround -->
                     <TextBox Grid.Column="2"
+                             IsEnabled="False" 
                              Text="{Binding Value, Mode=TwoWay}"
                              VerticalAlignment="Center"/>
+                    
                 </Grid>
             </DataTemplate>
             
             <!-- Template für Moduleports -->
             <DataTemplate x:Key="PortTemplate" DataType="models:Port">
-                <Grid ColumnDefinitions="*,*,*,*,Auto" Margin="2">
-                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="{Binding Direction}"/>
-                    <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="{Binding Type}"/>
-                    <TextBlock Grid.Column="2" HorizontalAlignment="Center" Text="{Binding Width}"/>
-                    <TextBlock Grid.Column="3" HorizontalAlignment="Center" Text="{Binding Name}"/>
-                    <CheckBox Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,5,0"
-                              IsChecked="{Binding RouteToTopmodule}" 
+                <Grid Name="PortTemplateGrid"
+                      Margin="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75" />
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition SharedSizeGroup="PortWidth" />
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="75" />
+                        <ColumnDefinition Width="75" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" Text="{Binding Direction}"/>
+                    <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" Text="{Binding Type}"/>
+                    <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" Text="{Binding Width}"/>
+                    <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" Text="{Binding Name}" TextWrapping="Wrap"/>
+                    <CheckBox Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,-4" Padding="0"
+                              IsChecked="{Binding RouteToSOC}" 
                               IsVisible="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"></CheckBox>
+                    <CheckBox Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,-4" Padding="0"
+                              IsChecked="{Binding RouteToWrapper}" 
+                              IsVisible="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"></CheckBox>
+                    
                 </Grid>
             </DataTemplate>
             
@@ -200,15 +217,25 @@
                                     </StackPanel>
                                 </TextBlock>
                             </Expander.Header>
-                            <StackPanel>
-                                <Grid ColumnDefinitions="*,*,*,*,Auto" 
+                            <StackPanel Grid.IsSharedSizeScope="True">
+                                <Grid Name="PortHeaderGrid"
                                       Margin="2,5"
                                       Background="CadetBlue">
-                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="direction"/>
-                                    <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="type"/>
-                                    <TextBlock Grid.Column="2" HorizontalAlignment="Center" Text="width"/>
-                                    <TextBlock Grid.Column="3" HorizontalAlignment="Center" Text="name"/>
-                                    <TextBlock Grid.Column="4" HorizontalAlignment="Center" Text="Route"
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="75" />
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition SharedSizeGroup="PortWidth" />
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="75" />
+                                        <ColumnDefinition Width="75" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="direction" />
+                                    <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="type"/>
+                                    <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="width"/>
+                                    <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="name"/>
+                                    <TextBlock Grid.Column="4" Margin="4,2" HorizontalAlignment="Center" Text="Route to SOC" TextWrapping="Wrap" TextAlignment="Center"
+                                               IsVisible="{Binding IsExternalModule}"/>
+                                    <TextBlock Grid.Column="5" Margin="4,2" HorizontalAlignment="Center" Text="Route to Wrapper" TextWrapping="Wrap" TextAlignment="Center"
                                                IsVisible="{Binding IsExternalModule}"/>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding Module.Ports}"

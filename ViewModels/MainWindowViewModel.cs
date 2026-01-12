@@ -64,7 +64,9 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task GenerateSystem()
     {
         ConfigFile.Save();
+
+        string? socName = ConfigFile.GetSOCName();
         
-        systemBuilder.call(ConfigFile.OutputPath);
+        systemBuilder.call(ConfigFile.OutputPath, socName);
     }
 }

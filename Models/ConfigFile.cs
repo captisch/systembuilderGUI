@@ -74,7 +74,7 @@ public partial class ConfigFile : ObservableObject
             yml += $"{indentBy(2)}\"ports\": {{\n";
             foreach (var (index_port, port) in module.Module.Ports.Index())
             {
-                if (!port.RouteToTopmodule) continue;
+                if (!port.RouteToSOC) continue;
                 yml += $"{indentBy(3)}\"port{index_port}\": {{\n";
                 yml += $"{indentBy(4)}\"name\": \"{port.Name}\",\n";
                 var direction = port.Direction.ToString().ToLower() == "input" ? "in" : 
@@ -98,6 +98,12 @@ public partial class ConfigFile : ObservableObject
         return items.FirstOrDefault(item => item.Name == name);
     }
 
+    public string? GetSOCName()
+    {
+        var nameItem = FindItemByName("Name");
+        return nameItem?.Value;
+    }
+
     
     public Task Save()
     {
@@ -107,7 +113,7 @@ public partial class ConfigFile : ObservableObject
         if (nameItem is null)
             return Task.CompletedTask;
 
-        string saveFilePath = Path.Combine(rootPath, "fentwumsGUI", "systembuilder", $"configFile_{nameItem.Value}.yaml");
+        string saveFilePath = Path.Combine(rootPath, "fentwumsGUI", "configFiles", $"configFile_{nameItem.Value}.yaml");
         
         OutputPath = saveFilePath;
 
