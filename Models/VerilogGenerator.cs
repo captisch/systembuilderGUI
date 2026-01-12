@@ -47,18 +47,17 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         
         //TopModule shall not have Parameters
         AddParams(outputPath, TopModule.Parameters);
-        AddPorts(outputPath, TopModule.Inputs, TopModule.Outputs, TopModule.TriStates);
+        AddPorts(outputPath, TopModule.Ports);
         AddWires(outputPath, ConWires);
         
         foreach (Instance currentInstance in Instances)
         {
-            Console.WriteLine("What happens here?");
             AddModuleInstance(outputPath, currentInstance);
         }
     }
     
     //auxiliary methods for organization
-    static void AddParams(string outputPath, List<ModuleParam> parameters)
+    static void AddParams(string outputPath, List<Parameter> parameters)
     {
         using StreamWriter sw = File.AppendText(outputPath);
         //going through all params, last line is different (no ',' at the end)
@@ -76,132 +75,70 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         //when reusing for instantiation, instance name goes between the brackets!
     }
 
-    static void AddPorts(string outputPath, List<Port> inputs, List<Port> outputs, List<Port> triStates)
+    static void AddPorts(string outputPath, List<Port> ports)
     {
         //this method shall add the I/O to the top module
         //It assumes that the previous steps of the module declaration have been added before
         
         using StreamWriter sw = File.AppendText(outputPath);
-        int numberOfInputs = inputs.Count;
-        int numberOfOutputs = outputs.Count;
-        int numberOfTriStates = triStates.Count;
-        int numberOfPorts = numberOfInputs + numberOfOutputs + numberOfTriStates;
+        int numberOfPorts = ports.Count;
+        int portsDone = 0;
         if (numberOfPorts == 0)
         {
             Console.WriteLine("No ports set for top module!");
             return;
         }
-        if (numberOfInputs > 0)
+        
+        //This just writes out the ports in the order they're stored in Topmodule.Ports
+        //TODO: Maybe add sorting of ports by direction before writing?
+        foreach (Port port in ports)
         {
-            int repetitions = numberOfInputs - 1;   //
-            bool lastPortIsInput = false;
+            //This ensures the comma is left out for the last port declaration
+            string lineEnd = portsDone == numberOfPorts - 1 ? "" : ",";
             
-            if (numberOfInputs < numberOfPorts)
+            switch (port.Direction)
             {
-                repetitions += 1;
+                case PortDirections.input:
+                    if (port.Width == "1")
+                    {
+                        sw.WriteLine(" \tinput " + port.Name + "{0}", lineEnd);
+                    }
+                    else
+                    {
+                        sw.WriteLine(" \tinput " + port.Width + " " + port.Name+ "{0}",  lineEnd);
+                    }
+                    break;
+                case PortDirections.output:
+                    if (port.Width == "1")
+                    {
+                        sw.WriteLine(" \toutput " + port.Name + "{0}",  lineEnd);
+                    }
+                    else
+                    {
+                        sw.WriteLine(" \toutput " + port.Width + " " + port.Name+ "{0}", lineEnd);
+                    }
+                    break;
+                case PortDirections.inout:
+                    if (port.Width == "1")
+                    {
+                        sw.WriteLine(" \tinout " + port.Name + "{0}",  lineEnd);
+                    }
+                    else
+                    {
+                        sw.WriteLine(" \tinout " + port.Width + " " + port.Name+ "{0}", lineEnd);
+                    }
+                    break;
+                default:
+                    //TODO: Add proper error handling?
+                    Console.WriteLine("Port with no direction? At this time of year, " +
+                                      "at this time of day, " +
+                                      "in this part of the country," +
+                                      "localized entirely within your top module definition!?");
+                    return;
             }
-            else
-            {
-                lastPortIsInput = true;
-                Console.WriteLine("Last port should be input");
-            }
-            for (int i = 0; i < repetitions; i++)
-            {
-                if (inputs[i].Size == 1)
-                {
-                    sw.WriteLine(" \tinput " + inputs[i].Name + ",");
-                }
-                else
-                {
-                    sw.WriteLine(" \tinput " + "[" + (inputs[i].Size - 1) +":0] " + inputs[i].Name+ ",");
-                }
-            }
-
-            if (lastPortIsInput)
-            {
-                if (inputs[repetitions].Size == 1)
-                {
-                    sw.WriteLine(" \tinput " + inputs[repetitions].Name);
-                }
-                else
-                {
-                    sw.WriteLine(" \tinput " + "[" + (inputs[repetitions].Size - 1) +":0] " + inputs[repetitions].Name);
-                    
-                }
-                sw.WriteLine(");");
-                return;
-            }
-            Console.WriteLine("Reached end of inputs. Last port is not input.");
+            portsDone++;
         }
-
-        if (numberOfOutputs > 0)
-        {
-            int repetitions = numberOfOutputs - 1;   //
-            bool lastPortIsOutput = false;
-            
-            if (numberOfTriStates > 0)
-            {
-                repetitions += 1;
-            }
-            else
-            {
-                lastPortIsOutput = true; 
-                Console.WriteLine("Last port should be output.");
-            }
-            for (int i = 0; i < repetitions; i++)
-            {
-                if (outputs[i].Size == 1)
-                {
-                    sw.WriteLine(" \toutput " + outputs[i].Name + ",");
-                }
-                else
-                {
-                    sw.WriteLine(" \toutput " + "[" + (outputs[i].Size - 1) +":0] " + outputs[i].Name+ ",");
-                }
-            }
-            if (lastPortIsOutput)
-            {
-                Console.WriteLine("Last port is output.");
-                if (outputs[repetitions].Size == 1)
-                {
-                    sw.WriteLine(" \toutput " + outputs[repetitions].Name);
-                }
-                else
-                {
-                    sw.WriteLine(" \toutput " + "[" + (outputs[repetitions].Size - 1) +":0] " + outputs[repetitions].Name);
-                }
-                sw.WriteLine(");");
-                return;
-            }
-        }
-        Console.WriteLine("Last port should be tristate.");
-        if (numberOfTriStates > 0)
-        {
-            int repetitions = numberOfTriStates - 1;
-            for (int i = 0; i < repetitions; i++)
-            {
-                if (triStates[i].Size == 1)
-                {
-                    sw.WriteLine(" \tinout " + triStates[i].Name + ",");
-                }
-                else
-                {
-                    sw.WriteLine(" \tinout " + "[" + (triStates[i].Size - 1) +":0] " + triStates[i].Name+ ",");
-                }
-            }
-            if (triStates[repetitions].Size == 1)
-            {
-                sw.WriteLine(" \tinout " + triStates[repetitions].Name);
-            }
-            else
-            {
-                sw.WriteLine(" \tinout " + "[" + (triStates[repetitions].Size - 1) +":0] " + triStates[repetitions].Name);
-                
-            }
-            sw.WriteLine(");");
-            return;
-        }
-        Console.WriteLine("Something went wrong here!");
+        sw.WriteLine(");");
     }
 
     static void AddWires(string outputPath, List<Wire> conWires)
@@ -221,40 +158,50 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
     {
         //this method adds a module instance to the output file
         using StreamWriter sw = File.AppendText(outputPath);
+        int index = 0;  
         
-        List<InstPort> instPorts = new List<InstPort>();
-        
-        foreach (InstPort inPort in currentInstance.GetInputPorts())
+        //style of instantiation depends on whether there are parameters
+        if (currentInstance.InstanceParams() != null)
         {
-            instPorts.Add(inPort);
+            sw.WriteLine("\n" + currentInstance.ModuleName() + " #(");
+            //do parameters stuff
+            foreach (Parameter currentParam in currentInstance.InstanceParams()!)
+            {
+                index++;
+                string lineEnd = index == currentInstance.InstanceParams()!.Count ? "" : ",";
+                sw.WriteLine("\t.{0}({1}){2}" , currentParam.Name, currentParam.Value, lineEnd);
+            }
+            sw.WriteLine(") {0} (", currentInstance.InstanceName());           
         }
-        foreach (InstPort outPort in currentInstance.GetOutputPorts())
+        else
         {
-            instPorts.Add(outPort);
+            sw.WriteLine("\n" + currentInstance.ModuleName() + " " + currentInstance.InstanceName() + "(");   
         }
-        foreach (InstPort triPort in currentInstance.GetTriStatePorts())
-        {
-            instPorts.Add(triPort);
-        }
-        
-        //start module instance with module name and instance name
-        sw.WriteLine("\n" + currentInstance.ModuleName() + " " + currentInstance.InstanceName() + "(");
-        //parameters are not supported in this version
-        Console.WriteLine(instPorts.Count);
-        int index = instPorts.Count -1; //reusing the variable for number of elements-1
         sw.Close();
-        for (int i = 0; i < index; i++)
-        { 
-            bool portVector = PortIsVector(instPorts[i]);
-            bool wireVector = WireIsVector(instPorts[i], ConWires);
-            AddInstancePort(outputPath, instPorts[i], portVector, wireVector, false);
-        }  
-        //Last port gets no comma
-        bool pVector = PortIsVector(instPorts[index]);
-        bool wVector = WireIsVector(instPorts[index], ConWires);
-        AddInstancePort(outputPath, instPorts[index], pVector, wVector, true);
+        
+        index = 0;    //reusing this variable
+        foreach (InstPort port in currentInstance.GetPorts())
+        {
+            index++;
+            bool isLast = (index == currentInstance.GetPorts().Count);
+            AddPortSimple(outputPath, port, isLast);
+        }
     }
 
+    static void AddPortSimple(string outputPath, InstPort instPort, bool isLast)
+    {
+        using StreamWriter sw = File.AppendText(outputPath);
+        
+        string lineEnd = isLast ? "\n);\n" : ",\n"; 
+        
+        sw.Write("\t.{0}({1}){2}", instPort.PortName, instPort.PinAtIndex(0).ConnectWire, lineEnd);
+    }
+    /*
+     * The following methods are relics from a slightly different concept, that was supposed to allow
+     * for individual pin assignments. Keeping them around for inspiration until it is decided whether
+     * that functionality is desired.
+     */
+    
     static void AddInstancePort(string outputPath, InstPort instPort, bool portIsVector, bool wireIsVector, bool isLast)
     {
         using StreamWriter sw = File.AppendText(outputPath);
@@ -282,14 +229,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
             }
         }
 
-        if (isLast)
-        {
-            sw.Write("\n);\n");
-        }
-        else
-        {
-            sw.Write(",\n");
-        }
+        sw.Write(isLast ? "\n);\n" : ",\n");
     }
 
     static bool PortIsVector(InstPort port)
@@ -315,7 +255,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
             }
             else
             {
-                Console.WriteLine("Couldn't find wire with that name. Something went wrong.");
+                Console.WriteLine("But my lord, there is no such wire!");
             }
         }
         return false;

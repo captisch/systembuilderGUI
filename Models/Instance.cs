@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Avalonia.Controls.Converters;
 
 namespace systembuilderGUI.Models;
 
@@ -17,18 +18,21 @@ public struct InstPort
     private int portSize;
     private PortDirections portDirection; 
     private Pin[] portPins;
+    private bool connectToSoC;
 
-    public InstPort(string portName, int portSize, PortDirections portDirection)
+    public InstPort(string portName, int portSize, PortDirections portDirection, bool connectSoC)
     {
         this.portName = portName;
         this.portSize = portSize;
         this.portDirection = portDirection;
         portPins = new Pin[this.portSize];
+        connectToSoC = connectSoC;
     }
     
     public string PortName => portName;
     public PortDirections PortDirection => portDirection;
     public int PortSize => portSize;
+    public bool ConnectToSoC => connectToSoC;
     public void SetConnect(string connectWire, int connectSideIndex, int portSideIndex)
     {
         //TODO: See if check for multiple drivers is relevant here?
@@ -53,7 +57,7 @@ public class Instance
 {
     private string _moduleName;
     private string _instanceName;
-    private List<Parameter> _instanceParams;
+    private List<Parameter>? _instanceParams;
     private List<InstPort> _ports;
     //Getters
     public List<InstPort> GetPorts()
@@ -71,9 +75,14 @@ public class Instance
         return _instanceName;
     }
 
+    public List<Parameter>? InstanceParams()
+    {
+        return _instanceParams;
+    }
+
     public int GetPortSize(string portName)
     {
-        int index = FindInput(portName);
+        int index = _ports.FindIndex(x => x.PortName == portName);
         if (index != -1)
         {
             return _ports[index].PortSize;
@@ -82,12 +91,12 @@ public class Instance
     }
     
     //Constructor
-    public Instance(Module baseModule, string instanceName)
+    public Instance(SubModule baseModule)
     {
-        _moduleName = baseModule.Name;
-        _instanceName = instanceName;
-        _instanceParams = baseModule.Parameters;
-        _ports = PortSetup(baseModule.Ports);
+        _moduleName = baseModule.Module.Name;
+        _instanceName = baseModule.Instance;
+        _instanceParams = baseModule.Module.Parameters;
+        _ports = PortSetup(baseModule.Module.Ports);
          
         /*Debug Code:.............................................................
         //TODO: Adapt to new structure if required
@@ -124,21 +133,47 @@ public class Instance
         }
         End of Debug Code............................................................*/
     }
-	
-
+    
     //miscellaneous methods
     /*TODO: Very important!
       Check if using the Wire objects directly like this works as intended. The idea is
       to set hasDriver to true, once an "output" type is connected
       I'm currently unsure how to handle Tristate (inout) types, but they should not have
-      the driver issue anyway.    
+      the driver issue anyway, at least as long as they're connected properly...    
     */
-    public void SetConnection(string portName, Wire conWire, int pinIndex, int wireIndex)
+
+    public void SetConnection(string portName, Wire conWire)
     {
-        //currently this methods assumes unique port names and does not check for illegal connections
+        /*
+         * NOTE: This method is currently only used for wrapper creation where other
+         * parts of the software should ensure that no driver conflicts exist.
+         * If there are plans to use this in other contexts, a check (using conWire.HasDriver)
+         * may be sensible to do here.
+         */
+        int portIndex = FindPort(portName);
+        if (portIndex != -1)
+        {
+            var port = _ports[portIndex];
+
+            for (int i = 0; i < port.PortSize; i++)
+            {
+                port.SetConnect(conWire.Name, i, i); 
+            }
+            _ports.RemoveAt(portIndex);
+            _ports.Insert(portIndex, port);
+        }
+    }
+    
+    /*
+     This method is currently an unused relic kept around for potential reactivation later on.
+     It can be used to connect individual Bits of ports and wires, if that is required.
+     
+     public void SetConnectionByIndex(string portName, Wire conWire, int pinIndex, int wireIndex)
+    {      
+        //this methods assumes unique port names and does not check for illegal connections
         int portIndex = FindPort(portName);
         
-        //Debug Code
+        Debug Code
         Console.WriteLine("looking for pin {0} of port {1}", pinIndex, portName);
         Console.WriteLine("Index in list of inputs:" + portIndex);
         //End of Debug Code
@@ -167,7 +202,7 @@ public class Instance
         }
         //In case Pin can't be found:
         Console.WriteLine("ERROR! Couldn't find requested Pin: " + portName);
-    }
+    }*/
 
     public void SetParameter(string parameterName, string value)
     {
@@ -300,7 +335,7 @@ public class Instance
                                          * valid Verilog as input.
                                          */
                                         Console.WriteLine("ERROR! Invalid Syntax. Token can't contain spaces.");
-                                        return 1;
+                                        return null;
                                     }
                                     else
                                     {
@@ -381,12 +416,6 @@ public class Instance
                                     postfix.Add(token);
                                     break;
                             }
-
-                            /*else
-                            {
-                                //everything that isn't covered by the previous checks should be an operand
-                                postfix.Add(token);
-                            }*/
                         }
 
                         //Pop remaining operators
@@ -468,7 +497,7 @@ public class Instance
                 }
             }
 
-            InstPort currentPort = new InstPort(modPort.Name, widthNum, modPort.Direction);
+            InstPort currentPort = new InstPort(modPort.Name, widthNum, modPort.Direction, modPort.RouteToTopmodule);
             ports.Add(currentPort);
             //Debug Message:
             Console.WriteLine("Added Port: " + currentPort.PortName + " with " + currentPort.PortSize + " Pins");
