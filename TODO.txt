@@ -3,9 +3,12 @@
 
 - Refactoring
 	
-
 - Status bar
-	|-> Notifications on Errors, Process, etc
+	|-> Notifications on Errors, Process, etc.
 	
 - Save / Load config files
 
+- WSL output nach Windows schieben
+
+- Submodule extra Haken für Wrapperrouting
+    - Route to SOC, Route to Wrapper

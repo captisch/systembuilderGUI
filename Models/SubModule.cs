@@ -21,7 +21,7 @@ public partial class SubModule : ObservableObject
         {
             foreach (var port in Module.Ports)
             {
-                port.RouteToTopmodule = true;
+                port.RouteToSOC = true;
             }
         }
     }
