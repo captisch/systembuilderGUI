@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -10,7 +12,7 @@ public class WrapperBuilder
     private ConfigFile configFile;
     private List<Instance> instanceList = new List<Instance>();
     private List<Wire> wireList = new List<Wire>();
-    private Module wrapperDefinition;
+    private Module? wrapperDefinition;
     
     /*
      * This class contains the methods to prepare the input of the input of the VerilogGenerator.
@@ -23,22 +25,20 @@ public class WrapperBuilder
         this.configFile = configFile;
     }
     
-    public void GenerateWrapper(string path)
+    public void GenerateWrapper(string outputPath)
     {
-        MakeWrapperDefinition();
+        //NOTE: Methods must be called in this order to work properly! 
         MakeInstances();
+        MakeWrapperDefinition();
         MakeWiring();
         VerilogGenerator generator = new VerilogGenerator(instanceList, wrapperDefinition, wireList);
-        generator.GenerateVerilog(path);
+        generator.GenerateVerilog(outputPath);
     }
 
     private void MakeWrapperDefinition()
     {
         /* This is used to create the top module definition for the wrapper.
          * It needs a name and port definitions but no parameters or logic.
-         * Currently, not all information is available in the SystemBuilder to determine
-         * all connections from the wrapper to other modules. This may be added in 
-         * later versions.
          */
         
         //Start by giving it a name
@@ -75,8 +75,11 @@ public class WrapperBuilder
         //now check for uart ports (same routine can be used for other SoC module ports)
         foreach (ConfigItem item in configFile.items)
         {
-            if (item is { Name: "no_uart", Value: "false" })
+            if (item is { Name: "no_uart", Value: "False" })    //note: False must be capitalized!
             {
+                //Debug:
+                Console.WriteLine("Found uart!");
+                
                 //This means the main SoC has a uart and we should make ports for that
                 wrapperPorts.Add(new Port
                 {
@@ -97,6 +100,42 @@ public class WrapperBuilder
                 wireList.Add(new Wire ("uart_rx", 1, true, true));
                 wireList.Add(new Wire ("uart_tx", 1, true, false));
             }
+        }
+        //Check the listed instances for connections to Wrapper
+        foreach (Instance instance in instanceList)
+        {
+            if (instance.InstanceName() == "main_soc")
+            {
+                //for now the SoC module is just skipped
+                //but I may find something to do here...
+            }
+            else
+            {
+                foreach (InstPort port in instance.GetPorts())
+                {
+                    if (port.ConnectToWrapper)
+                    {
+                        string width;
+                        if (port.PortSize == 1) width = "1";
+                        else width = "[" + (port.PortSize-1) + ":0]";
+                    
+                        string name = instance.InstanceName() + "_" + port.PortName;
+                        wrapperPorts.Add(new Port
+                        {
+                            Direction = port.PortDirection,
+                            Type = PortTypes.none,
+                            Width = width,
+                            Name = name,
+                            Signed = false
+                        });
+                        bool hasDriver = (port.PortDirection == PortDirections.output);
+                        Wire tempWire = new Wire(name, port.PortSize, true, hasDriver);
+                        wireList.Add(tempWire);
+                        instance.SetConnection(port.PortName, tempWire);
+                    }
+                }
+            }
+            
         }
         wrapperDefinition = new Module
         {
@@ -129,15 +168,22 @@ public class WrapperBuilder
         {
             if (item.Name == "name")
             {
+                //Debug:
+                Console.WriteLine("found SoC name!");
                 socName = item.Value;
                 break;
             }
         }
         
+        socFilePath = socFilePath + socName + ".v";
+        
         List<Module> modulesTemp = parser.ReadVerilog(socFilePath);
          
         foreach (Module module in modulesTemp)
         {
+            //Debug:
+            Console.WriteLine("Found module {0} in SoC file" ,module.Name);
+            
             if (module.Name == socName)
             {
                 SubModule tempSubMod = new SubModule()
@@ -146,7 +192,7 @@ public class WrapperBuilder
                     Source = null, //not used here, maybe in the future?
                     Filename = Path.GetFileName(socFilePath),
                     Instance = "main_soc",
-                };
+                }; 
                 Instance soc = new Instance(tempSubMod);
                 instanceList.Add(soc);
             }
@@ -157,7 +203,6 @@ public class WrapperBuilder
     {
         //This creates the wiring between the module instances
         //MakeTopModule and MakeInstances must be run before this.
-        
         foreach (Instance instance in instanceList)
         {
             if (instance.InstanceName() != "main_soc")

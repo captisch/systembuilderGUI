@@ -19,20 +19,23 @@ public struct InstPort
     private PortDirections portDirection; 
     private Pin[] portPins;
     private bool connectToSoC;
+    private bool connectToWrapper;
 
-    public InstPort(string portName, int portSize, PortDirections portDirection, bool connectSoC)
+    public InstPort(string portName, int portSize, PortDirections portDirection, bool connectSoC, bool connectWrapper)
     {
         this.portName = portName;
         this.portSize = portSize;
         this.portDirection = portDirection;
         portPins = new Pin[this.portSize];
         connectToSoC = connectSoC;
+        connectToWrapper = connectWrapper;
     }
     
     public string PortName => portName;
     public PortDirections PortDirection => portDirection;
     public int PortSize => portSize;
     public bool ConnectToSoC => connectToSoC;
+    public bool ConnectToWrapper => connectToWrapper;
     public void SetConnect(string connectWire, int connectSideIndex, int portSideIndex)
     {
         //TODO: See if check for multiple drivers is relevant here?
@@ -153,6 +156,17 @@ public class Instance
         int portIndex = FindPort(portName);
         if (portIndex != -1)
         {
+            //var port = _ports[portIndex];
+
+            for (int i = 0; i < _ports[portIndex].PortSize; i++)
+            {
+                _ports[portIndex].SetConnect(conWire.Name, i, i); 
+            }
+            //_ports.RemoveAt(portIndex);
+            //_ports.Insert(portIndex, port);
+        }
+        /*if (portIndex != -1)
+        {
             var port = _ports[portIndex];
 
             for (int i = 0; i < port.PortSize; i++)
@@ -161,7 +175,7 @@ public class Instance
             }
             _ports.RemoveAt(portIndex);
             _ports.Insert(portIndex, port);
-        }
+        }*/
     }
     
     /*
@@ -312,7 +326,7 @@ public class Instance
                                     tokens.Add(temp);
 
                                     //Debug Code:
-                                    Console.WriteLine("Saving Operator: {0}", temp);
+                                    //Console.WriteLine("Saving Operator: {0}", temp);
                                     break;
                                 case ' ':
                                     //this filters spaces and helps detect invalid syntax
@@ -377,11 +391,11 @@ public class Instance
                         tempNum = 0;
                         isNumber = false;
                         //Debug Message
-                        Console.WriteLine("Listing tokens:");
+                        //Console.WriteLine("Listing tokens:");
                         foreach (string token in tokens)
                         {
                             //Debug Message
-                            Console.WriteLine(token);
+                            //Console.WriteLine(token);
 
                             //length 1 is probably an operator so we check that first
                             switch (token)
@@ -430,7 +444,7 @@ public class Instance
                         foreach (string element in postfix)
                         {
                             //Debug Message
-                            Console.WriteLine(element);
+                            //Console.WriteLine(element);
 
                             switch (element)
                             {
@@ -488,16 +502,18 @@ public class Instance
                             }
                         }
 
-                        widthNum = valueStack.Pop();
+                        widthNum = valueStack.Pop() + 1;
                         
-                        //Debug Message:
+                        /*Debug Message:
                         int stacksize = valueStack.Count();
                         Console.WriteLine("Stack check! Size is: {0}", stacksize);
+                        */
                     }
                 }
             }
 
-            InstPort currentPort = new InstPort(modPort.Name, widthNum, modPort.Direction, modPort.RouteToTopmodule);
+            InstPort currentPort = new InstPort(modPort.Name, widthNum, modPort.Direction,
+                modPort.RouteToSOC, modPort.RouteToWrapper);
             ports.Add(currentPort);
             //Debug Message:
             Console.WriteLine("Added Port: " + currentPort.PortName + " with " + currentPort.PortSize + " Pins");

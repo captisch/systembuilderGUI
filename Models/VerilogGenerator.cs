@@ -57,11 +57,12 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
     }
     
     //auxiliary methods for organization
-    static void AddParams(string outputPath, List<Parameter> parameters)
+    static void AddParams(string outputPath, List<Parameter>? parameters)
     {
         using StreamWriter sw = File.AppendText(outputPath);
         //going through all params, last line is different (no ',' at the end)
-        int numberOfParams = parameters.Count;
+        int numberOfParams = 0;
+        if (parameters != null) numberOfParams = parameters.Count;
         if (numberOfParams > 0)
         {
             int i;  //declaring outside for loop, so I can use it for last line
@@ -149,7 +150,8 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         {
             if (wire.IsTop == false)
             {
-                sw.WriteLine("wire\t[" + (wire.Size-1) + ":0]\t" + wire.Name+ ";");    
+                if (wire.Size == 1) sw.WriteLine("wire\t" + wire.Name + ";");
+                else sw.WriteLine("wire\t[" + (wire.Size-1) + ":0]\t" + wire.Name + ";");    
             }
         } 
     }
