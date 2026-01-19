@@ -300,7 +300,7 @@
                             Spacing="8">
                     <Button Content="Save"
                             Command="{Binding SaveConfigCommand}"/>
-                    <Button Content="Add Ext. Module"
+                    <Button Content="Add Submodule"
                             Command="{Binding AddSubModulesToConfigCommand}"/>
                     <Button Content="Run SystemBuilder"
                             Command="{Binding GenerateSystemCommand}"></Button>
