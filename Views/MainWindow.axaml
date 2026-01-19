@@ -95,20 +95,26 @@
                         <ColumnDefinition Width="50" />
                         <ColumnDefinition SharedSizeGroup="PortWidth" />
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="75" />
-                        <ColumnDefinition Width="75" />
+                        <ColumnDefinition Width="175" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" Text="{Binding Direction}"/>
                     <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" Text="{Binding Type}"/>
                     <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" Text="{Binding Width}"/>
                     <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" Text="{Binding Name}" TextWrapping="Wrap"/>
-                    <CheckBox Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,-4" Padding="0"
-                              IsChecked="{Binding RouteToSOC}" 
-                              IsVisible="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"></CheckBox>
-                    <CheckBox Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,-4" Padding="0"
-                              IsChecked="{Binding RouteToWrapper}" 
-                              IsVisible="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"></CheckBox>
-                    
+                    <Grid Grid.Column="4" ColumnDefinitions="*,*,*">
+                        <RadioButton Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                                     GroupName="{Binding Name}"
+                                     IsChecked="{Binding RouteToSOC}"
+                                     IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+                        <RadioButton Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                                     GroupName="{Binding Name}"
+                                     IsChecked="{Binding RouteToWrapper}"
+                                     IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+                        <RadioButton Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                                     IsChecked="True"
+                                     GroupName="{Binding Name}"
+                                     IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+                    </Grid>
                 </Grid>
             </DataTemplate>
             
@@ -226,17 +232,20 @@
                                         <ColumnDefinition Width="50" />
                                         <ColumnDefinition SharedSizeGroup="PortWidth" />
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="75" />
-                                        <ColumnDefinition Width="75" />
+                                        <ColumnDefinition Width="175" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="direction" />
                                     <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="type"/>
                                     <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="width"/>
                                     <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="name"/>
-                                    <TextBlock Grid.Column="4" Margin="4,2" HorizontalAlignment="Center" Text="Route to SOC" TextWrapping="Wrap" TextAlignment="Center"
-                                               IsVisible="{Binding IsExternalModule}"/>
-                                    <TextBlock Grid.Column="5" Margin="4,2" HorizontalAlignment="Center" Text="Route to Wrapper" TextWrapping="Wrap" TextAlignment="Center"
-                                               IsVisible="{Binding IsExternalModule}"/>
+                                    <Grid Grid.Column="4" RowDefinitions="*,*" >
+                                        <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Route to"/>
+                                        <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
+                                            <TextBlock Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="SoC"/>
+                                            <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Wrapper"/>
+                                            <TextBlock Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Ignore"/>
+                                        </Grid>
+                                    </Grid>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding Module.Ports}"
                                               ItemTemplate="{StaticResource PortTemplate}"/>

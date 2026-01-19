@@ -58,8 +58,8 @@ public partial class Port : ObservableObject
     [ObservableProperty] private bool signed;
     [ObservableProperty] private string? width;
     [ObservableProperty] private string? name;
-    [ObservableProperty] private bool routeToSOC = true;
-    [ObservableProperty] private bool routeToWrapper = true;
+    [ObservableProperty] private bool routeToSOC = false;
+    [ObservableProperty] private bool routeToWrapper = false;
 }
 
 public partial class Parameter : ObservableObject
