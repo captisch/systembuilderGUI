@@ -82,7 +82,6 @@ public partial class ConfigFile : ObservableObject
                     port.Direction.ToString().ToLower() == "output" ? "out" :
                     port.Direction.ToString().ToLower();
                 yml += $"{indentBy(4)}\"direction\": \"{direction}\",\n";
-                //string test = helper.ParsePortSize(port.Width).ToString();
                 yml += $"{indentBy(4)}\"size\": {helper.ParsePortSize(port.Width)}\n";
                 yml += $"{indentBy(3)}}},\n";
             }
