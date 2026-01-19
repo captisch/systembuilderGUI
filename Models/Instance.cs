@@ -62,7 +62,7 @@ public class Instance
     private string _instanceName;
     private List<Parameter>? _instanceParams;
     private List<InstPort> _ports;
-    //Getters
+    
     public List<InstPort> GetPorts()
     {
         return _ports;
@@ -93,7 +93,6 @@ public class Instance
         return 0;
     }
     
-    //Constructor
     public Instance(SubModule baseModule)
     {
         _moduleName = baseModule.Module.Name;
@@ -231,6 +230,274 @@ public class Instance
         }
         Console.WriteLine("ERROR! Parameter doesn't exist!");
     }
+
+    public int ParsePortSize(string portSize)
+    {
+        string tempWidth = portSize;
+        int widthNum = 0;
+        //First step is to check if it's just "1"
+        if (tempWidth == "1")
+        {
+            widthNum = 1;
+            return widthNum;
+        }
+
+        char[] separators = ['[', ']', ':'];
+        string[] substrings = tempWidth.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+        if (substrings.Length != 2)
+        {
+            //For now this is just some debug messages and a null return
+            //Long-term it would probably be good to have actual error handling...
+            Console.WriteLine("ERROR: Invalid width format! There should be only 2 substrings.");
+            Console.WriteLine("These substrings have been identified:");
+            foreach (string sub in substrings)
+            {
+                Console.WriteLine(sub);
+            }
+            return 0;   //port of size 0 means error
+        }
+
+        //Again, we begin with the easy option (e.g. [7:0])
+        substrings[0] = substrings[0].Trim(); //remove white spaces
+        substrings[1] = substrings[1].Trim();
+        int tempNum = 0;
+        bool isNumber = int.TryParse(substrings[0], out tempNum);
+        if (isNumber)
+        {
+            widthNum = tempNum + 1;
+            isNumber = int.TryParse(substrings[1], out tempNum);
+            if (isNumber)
+            {
+                widthNum -= tempNum;
+            }
+            else
+            {
+                //I think it's not unreasonable to treat this unlikely case as an error for now
+                Console.WriteLine("ERROR! I don't know what you're trying here but this ain't it.");
+                return 0;
+            }
+        }
+        else
+        {
+            int index = 0;
+            List<string> tokens = new List<string>();
+            string temp = "";
+            var builder = new StringBuilder();
+            bool spaceFound = false;
+
+            while (index < substrings[0].Length)
+            {
+                //maybe I can rework this part so I check for proper syntax
+                //i.e. value,op,value,op
+                //if op,op appears throw error
+                //value, value can't occur, value can only be invalid 
+                switch (substrings[0][index])
+                {
+                    case '-':
+                    //break;
+                    case '+':
+                    //break;
+                    case '*':
+                    //break;
+                    case '/':
+                    case '(':
+                    //break;
+                    case ')':
+                        spaceFound = false;
+                        if (builder.Length > 0)
+                        {
+                            //Save previous characters to token an reset StringBuilder
+                            temp = builder.ToString();
+                            tokens.Add(temp);
+                            builder.Clear();
+                            Console.WriteLine("Saving Operand: {0}", temp);
+                        }
+
+                        //Saving current operator
+                        temp = substrings[0][index].ToString();
+                        tokens.Add(temp);
+
+                        //Debug Code:
+                        //Console.WriteLine("Saving Operator: {0}", temp);
+                        break;
+                    case ' ':
+                        //this filters spaces and helps detect invalid syntax
+                        if (builder.Length > 0)
+                        {
+                            spaceFound = true;
+                            //Save previous characters to token collection and reset StringBuilder
+                            temp = builder.ToString();
+                            tokens.Add(temp);
+                            builder.Clear();
+                        }
+
+                        break;
+                    default:
+                        if (spaceFound == true)
+                        {
+                            /*If a space was found after valid chars, the next char must be
+                                     * space or operator. Otherwise it's invalid syntax.
+                                     * I think even this check might be overdoing it, as we expect
+                                     * valid Verilog as input.
+                                     */
+                            Console.WriteLine("ERROR! Invalid Syntax. Token can't contain spaces.");
+                            return 0;
+                        }
+                        Console.WriteLine(index);
+                        builder.Append(substrings[0][index]);
+                        break;
+                }
+                index++;
+            }
+
+            //Save last token to collection
+            if (builder.Length > 0)
+            {
+                temp = builder.ToString();
+                tokens.Add(temp);
+            }
+
+            //This should give me a "tokenized" version of the first part of the [x:y] expression
+            //with all spaces removed.
+            //Now I can reorder them to postfix, then do the numbers
+
+            Stack<string> opStack = new Stack<string>();
+            List<string> postfix = new List<string>();
+
+            static int prec(string c)
+            {
+                if (c == "/" || c == "*")
+                    return 2;
+                if (c == "+" || c == "-")
+                    return 1;
+                return -1;
+            }
+
+            //reset variables for reuse here, probably redundant but better safe than sorry
+            tempNum = 0;
+            isNumber = false;
+            //Debug Message
+            //Console.WriteLine("Listing tokens:");
+            foreach (string token in tokens)
+            {
+                //Debug Message
+                //Console.WriteLine(token);
+
+                //length 1 is probably an operator so we check that first
+                switch (token)
+                {
+                    case "+":
+                    //break;
+                    case "-":
+                    //break;
+                    case "*":
+                    //break;
+                    case "/":
+                        while (opStack.Count > 0 && opStack.Peek() != "(" &&
+                               prec(opStack.Peek()) >= prec(token))
+                        {
+                            postfix.Add(opStack.Pop());
+                        }
+
+                        opStack.Push(token);
+                        break;
+                    case "(":
+                        opStack.Push("(");
+                        break;
+                    case ")":
+                        while (opStack.Count > 0 && opStack.Peek() != "(")
+                        {
+                            postfix.Add(opStack.Pop());
+                        }
+
+                        opStack.Pop(); //remove "(" from stack
+                        break;
+                    default:
+                        postfix.Add(token);
+                        break;
+                }
+            }
+
+            //Pop remaining operators
+            while (opStack.Count > 0)
+            {
+                postfix.Add(opStack.Pop());
+            }
+
+            //now I need a postfix calculator that also handles the parameter conversion...
+            Stack<int> valueStack = new Stack<int>();
+
+            foreach (string element in postfix)
+            {
+                //Debug Message
+                //Console.WriteLine(element);
+
+                switch (element)
+                {
+                    case "+":
+                        //TODO: maybe add a little error handling here?
+                        tempNum = valueStack.Pop() + valueStack.Pop();
+                        valueStack.Push(tempNum);
+                        break;
+                    case "-":
+                        //Not sure if I'm getting the order of operands correctly here...
+                        tempNum = valueStack.Pop();
+                        valueStack.Push(valueStack.Pop() - tempNum);
+                        break;
+                    case "*":
+                        tempNum = valueStack.Pop() * valueStack.Pop();
+                        valueStack.Push(tempNum);
+                        break;
+                    case "/":
+                        tempNum = valueStack.Pop();
+                        valueStack.Push(valueStack.Pop() / tempNum);
+                        break;
+                    default:
+                        tempNum = 0;
+                        isNumber = int.TryParse(element, out tempNum);
+                        if (isNumber)
+                        {
+                            valueStack.Push(tempNum);
+                        }
+                        else
+                        {
+                            //Now this is where the parameter values come in...
+                            bool paramFound = false;
+                            foreach (Parameter param in _instanceParams)
+                            {
+                                if (param.Name == element)
+                                {
+                                    //TODO: Maybe add some checks and not just assume it will work fine?
+                                    tempNum = int.Parse(param.Value);
+                                    paramFound = true;
+                                    break;
+                                }
+                            }
+
+                            if (!paramFound)
+                            {
+                                //TODO: Proper error message?
+                                Console.WriteLine("ERROR! Parameter '{0}' not found.", element);
+                            }
+                            else
+                            {
+                                valueStack.Push(tempNum);    
+                            }
+                        }
+                        break;
+                }
+            }
+
+            widthNum = valueStack.Pop() + 1;
+            /*Debug Message:
+                    int stacksize = valueStack.Count();
+                    Console.WriteLine("Stack check! Size is: {0}", stacksize);
+            */
+        }
+
+        return widthNum;
+    }
     
     private List<InstPort> PortSetup(List<Port> modulePorts)
     {
@@ -238,279 +505,7 @@ public class Instance
         foreach (Port modPort in modulePorts)
         {
             //convert "Width" string to integer:
-            string tempWidth = modPort.Width;
-            int widthNum = 0;
-            //First step is to check if it's just "1"
-            if (tempWidth == "1")
-            {
-                widthNum = 1;    
-            }
-            else
-            {
-                char[] separators = ['[', ']', ':'];
-                string[] substrings = tempWidth.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-
-                if (substrings.Length != 2)
-                {
-                    //For now this is just some debug messages and a null return
-                    //Long-term it would probably be good to have actual error handling...
-                    Console.WriteLine("ERROR: Invalid width format! There should be only 2 substrings.");
-                    Console.WriteLine("These substrings have been identified:");
-                    foreach (string sub in substrings)
-                    {
-                        Console.WriteLine(sub);
-                    }
-
-                    return null;
-                }
-                else
-                {
-                    //Again, we begin with the easy option (e.g. [7:0])
-                    substrings[0] = substrings[0].Trim(); //remove white spaces
-                    substrings[1] = substrings[1].Trim();
-                    int tempNum = 0;
-                    bool isNumber = int.TryParse(substrings[0], out tempNum);
-                    if (isNumber)
-                    {
-                        widthNum = tempNum + 1;
-                        isNumber = int.TryParse(substrings[1], out tempNum);
-                        if (isNumber)
-                        {
-                            widthNum -= tempNum;
-                        }
-                        else
-                        {
-                            //I think it's not unreasonable to treat this unlikely case as an error for now
-                            Console.WriteLine("ERROR! I don't know what you're trying here but this ain't it.");
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        int index = 0;
-                        List<string> tokens = new List<string>();
-                        string temp = "";
-                        var builder = new StringBuilder();
-                        bool spaceFound = false;
-
-                        while (index < substrings[0].Length)
-                        {
-                            //maybe I can rework this part so I check for proper syntax
-                            //i.e. value,op,value,op
-                            //if op,op appears throw error
-                            //value, value can't occur, value can only be invalid 
-                            switch (substrings[0][index])
-                            {
-                                case '-':
-                                //break;
-                                case '+':
-                                //break;
-                                case '*':
-                                //break;
-                                case '/':
-                                case '(':
-                                //break;
-                                case ')':
-                                    spaceFound = false;
-                                    if (builder.Length > 0)
-                                    {
-                                        //Save previous characters to token an reset StringBuilder
-                                        temp = builder.ToString();
-                                        tokens.Add(temp);
-                                        builder.Clear();
-                                        Console.WriteLine("Saving Operand: {0}", temp);
-                                    }
-
-                                    //Saving current operator
-                                    temp = substrings[0][index].ToString();
-                                    tokens.Add(temp);
-
-                                    //Debug Code:
-                                    //Console.WriteLine("Saving Operator: {0}", temp);
-                                    break;
-                                case ' ':
-                                    //this filters spaces and helps detect invalid syntax
-                                    if (builder.Length > 0)
-                                    {
-                                        spaceFound = true;
-                                        //Save previous characters to token collection and reset StringBuilder
-                                        temp = builder.ToString();
-                                        tokens.Add(temp);
-                                        builder.Clear();
-                                    }
-
-                                    break;
-                                default:
-                                    if (spaceFound == true)
-                                    {
-                                        /*If a space was found after valid chars, the next char must be
-                                         * space or operator. Otherwise it's invalid syntax.
-                                         * I think even this check might be overdoing it, as we expect
-                                         * valid Verilog as input.
-                                         */
-                                        Console.WriteLine("ERROR! Invalid Syntax. Token can't contain spaces.");
-                                        return null;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine(index);
-                                        builder.Append(substrings[0][index]);
-                                    }
-
-                                    break;
-                            }
-
-                            index++;
-                        }
-
-                        //Save last token to collection
-                        if (builder.Length > 0)
-                        {
-                            temp = builder.ToString();
-                            tokens.Add(temp);
-                        }
-
-                        //This should give me a "tokenized" version of the first part of the [x:y] expression
-                        //with all spaces removed.
-                        //Now I can reorder them to postfix, then do the numbers
-
-                        Stack<string> opStack = new Stack<string>();
-                        List<string> postfix = new List<string>();
-
-                        static int prec(string c)
-                        {
-                            if (c == "/" || c == "*")
-                                return 2;
-                            else if (c == "+" || c == "-")
-                                return 1;
-                            else
-                                return -1;
-                        }
-
-                        //reset variables for reuse here
-                        tempNum = 0;
-                        isNumber = false;
-                        //Debug Message
-                        //Console.WriteLine("Listing tokens:");
-                        foreach (string token in tokens)
-                        {
-                            //Debug Message
-                            //Console.WriteLine(token);
-
-                            //length 1 is probably an operator so we check that first
-                            switch (token)
-                            {
-                                case "+":
-                                //break;
-                                case "-":
-                                //break;
-                                case "*":
-                                //break;
-                                case "/":
-                                    while (opStack.Count > 0 && opStack.Peek() != "(" &&
-                                           prec(opStack.Peek()) >= prec(token))
-                                    {
-                                        postfix.Add(opStack.Pop());
-                                    }
-
-                                    opStack.Push(token);
-                                    break;
-                                case "(":
-                                    opStack.Push("(");
-                                    break;
-                                case ")":
-                                    while (opStack.Count > 0 && opStack.Peek() != "(")
-                                    {
-                                        postfix.Add(opStack.Pop());
-                                    }
-
-                                    opStack.Pop(); //remove "(" from stack
-                                    break;
-                                default:
-                                    postfix.Add(token);
-                                    break;
-                            }
-                        }
-
-                        //Pop remaining operators
-                        while (opStack.Count > 0)
-                        {
-                            postfix.Add(opStack.Pop());
-                        }
-
-                        //now I need a postfix calculator that also handles the parameter conversion...
-                        Stack<int> valueStack = new Stack<int>();
-
-                        foreach (string element in postfix)
-                        {
-                            //Debug Message
-                            //Console.WriteLine(element);
-
-                            switch (element)
-                            {
-                                case "+":
-                                    //TODO: maybe add a little error handling here?
-                                    tempNum = valueStack.Pop() + valueStack.Pop();
-                                    valueStack.Push(tempNum);
-                                    break;
-                                case "-":
-                                    //Not sure if I'm getting the order of operands correctly here...
-                                    tempNum = valueStack.Pop();
-                                    valueStack.Push(valueStack.Pop() - tempNum);
-                                    break;
-                                case "*":
-                                    tempNum = valueStack.Pop() * valueStack.Pop();
-                                    valueStack.Push(tempNum);
-                                    break;
-                                case "/":
-                                    tempNum = valueStack.Pop();
-                                    valueStack.Push(valueStack.Pop() / tempNum);
-                                    break;
-                                default:
-                                    tempNum = 0;
-                                    isNumber = int.TryParse(element, out tempNum);
-                                    if (isNumber)
-                                    {
-                                        valueStack.Push(tempNum);
-                                    }
-                                    else
-                                    {
-                                        //Now this is where the parameter values come in...
-                                        bool paramFound = false;
-                                        foreach (Parameter param in _instanceParams)
-                                        {
-                                            if (param.Name == element)
-                                            {
-                                                //TODO: Maybe add some checks and not just assume it will work fine?
-                                                tempNum = int.Parse(param.Value);
-                                                paramFound = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if (!paramFound)
-                                        {
-                                            //TODO: Proper error message?
-                                            Console.WriteLine("ERROR! Parameter '{0}' not found.", element);
-                                        }
-                                        else
-                                        {
-                                            valueStack.Push(tempNum);    
-                                        }
-                                    }
-                                    break;
-                            }
-                        }
-
-                        widthNum = valueStack.Pop() + 1;
-                        
-                        /*Debug Message:
-                        int stacksize = valueStack.Count();
-                        Console.WriteLine("Stack check! Size is: {0}", stacksize);
-                        */
-                    }
-                }
-            }
+            int widthNum = ParsePortSize(modPort.Width);
 
             InstPort currentPort = new InstPort(modPort.Name, widthNum, modPort.Direction,
                 modPort.RouteToSOC, modPort.RouteToWrapper);
