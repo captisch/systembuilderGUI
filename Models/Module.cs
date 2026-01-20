@@ -30,8 +30,9 @@ public class Module
                     Signed = p.Signed,
                     Width = p.Width,
                     Name = p.Name,
-                    RouteToSOC = p.RouteToSOC
-                    ,RouteToWrapper = p.RouteToWrapper
+                    RouteToSOC = p.RouteToSOC,
+                    RouteToWrapper = p.RouteToWrapper,
+                    NoRoute = p is { RouteToSOC: false, RouteToWrapper: false }
                 })
                 .ToList()
         };
@@ -60,6 +61,7 @@ public partial class Port : ObservableObject
     [ObservableProperty] private string? name;
     [ObservableProperty] private bool routeToSOC = false;
     [ObservableProperty] private bool routeToWrapper = false;
+    [ObservableProperty] private bool noRoute;
 }
 
 public partial class Parameter : ObservableObject
@@ -201,7 +203,8 @@ public class VerilogParser
                         Type = portType,
                         Width = portWidth,
                         Name = nameStr,
-                        Signed = isSigned
+                        Signed = isSigned,
+                        NoRoute = true
                     });
                 }
             }
