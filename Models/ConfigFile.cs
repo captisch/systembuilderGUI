@@ -60,6 +60,7 @@ public partial class ConfigFile : ObservableObject
 
         foreach (var (index, module) in subModules.Index())
         {
+            Instance helper = new Instance(module);
             yml += $"{indentBy(1)}\"ext_mod_{index}\":{{\n";
             var source = module.IsExternalModule ? "None" : $"{module.Filename}" ;
             yml += $"{indentBy(2)}\"source\": \"{source}\",\n";
@@ -81,7 +82,7 @@ public partial class ConfigFile : ObservableObject
                     port.Direction.ToString().ToLower() == "output" ? "out" :
                     port.Direction.ToString().ToLower();
                 yml += $"{indentBy(4)}\"direction\": \"{direction}\",\n";
-                yml += $"{indentBy(4)}\"size\": \"{port.Width}\"\n";
+                yml += $"{indentBy(4)}\"size\": {helper.ParsePortSize(port.Width)}\n";
                 yml += $"{indentBy(3)}}},\n";
             }
             yml += $"{indentBy(2)}}},\n";
