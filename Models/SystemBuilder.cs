@@ -1,15 +1,16 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using systembuilderGUI.ViewModels;
 
 namespace systembuilderGUI.Models;
 
 public class SystemBuilder
 {
-    public int call(string? pathToConfig, string? pathToDir)
+    public async Task call(string? pathToConfig, string? pathToDir)
     {
-        if (string.IsNullOrWhiteSpace(pathToConfig)) return -1;
+        if (string.IsNullOrWhiteSpace(pathToConfig)) return;
 
         var psi = new ProcessStartInfo()
         {
@@ -30,9 +31,10 @@ public class SystemBuilder
         {
             using (var process = Process.Start(psi))
             {
-                if (process is null) return -1;
+                if (process is null) return;
                 process.WaitForExit();
-                return process.ExitCode;
+                await Task.Delay(100);
+                //return process.ExitCode;
             }
 
         }
@@ -41,8 +43,6 @@ public class SystemBuilder
             Console.WriteLine(ex.Message);
             throw;
         }
-
-        return 0;
 
         /* old wsl version
         public int call(string? pathToConfig, string? SOCName)
