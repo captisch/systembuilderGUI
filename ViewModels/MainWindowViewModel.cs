@@ -67,6 +67,6 @@ public partial class MainWindowViewModel : ViewModelBase
 
         string? socName = ConfigFile.GetSOCName();
         
-        systemBuilder.call(ConfigFile.OutputPath, socName);
+        systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath);
     }
 }

@@ -20,8 +20,8 @@ public partial class ConfigFile : ObservableObject
     
     public ObservableCollection<SubModule> subModules { get; set; } = new();
     
-    [ObservableProperty]
-    private string? outputPath;
+    [ObservableProperty] private string? outputDirPath;
+    [ObservableProperty] private string? outputFilePath;
     
     private void loadItems()
     {
@@ -112,10 +112,12 @@ public partial class ConfigFile : ObservableObject
         var nameItem = FindItemByName("Name");
         if (nameItem is null)
             return Task.CompletedTask;
-
-        string saveFilePath = Path.Combine(rootPath, "fentwumsGUI", "configFiles", $"configFile_{nameItem.Value}.yaml");
         
-        OutputPath = saveFilePath;
+        string saveDirPath = Path.Combine(rootPath, "fentwumsGUI", nameItem.Value);
+        string saveFilePath = Path.Combine(saveDirPath, $"configFile_{nameItem.Value}.yaml");
+        
+        OutputDirPath = saveDirPath;
+        OutputFilePath = saveFilePath;
 
         if (!Directory.Exists(Path.GetDirectoryName(saveFilePath)))
         {
