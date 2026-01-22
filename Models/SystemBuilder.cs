@@ -15,7 +15,7 @@ public class SystemBuilder
         var psi = new ProcessStartInfo()
         {
             FileName = "docker",                                                // Docker executable
-            Arguments = "run --rm " +                                           // run docker container in non-interactive mode and remove it after execution
+            Arguments = "run " +                                           // run docker container in non-interactive mode and remove it after execution
                         $"-v {pathToConfig}:/litex/configFile_demo_soc.yaml " + // mount config file to docker container
                         $"-v {pathToDir}:/litex/build " +                       // mount build directory to docker container
                         "liteximg:latest " +                                    // used docker image

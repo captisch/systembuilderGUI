@@ -158,11 +158,7 @@ public class WrapperBuilder
         
         //Then add the SoC module created by LiteX
         VerilogParser parser = new VerilogParser();
-        string socName = "new_soc_design";   //initialize with default name
-        string socFilePath = @"C:\fentwumsGUI\systembuilderOutput\";    
-        /*
-         * socFilePath may not work entirely as intended, but let's see for now
-        */
+        var socName = "new_soc_design";   //initialize with default name
         
         foreach (ConfigItem item in configFile.items)
         {
@@ -174,8 +170,7 @@ public class WrapperBuilder
                 break;
             }
         }
-        
-        socFilePath = socFilePath + socName + ".v";
+        var socFilePath = Path.Combine(configFile.OutputDirPath, socName, "gateware", socName + ".v" );
         
         List<Module> modulesTemp = parser.ReadVerilog(socFilePath);
          
