@@ -78,7 +78,7 @@ public class WrapperBuilder
             if (item is { Name: "no_uart", Value: "False" })    //note: False must be capitalized!
             {
                 //Debug:
-                Console.WriteLine("Found uart!");
+                //Console.WriteLine("Found uart!");
                 
                 //This means the main SoC has a uart and we should make ports for that
                 wrapperPorts.Add(new Port
@@ -100,14 +100,189 @@ public class WrapperBuilder
                 wireList.Add(new Wire ("uart_rx", 1, true, true));
                 wireList.Add(new Wire ("uart_tx", 1, true, false));
             }
+
+            if (item is { Name: "soft_i2c", Value: "True" })
+            {
+                //NOTE: This does not work correctly if soft and hard i2c are present simultaneously!
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.inout,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "i2cmaster_sda",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("i2cmaster_sda", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.inout,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "i2cmaster_scl",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("i2cmaster_scl", 1, true, false));
+            }
+            if (item is { Name: "hard_i2c", Value: "True" })
+            {
+                //NOTE: This does not work correctly if soft and hard i2c are present simultaneously!
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.inout,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "i2cmaster_sda",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("i2cmaster_sda", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.inout,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "i2cmaster_scl",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("i2cmaster_scl", 1, true, false));
+            }
+            if (item is { Name: "soft_spi", Value: "True" })
+            {
+                //NOTE: This does not work correctly if soft and hard spi are present simultaneously!
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "spimaster_clk",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("spimaster_clk", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "spimaster_cs_n",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("spimaster_cs_n", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.input,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "spimaster_miso",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("spimaster_miso", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "spimaster_mosi",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("spimaster_mosi", 1, true, false));
+            }
+            if (item is { Name: "hard_spi", Value: "True" })
+            {
+                //NOTE: This does not work correctly if soft and hard i2c are present simultaneously!
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "spimaster_clk",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("spimaster_clk", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "spimaster_cs_n",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("spimaster_cs_n", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.input,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "spimaster_miso",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("spimaster_miso", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "spimaster_mosi",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("spimaster_mosi", 1, true, false));
+            }
+            if (item is { Name: "SDcard", Value: "True" })
+            {
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.input,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "sdcard_cd",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("sdcard_cd", 1, true, true));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "sdcard_clk",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("sdcard_clk", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.inout,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "sdcard_cmd",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("sdcard_cmd", 1, true, false));
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.inout,
+                    Type = PortTypes.none,
+                    Width = "[3:0]",
+                    Name = "sdcard_data",
+                    Signed = false
+                });
+                wireList.Add(new Wire ("sdcard_data", 4, true, false));
+            }
         }
         //Check the listed instances for connections to Wrapper
         foreach (Instance instance in instanceList)
         {
             if (instance.InstanceName() == "main_soc")
             {
-                //for now the SoC module is just skipped
-                //but I may find something to do here...
+                //skip the main_soc for now
+                //maybe useful later
             }
             else
             {
@@ -158,11 +333,7 @@ public class WrapperBuilder
         
         //Then add the SoC module created by LiteX
         VerilogParser parser = new VerilogParser();
-        string socName = "new_soc_design";   //initialize with default name
-        string socFilePath = @"C:\fentwumsGUI\systembuilderOutput\";    
-        /*
-         * socFilePath may not work entirely as intended, but let's see for now
-        */
+        var socName = "new_soc_design";   //initialize with default name
         
         foreach (ConfigItem item in configFile.items)
         {
@@ -174,8 +345,7 @@ public class WrapperBuilder
                 break;
             }
         }
-        
-        socFilePath = socFilePath + socName + ".v";
+        var socFilePath = Path.Combine(configFile.OutputDirPath, socName, "gateware", socName + ".v" );
         
         List<Module> modulesTemp = parser.ReadVerilog(socFilePath);
          

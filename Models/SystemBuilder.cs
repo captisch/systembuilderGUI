@@ -1,37 +1,28 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using systembuilderGUI.ViewModels;
 
 namespace systembuilderGUI.Models;
 
 public class SystemBuilder
 {
-    public int call(string? pathToConfig, string? SOCName)
+    public async Task call(string? pathToConfig, string? pathToDir)
     {
-        var wslPathToConfig = WSL.BuildWslPath(pathToConfig);
-        
-        if (string.IsNullOrWhiteSpace(wslPathToConfig)) return -1;
-        
+        if (string.IsNullOrWhiteSpace(pathToConfig)) return;
+
         var psi = new ProcessStartInfo()
         {
-            // wsl directory structure
-            // ~/  (home directory)
-            // |-- liteX/
-            // |   |-- SystemBuilder/
-            // |   |   |-- LiteX-related/
-            // |   |   |   |-- Python/
-            // |   |   |   |   |-- litex_generator.py
-            // |   |  
-            // |   |-- everthing litex related
-            // |   |-- venv
-            
-            FileName = "wsl.exe",
-            Arguments = "cd ~/liteX\n" +                                // Path to LiteX directory
-                        $"cp {wslPathToConfig} configFile_demo_soc.yaml\n" +      // Copy config file to LiteX directory
-                        "source .venv/bin/activate\n" +                  // Activate virtual environment
-                        "python3 SystemBuilder/LiteX-related/Python/litex_generator.py\n" + // Run LiteX generator
-                        $"cp -r build/{SOCName} /mnt/c/fentwumsGUI/systembuilderOutput/\n",
+            FileName = "docker",                                                // Docker executable
+            Arguments = "run --rm " +                                           // run docker container in non-interactive mode and remove it after execution
+                        $"-v {pathToConfig}:/litex/configFile_demo_soc.yaml " + // mount config file to docker container
+                        $"-v {pathToDir}:/litex/build " +                       // mount build directory to docker container
+                        "liteximg:latest " +                                    // used docker image
+                        "sh -c " +                                              // run command in shell
+                        "\". venv/bin/activate && " +                           // activate virtual environment
+                        "python3 litex_generator.py\"" +                        // run LiteX generator script
+                        "\n",                                                   // end of command, (very important!, may or may not took me half a day to figure out)
             UseShellExecute = true,
             CreateNoWindow = false
         };
@@ -40,18 +31,65 @@ public class SystemBuilder
         {
             using (var process = Process.Start(psi))
             {
-                if (process is null) return -1;
+                if (process is null) return;
                 process.WaitForExit();
-                return process.ExitCode;
+                await Task.Delay(100);
+                //return process.ExitCode;
             }
-            
+
         }
-        catch ( Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
             throw;
         }
-        return 0;
+
+        /* old wsl version
+        public int call(string? pathToConfig, string? SOCName)
+        {
+            var wslPathToConfig = WSL.BuildWslPath(pathToConfig);
+
+            if (string.IsNullOrWhiteSpace(wslPathToConfig)) return -1;
+
+            var psi = new ProcessStartInfo()
+            {
+                // wsl directory structure
+                // ~/  (home directory)
+                // |-- liteX/
+                // |   |-- SystemBuilder/
+                // |   |   |-- LiteX-related/
+                // |   |   |   |-- Python/
+                // |   |   |   |   |-- litex_generator.py
+                // |   |
+                // |   |-- everthing litex related
+                // |   |-- venv
+
+                FileName = "wsl.exe",
+                Arguments = "cd ~/liteX\n" +                                // Path to LiteX directory
+                            $"cp {wslPathToConfig} configFile_demo_soc.yaml\n" +      // Copy config file to LiteX directory
+                            "source venv/bin/activate\n" +                  // Activate virtual environment
+                            "python3 SystemBuilder/LiteX-related/Python/litex_generator.py\n" + // Run LiteX generator
+                            $"cp -r build/{SOCName} /mnt/c/fentwumsGUI/systembuilderOutput/\n",
+                UseShellExecute = true,
+                CreateNoWindow = false
+            };
+
+            try
+            {
+                using (var process = Process.Start(psi))
+                {
+                    if (process is null) return -1;
+                    process.WaitForExit();
+                    return process.ExitCode;
+                }
+
+            }
+            catch ( Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+            return 0;
+            */
     }
-    
 }

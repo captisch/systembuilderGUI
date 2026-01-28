@@ -67,9 +67,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
         string? socName = ConfigFile.GetSOCName();
         
-        systemBuilder.call(ConfigFile.OutputPath, socName);
-
+        await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath);
+        
         WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
-        wrapperBuilder.GenerateWrapper(@"C:\fentwumsGUI\systembuilderOutput\");
+        wrapperBuilder.GenerateWrapper(ConfigFile.OutputDirPath);
     }
 }

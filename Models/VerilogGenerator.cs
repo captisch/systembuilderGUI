@@ -24,7 +24,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
     
     public void GenerateVerilog(string targetDirectory)
     {
-        string outputPath = targetDirectory + TopModule.Name + ".v";
+        string outputPath = Path.Combine(targetDirectory, TopModule.Name + ".v");
 
         /*if (File.Exists(outputPath))
         {
