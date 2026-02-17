@@ -102,31 +102,31 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
                 case PortDirections.input:
                     if (port.Width == "1")
                     {
-                        sw.WriteLine(" \tinput " + port.Name + "{0}", lineEnd);
+                        sw.WriteLine(" \tinput\t\t\t" + port.Name + "{0}", lineEnd);
                     }
                     else
                     {
-                        sw.WriteLine(" \tinput " + port.Width + " " + port.Name+ "{0}",  lineEnd);
+                        sw.WriteLine(" \tinput  " + port.Width + "\t" + port.Name+ "{0}",  lineEnd);
                     }
                     break;
                 case PortDirections.output:
                     if (port.Width == "1")
                     {
-                        sw.WriteLine(" \toutput " + port.Name + "{0}",  lineEnd);
+                        sw.WriteLine(" \toutput\t\t\t" + port.Name + "{0}",  lineEnd);
                     }
                     else
                     {
-                        sw.WriteLine(" \toutput " + port.Width + " " + port.Name+ "{0}", lineEnd);
+                        sw.WriteLine(" \toutput " + port.Width + "\t" + port.Name+ "{0}", lineEnd);
                     }
                     break;
                 case PortDirections.inout:
                     if (port.Width == "1")
                     {
-                        sw.WriteLine(" \tinout " + port.Name + "{0}",  lineEnd);
+                        sw.WriteLine(" \tinout\t\t\t" + port.Name + "{0}",  lineEnd);
                     }
                     else
                     {
-                        sw.WriteLine(" \tinout " + port.Width + " " + port.Name+ "{0}", lineEnd);
+                        sw.WriteLine(" \tinout  " + port.Width + "\t" + port.Name+ "{0}", lineEnd);
                     }
                     break;
                 default:

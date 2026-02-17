@@ -71,10 +71,11 @@ public class WrapperBuilder
         //Adding "virtual" wires for the wrapper ports
         wireList.Add(new Wire ("clk", 1, true, true));
         wireList.Add(new Wire ("rst", 1, true, true));
-
-        //now check for uart ports (same routine can be used for other SoC module ports)
+        
+        //now check for non-submodule ports
         foreach (ConfigItem item in configFile.items)
         {
+            //TODO: Find a way to do this more elegantly, ideally with the info stored in a separate file
             if (item is { Name: "no_uart", Value: "False" })    //note: False must be capitalized!
             {
                 //Debug:
@@ -100,7 +101,8 @@ public class WrapperBuilder
                 wireList.Add(new Wire ("uart_rx", 1, true, true));
                 wireList.Add(new Wire ("uart_tx", 1, true, false));
             }
-
+            
+            //simple peripherals
             if (item is { Name: "soft_i2c", Value: "True" })
             {
                 //NOTE: This does not work correctly if soft and hard i2c are present simultaneously!
@@ -275,6 +277,154 @@ public class WrapperBuilder
                 });
                 wireList.Add(new Wire ("sdcard_data", 4, true, false));
             }
+            /*bus interfaces can be automatically connected to top level with this
+             but unfortunately I realized a little too late that's not very useful
+            if (item is { Name: "external_bus_master_interface", Value: "True" })
+            {
+                //first, check for bus specification
+                //string busStandard = "wishbone"; !!! currently only wishbone is supported !!!       
+                int busDataWidth = 32;      //initialize with default value
+                int busAddressWidth = 32;
+                int selectWidth = 8;
+                foreach (ConfigItem key in configFile.items)
+                {
+                    switch (key.Name)
+                    {
+                        //if  (key.Name == "bus_standard"){}    dummy for bus_standard
+                        case "bus_data_width":
+                            busDataWidth = int.Parse(key.Value);
+                            break;
+                        case "bus_address_width":
+                            busAddressWidth = int.Parse(key.Value);
+                            break;
+                    }
+                }
+
+                selectWidth = (busDataWidth / 8)-1; 
+                //Note: LiteX uses Python's floor division (sel_width = data_width // 8)
+                //With positive numbers, integer division works the same
+                
+                //create string for verilog size info in the shape "[width-1 : 0]"
+                busDataWidth -= 1;  
+                busAddressWidth -= 1;
+                string dataWidth = "[" + busDataWidth.ToString() + ":0]";
+                string addressWidth = "[" + busAddressWidth.ToString() + ":0]";
+                string selWidth = "[" + selectWidth.ToString() + ":0]";
+                //restore proper integer values for wire declaration later
+                selectWidth += 1;
+                busDataWidth += 1;
+                busAddressWidth += 1;
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.input,
+                    Type = PortTypes.none,
+                    Width = "1",
+                    Name = "mmap_bus_m_ack",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = addressWidth,
+                    Name = "mmap_bus_m_adr",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "[1:0]",    //width of bte is fixed at 2
+                    Name = "mmap_bus_m_bte",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "[2:0]",    //width of cti is fixed at 3
+                    Name = "mmap_bus_m_cti",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",    
+                    Name = "mmap_bus_m_cyc",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.input,
+                    Type = PortTypes.none,
+                    Width = dataWidth,    
+                    Name = "mmap_bus_m_dat_r",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = dataWidth,    
+                    Name = "mmap_bus_m_dat_w",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.input,
+                    Type = PortTypes.none,
+                    Width = "1",    
+                    Name = "mmap_bus_m_err",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = selWidth,    
+                    Name = "mmap_bus_m_sel",
+                    Signed = false
+                });
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",    
+                    Name = "mmap_bus_m_stb",
+                    Signed = false
+                });
+                
+                wrapperPorts.Add(new Port
+                {
+                    Direction = PortDirections.output,
+                    Type = PortTypes.none,
+                    Width = "1",    
+                    Name = "mmap_bus_m_we",
+                    Signed = false
+                });
+                
+                wireList.Add(new Wire ("mmap_bus_m_ack", 1, true, true));
+                wireList.Add(new Wire ("mmap_bus_m_adr", busAddressWidth , true, false));
+                wireList.Add(new Wire ("mmap_bus_m_bte", 2 , true, false));
+                wireList.Add(new Wire ("mmap_bus_m_cti", 3 , true, false));
+                wireList.Add(new Wire ("mmap_bus_m_cyc", 1 , true, false));
+                wireList.Add(new Wire ("mmap_bus_m_dat_r", busDataWidth, true, true));
+                wireList.Add(new Wire ("mmap_bus_m_dat_w", busDataWidth, true, false));
+                wireList.Add(new Wire ("mmap_bus_m_err", 1, true, true));
+                wireList.Add(new Wire ("mmap_bus_m_sel", selectWidth, true, false));
+                wireList.Add(new Wire ("mmap_bus_m_stb", 1 , true, false));
+                wireList.Add(new Wire ("mmap_bus_m_we", 1 , true, false));
+            }
+            
+            if (item is { Name: "external_bus_slave_interface", Value: "True" })
+            {
+                //analogous to "external_master_interface"
+                //but probably both are useless in most cases because this is only for the wrapper ports and
+                //usually this bus doesn't go outside the FPGA...
+            }
+            */
         }
         //Check the listed instances for connections to Wrapper
         foreach (Instance instance in instanceList)

@@ -10,6 +10,24 @@
   type          : Boolean
   defaultValue  : True
   access        : False
+  
+- name          : compile_software
+  description   : Compile Software 
+  type          : Boolean
+  defaultValue  : True
+  access        : True  
+  
+- name          : external_bus_master_interface
+  description   : Add external bus master interface (SoC -> Periphery)
+  type          : Boolean
+  defaultValue  : False
+  access        : True
+
+- name          : external_bus_slave_interface
+  description   : Add external bus slave interface (Periphery -> SoC)
+  type          : Boolean
+  defaultValue  : False
+  access        : True
 
 - name          : sys_clk_freq
   description   : System clock frequency
