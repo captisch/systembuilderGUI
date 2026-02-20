@@ -321,6 +321,11 @@
                                           ItemTemplate="{StaticResource SubModuleTemplate}"/>
                         </ScrollViewer>
                     </TabItem>
+                    <TabItem Header="Test Tab">
+                        <ScrollViewer AllowAutoHide="True"
+                                      Padding="0,0,10,0">
+                        </ScrollViewer>
+                    </TabItem>
                 </TabControl>
             </DockPanel>
         </Border>

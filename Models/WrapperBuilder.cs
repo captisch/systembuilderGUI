@@ -523,6 +523,71 @@ public class WrapperBuilder
     {
         //This creates the wiring between the module instances
         //MakeTopModule and MakeInstances must be run before this.
+        foreach (ConfigItem item in configFile.items)
+        {
+            /*
+             * If the base SoC has a bus interface, make wires to connect to it.
+             * I am currently unsure how to handle the connection to of other instances
+             * to the bus. The easiest solution would be to just assume that every bus
+             * interface is meant to connect to the SoC Bus, but I don't really like it.
+             * Probably because it's bad.
+             *
+             * Currently, what this does is just create wires and connect them on the SoC
+             * side. 
+             */
+            //first, check for bus specification
+            //string busStandard = "wishbone"; !!! currently only wishbone is supported !!!       
+            int busDataWidth = 32;      //initialize with default value
+            int busAddressWidth = 32;
+            int selectWidth = 8;
+            foreach (ConfigItem key in configFile.items)
+            {
+                switch (key.Name)
+                {
+                    //if  (key.Name == "bus_standard"){}    dummy for bus_standard
+                    case "bus_data_width":
+                        busDataWidth = int.Parse(key.Value);
+                        break;
+                    case "bus_address_width":
+                        busAddressWidth = int.Parse(key.Value);
+                        break;
+                }
+            }
+
+            selectWidth = (busDataWidth / 8); 
+            //Note: LiteX uses Python's floor division (sel_width = data_width // 8)
+            //With positive numbers, integer division works the same
+            
+            if (item is { Name: "external_bus_master_interface", Value: "True" })
+            {
+                wireList.Add(new Wire ("mmap_bus_m_ack", 1, false, true));
+                wireList.Add(new Wire ("mmap_bus_m_adr", busAddressWidth , false, false));
+                wireList.Add(new Wire ("mmap_bus_m_bte", 2 , false, false));
+                wireList.Add(new Wire ("mmap_bus_m_cti", 3 , false, false));
+                wireList.Add(new Wire ("mmap_bus_m_cyc", 1 , false, false));
+                wireList.Add(new Wire ("mmap_bus_m_dat_r", busDataWidth, false, true));
+                wireList.Add(new Wire ("mmap_bus_m_dat_w", busDataWidth, false, false));
+                wireList.Add(new Wire ("mmap_bus_m_err", 1, false, true));
+                wireList.Add(new Wire ("mmap_bus_m_sel", selectWidth, false, false));
+                wireList.Add(new Wire ("mmap_bus_m_stb", 1 , false, false));
+                wireList.Add(new Wire ("mmap_bus_m_we", 1 , false, false));
+            }
+
+            if (item is { Name: "external_bus_slave_interface", Value: "True" })
+            {
+                wireList.Add(new Wire ("mmap_bus_s_ack", 1, false, false));
+                wireList.Add(new Wire ("mmap_bus_s_adr", busAddressWidth , false, true));
+                wireList.Add(new Wire ("mmap_bus_s_bte", 2 , false, true));
+                wireList.Add(new Wire ("mmap_bus_s_cti", 3 , false, true));
+                wireList.Add(new Wire ("mmap_bus_s_cyc", 1 , false, true));
+                wireList.Add(new Wire ("mmap_bus_s_dat_r", busDataWidth, false, false));
+                wireList.Add(new Wire ("mmap_bus_s_dat_w", busDataWidth, false, true));
+                wireList.Add(new Wire ("mmap_bus_s_err", 1, false, false));
+                wireList.Add(new Wire ("mmap_bus_s_sel", selectWidth, false, true));
+                wireList.Add(new Wire ("mmap_bus_s_stb", 1 , false, true));
+                wireList.Add(new Wire ("mmap_bus_s_we", 1 , false, true));
+            } 
+        }    
         foreach (Instance instance in instanceList)
         {
             if (instance.InstanceName() != "main_soc")
