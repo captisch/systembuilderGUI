@@ -42,9 +42,6 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
             sw.WriteLine("module " + TopModule.Name + " #(");  
         }
         
-        //DEBUG
-        Console.WriteLine("Made it past the first sw!");
-        
         //TopModule shall not have Parameters
         AddParams(outputPath, TopModule.Parameters);
         AddPorts(outputPath, TopModule.Ports);
@@ -54,6 +51,12 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         {
             AddModuleInstance(outputPath, currentInstance);
         }
+        
+        using (StreamWriter sw = File.AppendText(outputPath))
+        {
+            sw.WriteLine("\nendmodule");
+        }
+        
     }
     
     //auxiliary methods for organization
@@ -154,6 +157,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
                 else sw.WriteLine("wire\t[" + (wire.Size-1) + ":0]\t" + wire.Name + ";");    
             }
         } 
+        sw.WriteLine("\n//-----------------------------------------");
     }
 
     private void AddModuleInstance(string outputPath, Instance currentInstance)

@@ -232,4 +232,11 @@
   defaultValue  : "serial"
   options       : ["serial", "uart"]
   access        : True
+  
+  #This does not need to be an OptionList, but it seems sensible to just offer standard rates
+- name          : uart_baudrate
+  description   : UART baudrate
+  type          : OptionList
+  defaultValue  : 115200
+  options       : [230400, 115200, 57600, 38400, 19200, 9600]
 
