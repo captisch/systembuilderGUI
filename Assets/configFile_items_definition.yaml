@@ -162,7 +162,7 @@
   description   : CPU type
   type          : OptionList
   defaultValue  : "vexriscv"
-  options       : ["vexriscv", "picorv32"]
+  options       : ["vexriscv", "picorv32", "lm32", "mor1kx", "rocket", "blackparrot", "neorv32", "kianv"]
   access        : True
 
 - name          : no_ctrl

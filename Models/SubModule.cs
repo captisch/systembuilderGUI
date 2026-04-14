@@ -14,5 +14,4 @@ public partial class SubModule : ObservableObject
     [ObservableProperty] private string? instance;
     
     [ObservableProperty] private bool isExternalModule;
-
 }

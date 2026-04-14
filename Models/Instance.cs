@@ -100,40 +100,7 @@ public class Instance
         _instanceParams = baseModule.Module.Parameters;
         _ports = PortSetup(baseModule.Module.Ports);
          
-        /*Debug Code:.............................................................
-        //TODO: Adapt to new structure if required
-        Console.WriteLine("Based on module " + baseModule.Name + " stored as " + _moduleName + " with ports:");
-        Console.WriteLine("Inputs:");
-        foreach (var port in baseModule.Inputs)
-        {
-            Console.WriteLine(port.Name + " of size " + port.Size);
-        }
-        Console.WriteLine("Outputs:");
-        foreach (var port in baseModule.Outputs)
-        {
-            Console.WriteLine(port.Name +" of size " + port.Size);
-        }
-        Console.WriteLine("Tri States:");
-        foreach (var port in baseModule.TriStates)
-        {
-            Console.WriteLine(port.Name + " of size " + port.Size);
-        }
         
-        Console.WriteLine("Created Instance named: " + _instanceName);
-        Console.WriteLine("With the following Ports:");
-        foreach (var port in _inputPorts)
-        {
-            Console.WriteLine(port.PortName + " with " + port.PortSize + " Pins");
-        }
-        foreach (var port in _outputPorts)
-        {
-            Console.WriteLine(port.PortName + " with " + port.PortSize + " Pins");
-        }
-        foreach (var port in _triStatePorts)
-        {
-            Console.WriteLine(port.PortName + " with " + port.PortSize + " Pins");
-        }
-        End of Debug Code............................................................*/
     }
     
     //miscellaneous methods
@@ -233,6 +200,8 @@ public class Instance
 
     public int ParsePortSize(string portSize)
     {
+        //TODO: Add support for $clog2 Verilog function in port size definition, if there's time
+        
         string tempWidth = portSize;
         int widthNum = 0;
         //First step is to check if it's just "1"

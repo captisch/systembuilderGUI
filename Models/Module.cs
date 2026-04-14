@@ -220,5 +220,4 @@ public class VerilogParser
         
         return modules;
     }
-    
 }

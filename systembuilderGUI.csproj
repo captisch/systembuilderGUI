@@ -31,5 +31,6 @@
       <Content Include="Assets\configFile_items_definition.yaml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <Compile Remove="Models\ConfigGeneric.cs" />
     </ItemGroup>
 </Project>
