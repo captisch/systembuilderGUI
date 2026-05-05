@@ -76,22 +76,45 @@
                             CommandParameter="{Binding .}"
                             VerticalAlignment="Center"
                             IsEnabled="False"/>
+                    
+                    <!-- Deaktiviert für WSL workaround -->
                     <TextBox Grid.Column="2"
+                             IsEnabled="False" 
                              Text="{Binding Value, Mode=TwoWay}"
                              VerticalAlignment="Center"/>
+                    
                 </Grid>
             </DataTemplate>
             
             <!-- Template für Moduleports -->
             <DataTemplate x:Key="PortTemplate" DataType="models:Port">
-                <Grid ColumnDefinitions="*,*,*,*,Auto" Margin="2">
-                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="{Binding Direction}"/>
-                    <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="{Binding Type}"/>
-                    <TextBlock Grid.Column="2" HorizontalAlignment="Center" Text="{Binding Width}"/>
-                    <TextBlock Grid.Column="3" HorizontalAlignment="Center" Text="{Binding Name}"/>
-                    <CheckBox Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,5,0"
-                              IsChecked="{Binding RouteToTopmodule}" 
-                              IsVisible="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"></CheckBox>
+                <Grid Name="PortTemplateGrid"
+                      Margin="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75" />
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition SharedSizeGroup="PortWidth" />
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="175" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" Text="{Binding Direction}"/>
+                    <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" Text="{Binding Type}"/>
+                    <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" Text="{Binding Width}"/>
+                    <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" Text="{Binding Name}" TextWrapping="Wrap"/>
+                    <Grid Grid.Column="4" ColumnDefinitions="*,*,*">
+                        <RadioButton Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                                     GroupName="{Binding Name}"
+                                     IsChecked="{Binding RouteToSOC}"
+                                     IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+                        <RadioButton Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                                     GroupName="{Binding Name}"
+                                     IsChecked="{Binding RouteToWrapper}"
+                                     IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+                        <RadioButton Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                                     IsChecked="{Binding NoRoute}"
+                                     GroupName="{Binding Name}"
+                                     IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+                    </Grid>
                 </Grid>
             </DataTemplate>
             
@@ -200,16 +223,29 @@
                                     </StackPanel>
                                 </TextBlock>
                             </Expander.Header>
-                            <StackPanel>
-                                <Grid ColumnDefinitions="*,*,*,*,Auto" 
+                            <StackPanel Grid.IsSharedSizeScope="True">
+                                <Grid Name="PortHeaderGrid"
                                       Margin="2,5"
                                       Background="CadetBlue">
-                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="direction"/>
-                                    <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="type"/>
-                                    <TextBlock Grid.Column="2" HorizontalAlignment="Center" Text="width"/>
-                                    <TextBlock Grid.Column="3" HorizontalAlignment="Center" Text="name"/>
-                                    <TextBlock Grid.Column="4" HorizontalAlignment="Center" Text="Route"
-                                               IsVisible="{Binding IsExternalModule}"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="75" />
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition SharedSizeGroup="PortWidth" />
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="175" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="direction" />
+                                    <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="type"/>
+                                    <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="width"/>
+                                    <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="name"/>
+                                    <Grid Grid.Column="4" RowDefinitions="*,*" >
+                                        <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Route to"/>
+                                        <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
+                                            <TextBlock Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="SoC"/>
+                                            <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Wrapper"/>
+                                            <TextBlock Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Ignore"/>
+                                        </Grid>
+                                    </Grid>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding Module.Ports}"
                                               ItemTemplate="{StaticResource PortTemplate}"/>
@@ -264,7 +300,7 @@
                             Spacing="8">
                     <Button Content="Save"
                             Command="{Binding SaveConfigCommand}"/>
-                    <Button Content="Add Ext. Module"
+                    <Button Content="Add Submodule"
                             Command="{Binding AddSubModulesToConfigCommand}"/>
                     <Button Content="Run SystemBuilder"
                             Command="{Binding GenerateSystemCommand}"></Button>
@@ -283,6 +319,11 @@
                                       Padding="0,0,10,0">
                             <ItemsControl ItemsSource="{Binding ConfigFile.subModules}"
                                           ItemTemplate="{StaticResource SubModuleTemplate}"/>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Test Tab">
+                        <ScrollViewer AllowAutoHide="True"
+                                      Padding="0,0,10,0">
                         </ScrollViewer>
                     </TabItem>
                 </TabControl>

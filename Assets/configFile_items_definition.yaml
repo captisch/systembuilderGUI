@@ -5,11 +5,47 @@
   defaultValue  : "new_soc_design"
   access        : True
 
-- name          : build
-  description   : Build the design
+#- name          : build
+#  description   : Build the design
+#  type          : Boolean
+#  defaultValue  : True
+#  access        : False
+  
+- name          : compile_software
+  description   : Compile Software 
   type          : Boolean
   defaultValue  : True
-  access        : False
+  access        : True  
+  
+- name          : external_bus_master_interface
+  description   : Add external bus master interface (SoC -> Periphery)
+  type          : Boolean
+  defaultValue  : False
+  access        : True
+
+- name          : external_bus_slave_interface
+  description   : Add external bus slave interface (Periphery -> SoC)
+  type          : Boolean
+  defaultValue  : False
+  access        : True
+ 
+- name          : external_bus_region_origin
+  description   : Origin of external bus region
+  type          : OpenString
+  defaultValue  : 0xa0000000
+  access        : True
+
+- name          : external_bus_region_size
+  description   : Size of external bus region
+  type          : OpenString
+  defaultValue  : 0x10000000
+  access        : True
+
+- name          : external_bus_region_cached
+  description   : Activate cache for external bus region
+  type          : Boolean
+  defaultValue  : False
+  access        : True
 
 - name          : sys_clk_freq
   description   : System clock frequency
@@ -53,11 +89,11 @@
   defaultValue  :
   access        : True
 
-- name          : build_backend
-  description   : Build backend
-  type          : OpenString
-  defaultValue  : "litex"
-  access        : False
+#- name          : build_backend
+#  description   : Build backend
+#  type          : OpenString
+#  defaultValue  : "litex"
+#  access        : False
 
 - name          : doc
   description   : Generate documentation
@@ -126,7 +162,7 @@
   description   : CPU type
   type          : OptionList
   defaultValue  : "vexriscv"
-  options       : ["vexriscv", "picorv32"]
+  options       : ["vexriscv", "picorv32", "lm32", "mor1kx", "rocket", "blackparrot", "neorv32", "kianv"]
   access        : True
 
 - name          : no_ctrl
@@ -196,4 +232,11 @@
   defaultValue  : "serial"
   options       : ["serial", "uart"]
   access        : True
+  
+  #This does not need to be an OptionList, but it seems sensible to just offer standard rates
+- name          : uart_baudrate
+  description   : UART baudrate
+  type          : OptionList
+  defaultValue  : 115200
+  options       : [230400, 115200, 57600, 38400, 19200, 9600]
 

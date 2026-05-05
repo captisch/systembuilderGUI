@@ -14,16 +14,4 @@ public partial class SubModule : ObservableObject
     [ObservableProperty] private string? instance;
     
     [ObservableProperty] private bool isExternalModule;
-    
-    partial void OnIsExternalModuleChanged(bool value)
-    {
-        if (!value && Module?.Ports != null)
-        {
-            foreach (var port in Module.Ports)
-            {
-                port.RouteToTopmodule = true;
-            }
-        }
-    }
-
 }

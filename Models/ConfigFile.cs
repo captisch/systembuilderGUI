@@ -20,8 +20,8 @@ public partial class ConfigFile : ObservableObject
     
     public ObservableCollection<SubModule> subModules { get; set; } = new();
     
-    [ObservableProperty]
-    private string? outputPath;
+    [ObservableProperty] private string? outputDirPath;
+    [ObservableProperty] private string? outputFilePath;
     
     private void loadItems()
     {
@@ -60,6 +60,7 @@ public partial class ConfigFile : ObservableObject
 
         foreach (var (index, module) in subModules.Index())
         {
+            Instance helper = new Instance(module);
             yml += $"{indentBy(1)}\"ext_mod_{index}\":{{\n";
             var source = module.IsExternalModule ? "None" : $"{module.Filename}" ;
             yml += $"{indentBy(2)}\"source\": \"{source}\",\n";
@@ -74,14 +75,14 @@ public partial class ConfigFile : ObservableObject
             yml += $"{indentBy(2)}\"ports\": {{\n";
             foreach (var (index_port, port) in module.Module.Ports.Index())
             {
-                if (!port.RouteToTopmodule) continue;
+                if (module.IsExternalModule && !port.RouteToSOC) continue;
                 yml += $"{indentBy(3)}\"port{index_port}\": {{\n";
                 yml += $"{indentBy(4)}\"name\": \"{port.Name}\",\n";
                 var direction = port.Direction.ToString().ToLower() == "input" ? "in" : 
                     port.Direction.ToString().ToLower() == "output" ? "out" :
                     port.Direction.ToString().ToLower();
                 yml += $"{indentBy(4)}\"direction\": \"{direction}\",\n";
-                yml += $"{indentBy(4)}\"size\": \"{port.Width}\"\n";
+                yml += $"{indentBy(4)}\"size\": {helper.ParsePortSize(port.Width)}\n";
                 yml += $"{indentBy(3)}}},\n";
             }
             yml += $"{indentBy(2)}}},\n";
@@ -98,6 +99,12 @@ public partial class ConfigFile : ObservableObject
         return items.FirstOrDefault(item => item.Name == name);
     }
 
+    public string? GetSOCName()
+    {
+        var nameItem = FindItemByName("Name");
+        return nameItem?.Value;
+    }
+
     
     public Task Save()
     {
@@ -106,10 +113,12 @@ public partial class ConfigFile : ObservableObject
         var nameItem = FindItemByName("Name");
         if (nameItem is null)
             return Task.CompletedTask;
-
-        string saveFilePath = Path.Combine(rootPath, "fentwumsGUI", "systembuilder", $"configFile_{nameItem.Value}.yaml");
         
-        OutputPath = saveFilePath;
+        string saveDirPath = Path.Combine(rootPath, "fentwumsGUI", nameItem.Value);
+        string saveFilePath = Path.Combine(saveDirPath, $"configFile_{nameItem.Value}.yaml");
+        
+        OutputDirPath = saveDirPath;
+        OutputFilePath = saveFilePath;
 
         if (!Directory.Exists(Path.GetDirectoryName(saveFilePath)))
         {

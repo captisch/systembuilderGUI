@@ -11,7 +11,7 @@ public class Module
     public string Name { get; set; }
     public List<Port>? Ports { get; set; }
     public string? Logic { get; set; }
-    public List<Parameter> Parameters { get; set; }
+    public List<Parameter>? Parameters { get; set; }
 
     public Module Copy()
     {
@@ -30,7 +30,9 @@ public class Module
                     Signed = p.Signed,
                     Width = p.Width,
                     Name = p.Name,
-                    RouteToTopmodule = p.RouteToTopmodule
+                    RouteToSOC = p.RouteToSOC,
+                    RouteToWrapper = p.RouteToWrapper,
+                    NoRoute = p is { RouteToSOC: false, RouteToWrapper: false }
                 })
                 .ToList()
         };
@@ -57,7 +59,9 @@ public partial class Port : ObservableObject
     [ObservableProperty] private bool signed;
     [ObservableProperty] private string? width;
     [ObservableProperty] private string? name;
-    [ObservableProperty] private bool routeToTopmodule = true;
+    [ObservableProperty] private bool routeToSOC = false;
+    [ObservableProperty] private bool routeToWrapper = false;
+    [ObservableProperty] private bool noRoute;
 }
 
 public partial class Parameter : ObservableObject
@@ -199,7 +203,8 @@ public class VerilogParser
                         Type = portType,
                         Width = portWidth,
                         Name = nameStr,
-                        Signed = isSigned
+                        Signed = isSigned,
+                        NoRoute = true
                     });
                 }
             }
@@ -215,5 +220,4 @@ public class VerilogParser
         
         return modules;
     }
-    
 }

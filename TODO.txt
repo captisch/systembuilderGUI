@@ -3,9 +3,7 @@
 
 - Refactoring
 	
-
 - Status bar
-	|-> Notifications on Errors, Process, etc
+	|-> Notifications on Errors, Process, etc.
 	
 - Save / Load config files
-
