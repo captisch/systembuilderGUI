@@ -22,7 +22,7 @@ public class SystemBuilder
                         "sh -c " +                                              // run command in shell
                         "\". venv/bin/activate && " +                           // activate virtual environment
                         "python3 litex_generator.py\"" +                        // run LiteX generator script
-                        "\n",                                                   // end of command, (very important!, may or may not took me half a day to figure out)
+                        "\n",                                                   // end of command
             UseShellExecute = true,
             CreateNoWindow = false
         };
