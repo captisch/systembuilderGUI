@@ -43,53 +43,5 @@ public class SystemBuilder
             Console.WriteLine(ex.Message);
             throw;
         }
-
-        /* old wsl version
-        public int call(string? pathToConfig, string? SOCName)
-        {
-            var wslPathToConfig = WSL.BuildWslPath(pathToConfig);
-
-            if (string.IsNullOrWhiteSpace(wslPathToConfig)) return -1;
-
-            var psi = new ProcessStartInfo()
-            {
-                // wsl directory structure
-                // ~/  (home directory)
-                // |-- liteX/
-                // |   |-- SystemBuilder/
-                // |   |   |-- LiteX-related/
-                // |   |   |   |-- Python/
-                // |   |   |   |   |-- litex_generator.py
-                // |   |
-                // |   |-- everthing litex related
-                // |   |-- venv
-
-                FileName = "wsl.exe",
-                Arguments = "cd ~/liteX\n" +                                // Path to LiteX directory
-                            $"cp {wslPathToConfig} configFile_demo_soc.yaml\n" +      // Copy config file to LiteX directory
-                            "source venv/bin/activate\n" +                  // Activate virtual environment
-                            "python3 SystemBuilder/LiteX-related/Python/litex_generator.py\n" + // Run LiteX generator
-                            $"cp -r build/{SOCName} /mnt/c/fentwumsGUI/systembuilderOutput/\n",
-                UseShellExecute = true,
-                CreateNoWindow = false
-            };
-
-            try
-            {
-                using (var process = Process.Start(psi))
-                {
-                    if (process is null) return -1;
-                    process.WaitForExit();
-                    return process.ExitCode;
-                }
-
-            }
-            catch ( Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-            return 0;
-            */
     }
 }

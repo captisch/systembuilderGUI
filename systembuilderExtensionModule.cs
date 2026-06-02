@@ -12,7 +12,7 @@ using OneWare.Essentials.Services;
 
 namespace systembuilderGUI;
 
-public class MyOneWareExtensionModule : OneWareModuleBase
+public class SystembuilderExtensionModule : OneWareModuleBase
 {
     public override void RegisterServices(IServiceCollection services)
     {

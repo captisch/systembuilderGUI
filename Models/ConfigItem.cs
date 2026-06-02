@@ -76,23 +76,18 @@ public partial class ConfigItem : ObservableObject
         }
         return string.Empty;
     }
+
+    [ObservableProperty] private string? name;
+
+    [ObservableProperty] private string? defaultValue;
+
+    [ObservableProperty] private string? type;
+
+    [ObservableProperty] private string? description;
+
+    [ObservableProperty] private bool? access;
     
-    [ObservableProperty]
-    public string? name;
-    
-    [ObservableProperty]
-    public string? defaultValue;
-    
-    [ObservableProperty]
-    public string? type;
-    
-    [ObservableProperty]
-    public string? description;
-    
-    [ObservableProperty]
-    public bool? access;
-    
-    public ObservableCollection<string?> options { get; set; } = new();
+    public ObservableCollection<string?> Options { get; set; } = new ();
     
     partial void OnDefaultValueChanged(string? oldValue, string? newValue)
     {

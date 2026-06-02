@@ -1,9 +1,12 @@
 - User Input Validation
 	|-> See MVVM sample (ObservableVallidator)
 
-- Refactoring
-	
 - Status bar
 	|-> Notifications on Errors, Process, etc.
 	
 - Save / Load config files
+
+- Docker:
+    |-> maybe keep cached litex files for faster compile times
+    
+- Update OneWare ProjectExplorer after saving / generating Configs

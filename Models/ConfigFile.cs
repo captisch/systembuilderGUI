@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,6 +14,8 @@ namespace systembuilderGUI.Models;
 
 public partial class ConfigFile : ObservableObject
 {
+    public IStorageProvider? StorageProvider { get; set; }
+    
     public ConfigFile()
     {
         loadItems();
@@ -25,22 +29,17 @@ public partial class ConfigFile : ObservableObject
     
     private void loadItems()
     {
-        // Pfad zum YAML-File in Assets-Ordner
-        // Build-Eigenschaft der Datei auf "Content" und "Copy if newer" setzen !
-        
-        string configFilePath = Path.Combine(AppContext.BaseDirectory, "Assets", "configFile_items_definition.yaml"); 
-        
-        var yml = System.IO.File.ReadAllText(configFilePath);
-        
-        var deserializer = new YamlDotNet.Serialization.Deserializer();
+        using var stream = AssetLoader.Open(new Uri("avares://systembuilderGUI/Assets/configFile_items_definition.yaml"));
+        using var reader = new StreamReader(stream);
+        var yml = reader.ReadToEnd();
 
+        var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+            .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.CamelCaseNamingConvention.Instance)
+            .Build();
         items = deserializer.Deserialize<ObservableCollection<ConfigItem>>(yml);
-        
-        foreach (var item in items)
-        {
-            if (string.IsNullOrWhiteSpace(item.Value) && !string.IsNullOrWhiteSpace(item.DefaultValue))
-                item.Value = item.DefaultValue;
-        }
+
+        foreach (var item in items.Where(i => string.IsNullOrWhiteSpace(i.Value) && !string.IsNullOrWhiteSpace(i.DefaultValue)))
+            item.Value = item.DefaultValue;
     }
 
     private string indentBy(int level)
@@ -106,18 +105,21 @@ public partial class ConfigFile : ObservableObject
     }
 
     
-    public Task Save()
+    public Task Save(string? path = null)
     {
-        var rootPath = Path.GetPathRoot(AppContext.BaseDirectory);
-
         var nameItem = FindItemByName("Name");
-        if (nameItem is null)
-            return Task.CompletedTask;
+        if (nameItem is null) throw new InvalidOperationException("No name was found in the SOC config file.");
         
-        string saveDirPath = Path.Combine(rootPath, "fentwumsGUI", nameItem.Value);
-        string saveFilePath = Path.Combine(saveDirPath, $"configFile_{nameItem.Value}.yaml");
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            var rootPath = Path.GetPathRoot(AppContext.BaseDirectory) ?? "C:\\";
+            path = Path.Combine(rootPath, "fentwumsGUI", "systembuilder");
+        }
+        if (string.IsNullOrWhiteSpace(path)) throw new InvalidOperationException("No path was given to save the config file.");
         
-        OutputDirPath = saveDirPath;
+        string saveFilePath = Path.Combine(path, $"configFile_{nameItem.Value}.yaml");
+        
+        OutputDirPath = path;
         OutputFilePath = saveFilePath;
 
         if (!Directory.Exists(Path.GetDirectoryName(saveFilePath)))
@@ -127,8 +129,8 @@ public partial class ConfigFile : ObservableObject
 
         var yml = createOutput();
         
-        System.IO.File.WriteAllText(saveFilePath, yml);
-        Console.WriteLine($"Saving to {saveFilePath}");
+        File.WriteAllText(saveFilePath, yml);
+        Debug.WriteLine($"Saving to {saveFilePath}");
         return Task.CompletedTask;;
     }
     
@@ -152,11 +154,6 @@ public partial class ConfigFile : ObservableObject
         if (folder is not null)
         {
             var path = folder.TryGetLocalPath() ?? folder.Path.LocalPath;
-            
-            if (OperatingSystem.IsWindows())
-            {
-                path = WSL.BuildWslPath(path);
-            }
             
             item.Value = path;
         }

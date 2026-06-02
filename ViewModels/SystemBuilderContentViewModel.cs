@@ -10,29 +10,37 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OneWare.Essentials.Services;
 using systembuilderGUI.Models;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace systembuilderGUI.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class SystemBuilderContentViewModel : ViewModelBase
 {
+    private string projectPath = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject.RootFolderPath;
+    
     [ObservableProperty]
     private ConfigFile configFile;
     
     private SystemBuilder systemBuilder;
     
-    public MainWindowViewModel()
+    public SystemBuilderContentViewModel()
     {
         configFile = new();
         systemBuilder = new();
+    }
+    
+    public IStorageProvider? StorageProvider
+    {
+        set => ConfigFile.StorageProvider = value;
     }
 
     [RelayCommand]
     private Task SaveConfig()
     {
-        return ConfigFile.Save();
+        return ConfigFile.Save(projectPath);
     }
 
     [RelayCommand]
@@ -63,7 +71,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task GenerateSystem()
     {
-        ConfigFile.Save();
+        await ConfigFile.Save();
 
         string? socName = ConfigFile.GetSOCName();
         

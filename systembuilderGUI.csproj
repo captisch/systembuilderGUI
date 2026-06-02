@@ -1,37 +1,64 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <OutputType>WinExe</OutputType>
+        <Version>0.1</Version>
         <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <SelfContained>false</SelfContained>
+        <LangVersion>preview</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="Assets\**"/>
+        <AvaloniaResource Include="Assets\**\*.*"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="12.0.3" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.0"/>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0"/>
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.0"/>
-        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.0">
+        <PackageReference Include="Avalonia" Version="11.3.11" Private="true" ExcludeAssets="runtime;Native"/>
+        
+        <!--
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.11" Private="false"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" Private="false"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.11" Private="false"/>
+        <!- -Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration. - ->
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.11" Private="false">
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-        <PackageReference Include="OneWare.Essentials" Version="1.0.16" />
-        <PackageReference Include="YamlDotNet" Version="16.3.0" />
+        -->
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" Private="true" ExcludeAssets="runtime;Native"/>
+        <PackageReference Include="OneWare.Essentials" Version="1.0.0" Private="false" ExcludeAssets="runtime;Native"/>
+        <PackageReference Include="YamlDotNet" Version="16.3.0" Private="true"/>
+    </ItemGroup>
+
+    <!--ItemGroup>
+      <None Remove="Assets\configFile.yaml" />
+      <AvaloniaResource Include="Assets\configFile_items_definition.yaml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </AvaloniaResource>
+    </ItemGroup-->
+    
+    <ItemGroup>
+        <Folder Include="Assets\" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Assets\configFile.yaml" />
-      <Content Include="Assets\configFile_items_definition.yaml">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Compile Remove="Models\ConfigGeneric.cs" />
+        <AvaloniaXaml Remove="Styles\Icons.axaml" />
     </ItemGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="Styles\Icons.axaml" />
+    </ItemGroup>
+
+    <Target Name="GenerateCompatibilityFile" AfterTargets="Build">
+        <ItemGroup>
+            <FilteredDependencies Include="@(PackageReference)" Condition="'%(Private)' == 'false'"/>
+        </ItemGroup>
+
+        <WriteLinesToFile
+                File="$(OutDir)compatibility.txt"
+                Lines="@(FilteredDependencies->'%(Identity) : %(Version)')"
+                Overwrite="true"/>
+    </Target>
 </Project>
