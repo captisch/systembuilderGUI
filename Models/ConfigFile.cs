@@ -46,6 +46,7 @@ public partial class ConfigFile : ObservableObject
     {
         return string.Concat(Enumerable.Repeat(" ", 4*level));
     }
+    
     private string createOutput()
     {
         var yml = "";
@@ -105,7 +106,7 @@ public partial class ConfigFile : ObservableObject
     }
 
     
-    public Task Save(string? path = null)
+    public string Save(string? path = null)
     {
         var nameItem = FindItemByName("Name");
         if (nameItem is null) throw new InvalidOperationException("No name was found in the SOC config file.");
@@ -117,7 +118,7 @@ public partial class ConfigFile : ObservableObject
         }
         if (string.IsNullOrWhiteSpace(path)) throw new InvalidOperationException("No path was given to save the config file.");
         
-        string saveFilePath = Path.Combine(path, $"configFile_{nameItem.Value}.yaml");
+        var saveFilePath = Path.Combine(path, $"configFile_{nameItem.Value}.yaml");
         
         OutputDirPath = path;
         OutputFilePath = saveFilePath;
@@ -131,7 +132,7 @@ public partial class ConfigFile : ObservableObject
         
         File.WriteAllText(saveFilePath, yml);
         Debug.WriteLine($"Saving to {saveFilePath}");
-        return Task.CompletedTask;;
+        return saveFilePath;
     }
     
     public async Task ChooseOutputDirectory(ConfigItem item)

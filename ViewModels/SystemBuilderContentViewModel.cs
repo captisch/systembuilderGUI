@@ -10,6 +10,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using OneWare.Essentials.Models;
 using OneWare.Essentials.Services;
 using systembuilderGUI.Models;
 using YamlDotNet.RepresentationModel;
@@ -19,7 +21,8 @@ namespace systembuilderGUI.ViewModels;
 
 public partial class SystemBuilderContentViewModel : ViewModelBase
 {
-    private string projectPath = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject.RootFolderPath;
+    private static readonly IProjectRoot? activeProject = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject;
+    private static string? projectPath = activeProject.RootFolderPath;
     
     [ObservableProperty]
     private ConfigFile configFile;
@@ -40,7 +43,8 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private Task SaveConfig()
     {
-        return ConfigFile.Save(projectPath);
+        ConfigFile.Save(projectPath);
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -71,13 +75,15 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task GenerateSystem()
     {
-        await ConfigFile.Save();
+        await SaveConfig();
 
         string? socName = ConfigFile.GetSOCName();
         
         await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath);
         
         WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
-        wrapperBuilder.GenerateWrapper(ConfigFile.OutputDirPath);
+        wrapperBuilder.GenerateWrapper(projectPath);
+
+        await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(activeProject);
     }
 }
