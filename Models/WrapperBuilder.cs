@@ -42,7 +42,7 @@ public class WrapperBuilder
          */
         
         //Start by giving it a name
-        string wrapperName = "system_wrapper"; //using fixed name for now
+        string wrapperName = configFile.GetSOCName() + "system_wrapper"; //using SOC Design name + sufix for now
         
         //For now, only some connections to the outside can be inferred
         //"clk", "rst" and if available "uart_rx", "uart_tx" will be created for wrapper
