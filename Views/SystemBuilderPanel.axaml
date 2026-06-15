@@ -1,13 +1,14 @@
+
 <UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:systembuilderGUI.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:models="clr-namespace:systembuilderGUI.Models"
-        xmlns:t="using:systembuilderGUI.Templates"
-        xmlns:conv="using:systembuilderGUI.Converters"
-        x:Class="systembuilderGUI.Views.SystemBuilderPanel"
-        x:DataType="vm:SystemBuilderContentViewModel">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:systembuilderGUI.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:systembuilderGUI.Models"
+             xmlns:t="using:systembuilderGUI.Templates"
+             xmlns:conv="using:systembuilderGUI.Converters"
+             x:Class="systembuilderGUI.Views.SystemBuilderPanel"
+             x:DataType="vm:SystemBuilderContentViewModel">
         
         <UserControl.Resources>
             
@@ -34,17 +35,18 @@
         <Border Margin="5,5,0,5">
             
             <DockPanel >
+                
                 <StackPanel Orientation="Horizontal"
                             DockPanel.Dock="Top"
-                            Margin="8"
+                            Margin="8, 4"
                             Spacing="8">
                     <Button Content="Save"
                             Command="{Binding SaveConfigCommand}"/>
-                    <Button Content="Add Submodule"
-                            Command="{Binding AddSubModulesToConfigCommand}"/>
                     <Button Content="Run SystemBuilder"
                             Command="{Binding GenerateSystemCommand}"></Button>
                 </StackPanel>
+                
+                <Separator DockPanel.Dock="Top" Margin="0" Background="{DynamicResource ThemeAccentBrush}" Height="2" />
                 
                 <TabControl Margin="0,10,0,5">
                     <TabItem Header="Main Configuration">
@@ -56,16 +58,15 @@
                         </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Submodules">
-                        <ScrollViewer AllowAutoHide="True"
-                                      Padding="0,0,10,0">
-                            <ItemsControl ItemsSource="{Binding ConfigFile.subModules}"
-                                          ItemTemplate="{StaticResource SubModuleTemplate}"/>
-                        </ScrollViewer>
-                    </TabItem>
-                    <TabItem Header="Test Tab">
-                        <ScrollViewer AllowAutoHide="True"
-                                      Padding="0,0,10,0">
-                        </ScrollViewer>
+                        <StackPanel Orientation="Vertical">
+                            <Button Content="Add Submodule"
+                                    Command="{Binding AddSubModulesToConfigCommand}"/>
+                            <ScrollViewer AllowAutoHide="True"
+                                          Padding="0,0,10,0">
+                                <ItemsControl ItemsSource="{Binding ConfigFile.subModules}"
+                                              ItemTemplate="{StaticResource SubModuleTemplate}"/>
+                            </ScrollViewer>
+                        </StackPanel>
                     </TabItem>
                 </TabControl>
             </DockPanel>

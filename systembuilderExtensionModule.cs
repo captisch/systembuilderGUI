@@ -14,6 +14,7 @@ namespace systembuilderGUI;
 
 public class SystembuilderExtensionModule : OneWareModuleBase
 {
+    
     public override void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<SystemBuilderViewModel>();
