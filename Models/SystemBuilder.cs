@@ -14,15 +14,16 @@ public class SystemBuilder
 
         var psi = new ProcessStartInfo()
         {
-            FileName = "docker",                                                // Docker executable
-            Arguments = "run --rm " +                                           // run docker container in non-interactive mode and remove it after execution
-                        $"-v {pathToConfig}:/litex/configFile_demo_soc.yaml " + // mount config file to docker container
-                        $"-v {pathToDir}:/litex/build " +                       // mount build directory to docker container
-                        "liteximg:latest " +                                    // used docker image
-                        "sh -c " +                                              // run command in shell
-                        "\". venv/bin/activate && " +                           // activate virtual environment
-                        "python3 litex_generator.py\"" +                        // run LiteX generator script
-                        "\n",                                                   // end of command
+            FileName = "docker",                                                        // Docker executable
+            Arguments = "run " +                                                        // run docker container in non-interactive mode
+                        "--rm " +                                                       // and remove it after execution
+                        $"-v {pathToConfig}:/systembuilder/configFile_demo_soc.yaml " + // mount config file to docker container
+                        $"-v {pathToDir}:/systembuilder/build " +                               // mount build directory to docker container
+                        "liteximg:220626 " +                                            // used docker image
+                        "sh -c " +                                                      // run command in shell
+                        "\". .venv/bin/activate && " +                                  // activate virtual environment
+                        "python3 litex_generator.py\"" +                                // run LiteX generator script
+                        "\n",                                                           // end of command
             UseShellExecute = true,
             CreateNoWindow = false
         };
