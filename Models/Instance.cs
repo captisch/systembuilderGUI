@@ -99,8 +99,6 @@ public class Instance
         _instanceName = baseModule.Instance;
         _instanceParams = baseModule.Module.Parameters;
         _ports = PortSetup(baseModule.Module.Ports);
-         
-        
     }
     
     //miscellaneous methods

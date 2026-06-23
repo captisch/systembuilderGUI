@@ -39,11 +39,11 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         {
             sw.WriteLine("//This module has been created automatically");
             sw.WriteLine("");
-            sw.WriteLine("module " + TopModule.Name + " #(");  
+            sw.WriteLine("module " + TopModule.Name + "(");  
         }
         
         //TopModule shall not have Parameters
-        AddParams(outputPath, TopModule.Parameters);
+        //AddParams(outputPath, TopModule.Parameters);
         AddPorts(outputPath, TopModule.Ports);
         AddWires(outputPath, ConWires);
         
@@ -60,6 +60,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
     }
     
     //auxiliary methods for organization
+    //TODO: Delete this method, if it really has no use anymore
     static void AddParams(string outputPath, List<Parameter>? parameters)
     {
         using StreamWriter sw = File.AppendText(outputPath);
@@ -81,7 +82,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
 
     static void AddPorts(string outputPath, List<Port> ports)
     {
-        //this method shall add the I/O to the top module
+        //this method adds the I/O to the top module
         //It assumes that the previous steps of the module declaration have been added before
         
         using StreamWriter sw = File.AppendText(outputPath);
