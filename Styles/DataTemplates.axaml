@@ -1,0 +1,292 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:models="clr-namespace:systembuilderGUI.Models"
+                    xmlns:vm="using:systembuilderGUI.ViewModels"
+                    xmlns:conv="using:systembuilderGUI.Converters">
+
+    <conv:StringToBoolConverter x:Key="StringToBoolConverter" />
+            
+    <!-- Template für OpenString -->
+    <DataTemplate x:Key="OpenStringItemTemplate" DataType="models:ConfigItem">
+        <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="Item"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{Binding Description}" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Text="{Binding Value, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" VerticalAlignment="Center" />
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Template für Boolean -->
+    <DataTemplate x:Key="BooleanItemTemplate" DataType="models:ConfigItem">
+        <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="Item"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
+            <CheckBox Grid.Column="1" VerticalAlignment="Center">
+                <CheckBox.IsChecked>
+                    <Binding Path="Value" Mode="TwoWay" Converter="{StaticResource StringToBoolConverter}"/>
+                </CheckBox.IsChecked>
+            </CheckBox>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Template für OptionList -->
+    <DataTemplate x:Key="OptionListItemTemplate" DataType="models:ConfigItem">
+        <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="Item"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1"
+                      HorizontalAlignment="Stretch"
+                      ItemsSource="{Binding Options}"
+                      SelectedItem="{Binding Value, Mode=TwoWay}"
+                      VerticalAlignment="Center"
+                      />
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Template für Integer -->
+    <DataTemplate x:Key="IntegerItemTemplate" DataType="models:ConfigItem">
+        <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="Item"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1"
+                     Text="{Binding Value, 
+                            Mode=TwoWay, 
+                            UpdateSourceTrigger=LostFocus}"
+                     Watermark="z. B. 1500, 1.5e3, 2E+6" 
+                     VerticalAlignment="Center"/>
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Template für FilePath -->
+    <DataTemplate x:Key="FilePathTemplate" DataType="models:ConfigItem">
+        <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="Item"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
+            <Button Grid.Column="1"
+                    Content="Choose..."
+                    Command="{Binding Path=$parent[UserControl].((vm:SystemBuilderContentViewModel)DataContext).ChooseOutputDirectoryOfConfigCommand}"
+                    CommandParameter="{Binding .}"
+                    VerticalAlignment="Center"
+                    IsEnabled="False"/>
+            
+            <!-- Deaktiviert für WSL workaround -->
+            <TextBox Grid.Column="2"
+                     IsEnabled="False" 
+                     Text="{Binding Value, Mode=TwoWay}"
+                     VerticalAlignment="Center"/>
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Template für Moduleports -->
+    <DataTemplate x:Key="PortTemplate" DataType="models:Port">
+        <Grid Name="PortTemplateGrid"
+              Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="75" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition SharedSizeGroup="PortWidth" />
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="175" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" Text="{Binding Direction}"/>
+            <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" Text="{Binding Type}"/>
+            <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" Text="{Binding Width}"/>
+            <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" Text="{Binding Name}" TextWrapping="Wrap"/>
+            <Grid Grid.Column="4" ColumnDefinitions="*,*,*">
+                <RadioButton Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                             GroupName="{Binding Name}"
+                             IsChecked="{Binding RouteToSOC}"
+                             IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+                <RadioButton Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                             GroupName="{Binding Name}"
+                             IsChecked="{Binding RouteToWrapper}"
+                             IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+                <RadioButton Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
+                             IsChecked="{Binding NoRoute}"
+                             GroupName="{Binding Name}"
+                             IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
+            </Grid>
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Template für Moduleparameter -->
+    <DataTemplate x:Key="ParameterTemplate" DataType="models:Parameter">
+        <Grid ColumnDefinitions="*,*" Margin="2">
+            <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="{Binding Name}"/>
+            <TextBox Grid.Column="1" HorizontalAlignment="Center" Text="{Binding Value}"/>
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Template für SubModule -->
+    <DataTemplate x:Key="SubModuleTemplate" DataType="models:SubModule">
+        <Expander Width="550"
+                  Margin="3"
+                  Padding="0">
+            <Expander.Header>
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Instance}"/>
+                        <TextBlock Text=" (" Foreground="Gray"/>
+                        <TextBlock Text="{Binding Module.Name}" Foreground="Gray"/>
+                        <TextBlock Text=")" Foreground="Gray"/>
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            Margin="5"
+                            HorizontalAlignment="Right"
+                            Content="Copy"
+                            Command="{Binding Path=$parent[UserControl].((vm:SystemBuilderContentViewModel)DataContext).CopySubModuleCommand}"
+                            CommandParameter="{Binding .}"/>
+                    <Button Grid.Column="2"
+                        Margin="5"
+                        HorizontalAlignment="Right"
+                        Content="Remove"
+                        Command="{Binding Path=$parent[UserControl].((vm:SystemBuilderContentViewModel)DataContext).RemoveSubModuleFromConfigCommand}"
+                        CommandParameter="{Binding .}"/>
+                </Grid>
+                
+            </Expander.Header>
+            <StackPanel>
+                <Grid ColumnDefinitions="200,*" 
+                      ColumnSpacing="8"
+                      Margin="10"
+                      HorizontalAlignment="Stretch">
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Text="Instance name"/>
+                    <TextBox Grid.Column="1"
+                             VerticalAlignment="Center"
+                             Text="{Binding Instance}"/>
+                </Grid>
+                <Grid ColumnDefinitions="200,*" 
+                      ColumnSpacing="8"
+                      Margin="10"
+                      HorizontalAlignment="Stretch">
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Text="Module name"/>
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
+                             Text="{Binding Module.Name}"/>
+                </Grid>
+                <Grid ColumnDefinitions="200,*" 
+                      ColumnSpacing="8"
+                      Margin="10"
+                      HorizontalAlignment="Stretch">
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Text="External Submodule"/>
+                    <CheckBox Grid.Column="1" 
+                              VerticalAlignment="Center"
+                              IsChecked="{Binding IsExternalModule}"/>
+                </Grid>
+                
+                <Expander HorizontalAlignment="Stretch"
+                          Margin="5">
+                    <Expander.Header>
+                        <TextBlock Padding="0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Parameters ("/>
+                                <TextBlock Text="{Binding Module.Parameters.Count}"/>
+                                <TextBlock Text="):"/>
+                            </StackPanel>
+                        </TextBlock>
+                    </Expander.Header>
+                    <StackPanel>
+                        <Grid ColumnDefinitions="*,*" 
+                              Margin="2,5"
+                              Background="CadetBlue">
+                            <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="Name"/>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="Value"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Module.Parameters}"
+                                      ItemTemplate="{StaticResource ParameterTemplate}"/>
+                    </StackPanel>
+                </Expander>
+                
+                <Expander HorizontalAlignment="Stretch"
+                          Margin="5">
+                    <Expander.Header>
+                        <TextBlock Padding="0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Ports ("/>
+                                <TextBlock Text="{Binding Module.Ports.Count}"/>
+                                <TextBlock Text="):"/>
+                            </StackPanel>
+                        </TextBlock>
+                    </Expander.Header>
+                    <StackPanel Grid.IsSharedSizeScope="True">
+                        <Grid Name="PortHeaderGrid"
+                              Margin="2,5"
+                              Background="CadetBlue">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="75" />
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition SharedSizeGroup="PortWidth" />
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="direction" />
+                            <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="type"/>
+                            <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="width"/>
+                            <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="name"/>
+                            <Grid Grid.Column="4" RowDefinitions="*,*" >
+                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Route to"/>
+                                <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
+                                    <TextBlock Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="SoC"/>
+                                    <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Wrapper"/>
+                                    <TextBlock Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Ignore"/>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Module.Ports}"
+                                      ItemTemplate="{StaticResource PortTemplate}"/>
+                    </StackPanel>
+                </Expander>
+                
+                <Grid ColumnDefinitions="Auto,*"
+                      Background="DimGray"
+                      >
+                    <TextBlock Grid.Column="0"
+                               Padding="10,0,0,0"
+                               FontSize="10"
+                               Foreground="White"
+                               Opacity="75"
+                               Text="source: "/>
+                    <SelectableTextBlock Grid.Column="1"
+                                         FontSize="10"
+                                         Foreground="White"
+                                         Opacity="90"
+                                         Text="{Binding Source}"/>
+                </Grid>
+            </StackPanel>
+        </Expander>
+    </DataTemplate>
+    
+    <!-- Optional: Fallback-Template für andere Typen -->
+    <DataTemplate x:Key="DefaultItemTemplate" DataType="models:ConfigItem">
+        <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="Item"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Text="{Binding Value, Mode=TwoWay}" VerticalAlignment="Center"/>
+        </Grid>
+    </DataTemplate>
+    
+</ResourceDictionary>

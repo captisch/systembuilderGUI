@@ -6,9 +6,9 @@ using systembuilderGUI.Models;
 
 namespace systembuilderGUI.Views;
 
-public partial class MainWindow : Window
+public partial class SystemBuilderPanel : UserControl
 {
-    public MainWindow()
+    public SystemBuilderPanel()
     {
         InitializeComponent();
     }

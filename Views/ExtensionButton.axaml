@@ -1,0 +1,26 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="systembuilderGUI.Views.ExtensionButton">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="avares://systembuilderGUI/Styles/Icons.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <StackPanel Orientation="Horizontal">
+        <Separator Margin="0" Width="1" Background="{DynamicResource ThemeBorderLowBrush}" Height="24" />
+        <Button Name="SystemBuilderButton">
+            <StackPanel Orientation="Horizontal">
+                <PathIcon Data="{DynamicResource SystemBuilderSymbol}" Height="15"/>
+                <TextBlock Text="SystemBuilder"
+                           Margin="5, 0"/>
+            </StackPanel>
+        </Button>
+    </StackPanel>
+</UserControl>

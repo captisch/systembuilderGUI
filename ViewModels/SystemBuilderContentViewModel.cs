@@ -10,29 +10,41 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using OneWare.Essentials.Models;
+using OneWare.Essentials.Services;
 using systembuilderGUI.Models;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace systembuilderGUI.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class SystemBuilderContentViewModel : ViewModelBase
 {
+    private static readonly IProjectRoot? activeProject = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject;
+    private static string? projectPath = activeProject.RootFolderPath;
+    
     [ObservableProperty]
     private ConfigFile configFile;
     
     private SystemBuilder systemBuilder;
     
-    public MainWindowViewModel()
+    public SystemBuilderContentViewModel()
     {
         configFile = new();
         systemBuilder = new();
+    }
+    
+    public IStorageProvider? StorageProvider
+    {
+        set => ConfigFile.StorageProvider = value;
     }
 
     [RelayCommand]
     private Task SaveConfig()
     {
-        return ConfigFile.Save();
+        ConfigFile.Save(projectPath);
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -63,13 +75,15 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task GenerateSystem()
     {
-        ConfigFile.Save();
+        await SaveConfig();
 
         string? socName = ConfigFile.GetSOCName();
         
         await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath);
         
         WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
-        wrapperBuilder.GenerateWrapper(ConfigFile.OutputDirPath);
+        wrapperBuilder.GenerateWrapper(projectPath);
+
+        await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(activeProject);
     }
 }

@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StreamGeometry x:Key="SystemBuilderSymbol">
+        M25 25v30c0 17-2 15 15 15h30c17 0 15 2 15-15V25c0-17 2-15-15-15H40c-17 0-15-2-15 15m5 5v20c0 17-2 15 15 15
+        h20c17 0 15 2 15-15V30c0-17 2-15-15-15H45c-17 0-15-2-15 15m-5-5H15m10 15H15m10 15H15m25 15v10m15-10v10
+        m15-10v10m15-25h10M85 40h10M85 25h10M70 10V0M55 10V0M40 10V0m0 50c-5 5 1 11 6 6l16-16c2-2 6 1 9-2l3-3
+        c2-2 1-5 0-6s-1-1-2 0l-2 2c-1 1-1 1-4 1-2 0-2 0-2-2 0-3 0-3 1-4l2-2c1-1 1-1 0-2s-4-2-6 0l-3 3c-3 3 0 7-2 9z
+    </StreamGeometry>
+</ResourceDictionary>

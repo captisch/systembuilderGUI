@@ -1,0 +1,10 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:systembuilderGUI.ViewModels"
+             xmlns:views="using:systembuilderGUI.Views"
+             x:Class="systembuilderGUI.Views.SystemBuilderView"
+             x:DataType="vm:SystemBuilderViewModel">
+
+    <views:SystemBuilderPanel DataContext="{Binding Content}" />
+
+</UserControl>
