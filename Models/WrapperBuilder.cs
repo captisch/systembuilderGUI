@@ -42,7 +42,7 @@ public class WrapperBuilder
          */
         
         //Start by giving it a name
-        string wrapperName = configFile.GetSOCName() + "system_wrapper"; //using SOC Design name + sufix for now
+        string wrapperName = configFile.GetSOCName() + "_system_wrapper"; //using SOC Design name + suf fix for now
         
         //For now, only some connections to the outside can be inferred
         //and connected to the main SoC module
