@@ -58,15 +58,20 @@
                         </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Submodules">
-                        <StackPanel Orientation="Vertical">
-                            <Button Content="Add Submodule"
-                                    Command="{Binding AddSubModulesToConfigCommand}"/>
-                            <ScrollViewer AllowAutoHide="True"
-                                          Padding="0,0,10,0">
+                        <DockPanel>
+                            <Button 
+                                DockPanel.Dock="Top"
+                                Content="Add Submodule"
+                                Command="{Binding AddSubModulesToConfigCommand}"/>
+                            <ScrollViewer 
+                                DockPanel.Dock="Top"
+                                HorizontalScrollBarVisibility="Visible"
+                                AllowAutoHide="True"
+                                Padding="0,0,10,0">
                                 <ItemsControl ItemsSource="{Binding ConfigFile.subModules}"
                                               ItemTemplate="{StaticResource SubModuleTemplate}"/>
                             </ScrollViewer>
-                        </StackPanel>
+                        </DockPanel>
                     </TabItem>
                 </TabControl>
             </DockPanel>

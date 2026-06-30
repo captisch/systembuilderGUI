@@ -99,14 +99,15 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="75" />
                 <ColumnDefinition Width="50" />
-                <ColumnDefinition SharedSizeGroup="PortWidth" />
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition SharedSizeGroup="SizeGroupWidth" />
+                <ColumnDefinition SharedSizeGroup="SizeGroupName"/>
                 <ColumnDefinition Width="175" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" Text="{Binding Direction}"/>
             <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" Text="{Binding Type}"/>
-            <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" Text="{Binding Width}"/>
-            <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" Text="{Binding Name}" TextWrapping="Wrap"/>
+            <TextBlock Grid.Column="2" Margin="4 2" HorizontalAlignment="Center" Text="{Binding Width}"/>
+            <TextBlock Grid.Column="3" Margin="4 2" HorizontalAlignment="Center" Text="{Binding Name}" TextWrapping="Wrap"/>
             <Grid Grid.Column="4" ColumnDefinitions="*,*,*">
                 <RadioButton Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4" Padding="0"
                              GroupName="{Binding Name}"
@@ -126,24 +127,29 @@
     
     <!-- Template für Moduleparameter -->
     <DataTemplate x:Key="ParameterTemplate" DataType="models:Parameter">
-        <Grid ColumnDefinitions="*,*" Margin="2">
+        <Grid Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="SizeGroupParamName" />
+                <ColumnDefinition SharedSizeGroup="SizeGroupParamValue" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="{Binding Name}"/>
             <TextBox Grid.Column="1" HorizontalAlignment="Center" Text="{Binding Value}"/>
+            <TextBlock Grid.Column="2" />
         </Grid>
     </DataTemplate>
     
     <!-- Template für SubModule -->
     <DataTemplate x:Key="SubModuleTemplate" DataType="models:SubModule">
-        <Expander Width="550"
-                  Margin="3"
+        <Expander Margin="3"
                   Padding="0">
             <Expander.Header>
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Instance}"/>
-                        <TextBlock Text=" (" Foreground="Gray"/>
-                        <TextBlock Text="{Binding Module.Name}" Foreground="Gray"/>
-                        <TextBlock Text=")" Foreground="Gray"/>
+                        <TextBlock Text=" (" Foreground="{DynamicResource ThemeControlHighBrush}"/>
+                        <TextBlock Text="{Binding Module.Name}" Foreground="{DynamicResource ThemeControlHighBrush}"/>
+                        <TextBlock Text=")" Foreground="{DynamicResource ThemeControlHighBrush}"/>
                     </StackPanel>
                     <Button Grid.Column="1"
                             Margin="5"
@@ -207,11 +213,17 @@
                         </TextBlock>
                     </Expander.Header>
                     <StackPanel>
-                        <Grid ColumnDefinitions="*,*" 
-                              Margin="2,5"
-                              Background="CadetBlue">
+                        <Grid
+                            Margin="2,10"
+                            Background="{DynamicResource ThemeAccentBrush2}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="SizeGroupParamName" />
+                                <ColumnDefinition SharedSizeGroup="SizeGroupParamValue" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="Name"/>
                             <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="Value"/>
+                            <TextBlock Grid.Column="2" Background="{DynamicResource ThemeBackgroundBrush}" />
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Module.Parameters}"
                                       ItemTemplate="{StaticResource ParameterTemplate}"/>
@@ -232,18 +244,19 @@
                     <StackPanel Grid.IsSharedSizeScope="True">
                         <Grid Name="PortHeaderGrid"
                               Margin="2,5"
-                              Background="CadetBlue">
+                              Background="{DynamicResource ThemeAccentBrush2}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="75" />
                                 <ColumnDefinition Width="50" />
-                                <ColumnDefinition SharedSizeGroup="PortWidth" />
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition SharedSizeGroup="SizeGroupWidth"/>
+                                <ColumnDefinition SharedSizeGroup="SizeGroupName"/>
                                 <ColumnDefinition Width="175" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="direction" />
-                            <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="type"/>
-                            <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="width"/>
-                            <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="name"/>
+                            <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Direction" />
+                            <TextBlock Grid.Column="1" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Type"/>
+                            <TextBlock Grid.Column="2" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Width"/>
+                            <TextBlock Grid.Column="3" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Name"/>
                             <Grid Grid.Column="4" RowDefinitions="*,*" >
                                 <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Route to"/>
                                 <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
@@ -252,6 +265,7 @@
                                     <TextBlock Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Ignore"/>
                                 </Grid>
                             </Grid>
+                            <TextBlock Grid.Column="5" Background="{DynamicResource ThemeBackgroundBrush}" />
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Module.Ports}"
                                       ItemTemplate="{StaticResource PortTemplate}"/>
@@ -259,17 +273,17 @@
                 </Expander>
                 
                 <Grid ColumnDefinitions="Auto,*"
-                      Background="DimGray"
+                      Background="{DynamicResource ThemeControlLowBrush}"
                       >
                     <TextBlock Grid.Column="0"
                                Padding="10,0,0,0"
                                FontSize="10"
-                               Foreground="White"
+                               Foreground="{DynamicResource ThemeControlHighBrush}"
                                Opacity="75"
                                Text="source: "/>
                     <SelectableTextBlock Grid.Column="1"
                                          FontSize="10"
-                                         Foreground="White"
+                                         Foreground="{DynamicResource ThemeControlHighBrush}"
                                          Opacity="90"
                                          Text="{Binding Source}"/>
                 </Grid>
