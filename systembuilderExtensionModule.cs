@@ -28,7 +28,7 @@ public class SystembuilderExtensionModule : OneWareModuleBase
         dockService.RegisterLayoutExtension<SystemBuilderViewModel>(DockShowLocation.Document);
 
         var openCommand = new RelayCommand(() =>
-            dockService.Show<SystemBuilderViewModel>(DockShowLocation.Window));
+            dockService.Show<SystemBuilderViewModel>(DockShowLocation.Document));
         
         windowService.RegisterUiExtension("MainWindow_RoundToolBarExtension",
             new OneWareUiExtension(_ =>
