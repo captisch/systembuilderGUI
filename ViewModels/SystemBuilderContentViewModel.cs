@@ -79,7 +79,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
 
         string? socName = ConfigFile.GetSOCName();
         
-        await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath);
+        await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath, ConfigFile.LogPath);
         
         WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
         wrapperBuilder.GenerateWrapper(projectPath);

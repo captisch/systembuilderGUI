@@ -29,6 +29,7 @@ public partial class ConfigFile : ObservableObject
     
     [ObservableProperty] private string? outputDirPath;
     [ObservableProperty] private string? outputFilePath;
+    [ObservableProperty] private string? logPath;
     
     private ObservableCollection<ConfigItem> loadItems(Uri source)
     {
@@ -130,15 +131,19 @@ public partial class ConfigFile : ObservableObject
         if (string.IsNullOrWhiteSpace(path)) throw new InvalidOperationException("No path was given to save the config file.");
         
         var saveFilePath = Path.Combine(path, $"configFile_{nameItem.Value}.yaml");
+        var logFilePath = Path.Combine(path, $"container_log_raw.txt");
         
         OutputDirPath = path;
         OutputFilePath = saveFilePath;
+        LogPath = logFilePath;
 
         if (!Directory.Exists(Path.GetDirectoryName(saveFilePath)))
         {
             Directory.CreateDirectory(Path.GetDirectoryName(saveFilePath));
         }
 
+        File.WriteAllText(logFilePath, "Container has not run yet.");
+        
         var yml = createOutput();
         
         File.WriteAllText(saveFilePath, yml);
