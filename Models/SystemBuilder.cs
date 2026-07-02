@@ -16,7 +16,7 @@ public class SystemBuilder
         {
             FileName = "docker",                                                        // Docker executable
             Arguments = "run " +                                                        // run docker container in non-interactive mode
-                        "--rm " +                                                       // and remove it after execution
+                        //"--rm " +                                                       // and remove it after execution
                         $"-v \"{pathToConfig}:/systembuilder/configFile_demo_soc.yaml\" " + // mount config file to docker container
                         $"-v \"{pathToDir}:/systembuilder/build\" " +                               // mount build directory to docker container
                         "liteximg:220626 " +                                            // used docker image

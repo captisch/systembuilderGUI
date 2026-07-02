@@ -28,11 +28,17 @@
   access        : True
 
 - name          : hard_i2c
-  description   : Use hardware I2C
+  description   : Use hardware I2C master
   type          : Boolean
   defaultValue  : False
   access        : True
 
+- name          : i2c_interrupt
+  description   : Add interrupt for rx ready to hardware I2C master
+  type          : Boolean
+  defaultValue  : False
+  access        : True
+  
 - name          : soft_spi
   description   : Use software SPI
   type          : Boolean

@@ -49,11 +49,19 @@
                 <Separator DockPanel.Dock="Top" Margin="0" Background="{DynamicResource ThemeAccentBrush}" Height="2" />
                 
                 <TabControl Margin="0,10,0,5">
-                    <TabItem Header="Main Configuration">
+                    <TabItem Header="Core Configuration">
                         <ScrollViewer AllowAutoHide="True" 
                                       Padding="0,0,20,0"
                                       Grid.IsSharedSizeScope="True">
                             <ItemsControl ItemsSource="{Binding ConfigFile.CoreItems}"
+                                          ItemTemplate="{StaticResource ConfigItemTemplateSelector}"/>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Interface Configuration">
+                        <ScrollViewer AllowAutoHide="True" 
+                                      Padding="0,0,20,0"
+                                      Grid.IsSharedSizeScope="True">
+                            <ItemsControl ItemsSource="{Binding ConfigFile.Interfaces}"
                                           ItemTemplate="{StaticResource ConfigItemTemplateSelector}"/>
                         </ScrollViewer>
                     </TabItem>

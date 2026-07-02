@@ -41,7 +41,7 @@ public partial class ConfigFile : ObservableObject
             .Build();
         var returnItems = deserializer.Deserialize<ObservableCollection<ConfigItem>>(yml);
 
-        foreach (var item in CoreItems.Where(i => string.IsNullOrWhiteSpace(i.Value) && !string.IsNullOrWhiteSpace(i.DefaultValue)))
+        foreach (var item in returnItems.Where(i => string.IsNullOrWhiteSpace(i.Value) && !string.IsNullOrWhiteSpace(i.DefaultValue)))
             item.Value = item.DefaultValue;
         
         return returnItems;
@@ -105,8 +105,9 @@ public partial class ConfigFile : ObservableObject
     
     private ConfigItem? FindItemByName(string name)
     {
-        name = name.ToLower();
-        return CoreItems.FirstOrDefault(item => item.Name == name);
+        if (string.IsNullOrWhiteSpace(name)) return null;
+        return CoreItems.FirstOrDefault(item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase))
+               ?? Interfaces.FirstOrDefault(item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
     public string? GetSOCName()
