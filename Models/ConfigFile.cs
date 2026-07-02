@@ -18,28 +18,33 @@ public partial class ConfigFile : ObservableObject
     
     public ConfigFile()
     {
-        loadItems();
+        CoreItems = loadItems(new Uri("avares://systembuilderGUI/Assets/configFile_items_definition.yaml"));
+        Interfaces = loadItems(new Uri("avares://systembuilderGUI/Assets/configFile_interfaces_definition.yaml"));
     }
-    public ObservableCollection<ConfigItem> items { get; set; } = new();
+    public ObservableCollection<ConfigItem> CoreItems { get; set; } = new();
+    
+    public ObservableCollection<ConfigItem> Interfaces { get; set; } = new();
     
     public ObservableCollection<SubModule> subModules { get; set; } = new();
     
     [ObservableProperty] private string? outputDirPath;
     [ObservableProperty] private string? outputFilePath;
     
-    private void loadItems()
+    private ObservableCollection<ConfigItem> loadItems(Uri source)
     {
-        using var stream = AssetLoader.Open(new Uri("avares://systembuilderGUI/Assets/configFile_items_definition.yaml"));
+        using var stream = AssetLoader.Open(source);
         using var reader = new StreamReader(stream);
         var yml = reader.ReadToEnd();
 
         var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
             .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.CamelCaseNamingConvention.Instance)
             .Build();
-        items = deserializer.Deserialize<ObservableCollection<ConfigItem>>(yml);
+        var returnItems = deserializer.Deserialize<ObservableCollection<ConfigItem>>(yml);
 
-        foreach (var item in items.Where(i => string.IsNullOrWhiteSpace(i.Value) && !string.IsNullOrWhiteSpace(i.DefaultValue)))
+        foreach (var item in CoreItems.Where(i => string.IsNullOrWhiteSpace(i.Value) && !string.IsNullOrWhiteSpace(i.DefaultValue)))
             item.Value = item.DefaultValue;
+        
+        return returnItems;
     }
 
     private string indentBy(int level)
@@ -51,7 +56,12 @@ public partial class ConfigFile : ObservableObject
     {
         var yml = "";
 
-        foreach (var item in items)
+        foreach (var item in CoreItems)
+        {
+            yml +=  item.Name + ": " + item.Value + "\n";
+        }
+        
+        foreach (var item in Interfaces)
         {
             yml +=  item.Name + ": " + item.Value + "\n";
         }
@@ -96,7 +106,7 @@ public partial class ConfigFile : ObservableObject
     private ConfigItem? FindItemByName(string name)
     {
         name = name.ToLower();
-        return items.FirstOrDefault(item => item.Name == name);
+        return CoreItems.FirstOrDefault(item => item.Name == name);
     }
 
     public string? GetSOCName()

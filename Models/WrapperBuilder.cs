@@ -42,7 +42,7 @@ public class WrapperBuilder
          */
         
         //Start by giving it a name
-        string wrapperName = configFile.GetSOCName() + "_system_wrapper"; //using SOC Design name + suf fix for now
+        string wrapperName = configFile.GetSOCName() + "_system_wrapper"; //using SOC Design name + suffix for now
         
         //For now, only some connections to the outside can be inferred
         //and connected to the main SoC module
@@ -72,7 +72,7 @@ public class WrapperBuilder
         wireList.Add(new Wire ("rst", 1, true, true));
         
         //now check for non-submodule ports
-        foreach (ConfigItem item in configFile.items)
+        foreach (ConfigItem item in configFile.CoreItems)
         {
             //TODO: Find a way to do this more elegantly, ideally with the info stored in a separate file
             if (item is { Name: "no_uart", Value: "False" })
@@ -417,7 +417,7 @@ public class WrapperBuilder
         VerilogParser parser = new VerilogParser();
         var socName = "new_soc_design";   //initialize with default name
         
-        foreach (ConfigItem item in configFile.items)
+        foreach (ConfigItem item in configFile.CoreItems)
         {
             if (item.Name == "name")
             {
@@ -455,7 +455,7 @@ public class WrapperBuilder
     {
         //This creates the wiring between the module instances
         //MakeTopModule and MakeInstances must be run before this.
-        foreach (ConfigItem item in configFile.items)
+        foreach (ConfigItem item in configFile.CoreItems)
         {
             /*
              * If the base SoC has a bus interface, make wires to connect to it.
@@ -472,7 +472,7 @@ public class WrapperBuilder
             int busDataWidth = 32;      //initialize with default value
             int busAddressWidth = 32;
             int selectWidth = 8;
-            foreach (ConfigItem key in configFile.items)
+            foreach (ConfigItem key in configFile.CoreItems)
             {
                 switch (key.Name)
                 {

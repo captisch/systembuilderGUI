@@ -53,7 +53,7 @@
                         <ScrollViewer AllowAutoHide="True" 
                                       Padding="0,0,20,0"
                                       Grid.IsSharedSizeScope="True">
-                            <ItemsControl ItemsSource="{Binding ConfigFile.items}"
+                            <ItemsControl ItemsSource="{Binding ConfigFile.CoreItems}"
                                           ItemTemplate="{StaticResource ConfigItemTemplateSelector}"/>
                         </ScrollViewer>
                     </TabItem>

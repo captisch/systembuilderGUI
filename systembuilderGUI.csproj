@@ -38,10 +38,6 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </AvaloniaResource>
     </ItemGroup-->
-    
-    <ItemGroup>
-        <Folder Include="Assets\" />
-    </ItemGroup>
 
     <ItemGroup>
         <AvaloniaXaml Remove="Styles\Icons.axaml" />
