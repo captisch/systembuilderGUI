@@ -81,6 +81,30 @@
                             </ScrollViewer>
                         </DockPanel>
                     </TabItem>
+                    <TabItem Header="OpenEye">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="200"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <Button Content="Save Parameters" />
+                                <Button Content="Load Parameters" />
+                                <Panel Margin="10"/>
+                                <Button Content="Set up OpenEye" />
+                                <Button Content="Dummy3" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBox Text="PLACEHOLDER_FOR_TITLE" VerticalAlignment="Center"/>
+                                <ScrollViewer AllowAutoHide="True" 
+                                              Padding="0,0,20,0"
+                                              Grid.IsSharedSizeScope="True">
+                                    <ItemsControl <!-- HIER PARAMETERLISTE VON OPENEYE --> />
+                                </ScrollViewer>
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
                 </TabControl>
             </DockPanel>
         </Border>
