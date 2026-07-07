@@ -100,7 +100,7 @@
                                 <ScrollViewer AllowAutoHide="True" 
                                               Padding="0,0,20,0"
                                               Grid.IsSharedSizeScope="True">
-                                    <ItemsControl <!-- HIER PARAMETERLISTE VON OPENEYE --> />
+                                    <!-- HIER PARAMETERLISTE VON OPENEYE z.B. als ItemsControl -->
                                 </ScrollViewer>
                             </StackPanel>
                         </Grid>
