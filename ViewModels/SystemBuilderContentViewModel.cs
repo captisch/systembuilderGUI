@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -80,6 +81,22 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         string? socName = ConfigFile.GetSOCName();
         
         await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath, ConfigFile.LogPath);
+
+        List<string> externalSources = new List<string>();
+        
+        foreach (var file in ConfigFile.subModules)
+        {
+            if (file.Source != null && !externalSources.Contains(file.Source))
+            {
+                externalSources.Add(file.Source);
+                
+                string fileName = Path.GetFileName(file.Source);
+                Debug.Assert(ConfigFile.OutputDirPath != null, "ConfigFile.OutputDirPath is null!");
+                string destinationFilePath = Path.Combine(ConfigFile.OutputDirPath, fileName);
+
+                File.Copy(file.Source, destinationFilePath);
+            }
+        }
         
         WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
         wrapperBuilder.GenerateWrapper(projectPath);
