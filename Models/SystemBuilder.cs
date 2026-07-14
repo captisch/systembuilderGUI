@@ -20,7 +20,7 @@ public class SystemBuilder
                         $"-v \"{pathToConfig}:/systembuilder/configFile_demo_soc.yaml\" " + // mount config file to docker container
                         $"-v \"{logFilePath}:/systembuilder/log.txt\" " +
                         $"-v \"{pathToDir}:/systembuilder/build\" " +                       // mount build directory to docker container
-                        "liteximg:220626 " +                                            // used docker image
+                        "liteximg:latest " +                                            // used docker image
                         "sh -c " +                                                      // run command in shell
                         "\". .venv/bin/activate && " +                                  // activate virtual environment
                         "python3 litex_generator.py 2>&1 | tee log.txt\"" +                                // run LiteX generator script

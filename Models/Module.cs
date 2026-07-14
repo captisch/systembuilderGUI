@@ -62,6 +62,15 @@ public partial class Port : ObservableObject
     [ObservableProperty] private bool routeToSOC = false;
     [ObservableProperty] private bool routeToWrapper = false;
     [ObservableProperty] private bool noRoute;
+
+    public Dictionary<dynamic, dynamic> ToConfig()
+    {
+        Dictionary<dynamic, dynamic> dict = new();
+        dict.Add("name", Name);
+        dict.Add("direction", direction == PortDirections.input ? "in" : direction == PortDirections.output ?  "out" : "inout");
+        dict.Add("size", width);
+        return dict;
+    }
 }
 
 public partial class Parameter : ObservableObject

@@ -9,6 +9,10 @@ using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Jint.Runtime;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace systembuilderGUI.Models;
 
@@ -37,7 +41,7 @@ public partial class ConfigFile : ObservableObject
         using var reader = new StreamReader(stream);
         var yml = reader.ReadToEnd();
 
-        var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+        var deserializer = new DeserializerBuilder()
             .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.CamelCaseNamingConvention.Instance)
             .Build();
         var returnItems = deserializer.Deserialize<ObservableCollection<ConfigItem>>(yml);
@@ -47,15 +51,53 @@ public partial class ConfigFile : ObservableObject
         
         return returnItems;
     }
-
-    private string indentBy(int level)
-    {
-        return string.Concat(Enumerable.Repeat(" ", 4*level));
-    }
+    
+    
     
     private string createOutput()
     {
+        // Build dictionaries containing only name and value of configuration items
+        var dictCoreItems = CoreItems
+            .Where(item => item.Name is not null)
+            .ToDictionary(item => item.Name, item => item.Value);
+        
+        var dictInterfaces = Interfaces
+            .Where(item => item.Name is not null)
+            .ToDictionary(item => item.Name, item => item.Value);
+        
+        var valsSubmodules = subModules
+            .Select((item, index) => new { Index = index, Item= item })
+            .Where(itIdx => !string.IsNullOrWhiteSpace(itIdx.Item.Instance))
+            .ToDictionary(
+                x => "ext_mod_" + x.Index,
+                x => x.Item.ToConfig()
+                );
+
+        var dictSubmodules = new Dictionary<dynamic, dynamic>();
+        dictSubmodules.Add("external_modules", valsSubmodules);
+        
+        var itemSerializer = new SerializerBuilder()
+            .WithIndentedSequences()
+            .WithAttributeOverride<Port>(
+                x => x.Width, 
+                new YamlMemberAttribute
+                {
+                    ScalarStyle = ScalarStyle.DoubleQuoted
+                }
+                )
+            .Build();
+        var submoduleSerializer = new SerializerBuilder()
+            .WithIndentedSequences()
+            .BuildValueSerializer();
+
         var yml = "";
+
+        yml += itemSerializer.Serialize(dictCoreItems);
+        yml += itemSerializer.Serialize(dictInterfaces);
+        yml += itemSerializer.Serialize(dictSubmodules);
+        submoduleSerializer.SerializeValue();
+
+        /*/ ------------------ OLD --------------------------
 
         foreach (var item in CoreItems)
         {
@@ -100,7 +142,7 @@ public partial class ConfigFile : ObservableObject
             yml += $"{indentBy(1)}}},\n";
         }
         yml += "}\n";
-        
+        */
         return yml;
     }
     
