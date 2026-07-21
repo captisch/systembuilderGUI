@@ -291,6 +291,18 @@
         </Expander>
     </DataTemplate>
     
+    <!-- Template für OpenEye Parameter -->
+    <DataTemplate x:Key="OeParamTemplate" DataType="models:Parameter">
+        <Grid Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="SizeGroupOeParamName" Width="*"/>
+                <ColumnDefinition SharedSizeGroup="SizeGroupOeParamValue" Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" HorizontalAlignment="Center" Text="{Binding Name}"/>
+            <TextBox Grid.Column="1" HorizontalAlignment="Center" Text="{Binding Value}"/>
+        </Grid>
+    </DataTemplate>
+    
     <!-- Optional: Fallback-Template für andere Typen -->
     <DataTemplate x:Key="DefaultItemTemplate" DataType="models:ConfigItem">
         <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2">

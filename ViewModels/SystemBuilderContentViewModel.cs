@@ -26,16 +26,13 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     private static string? projectPath = activeProject.RootFolderPath;
     
     [ObservableProperty]
-    private ConfigFile configFile;
+    private ConfigFile configFile = new();
     
-    private SystemBuilder systemBuilder;
+    [ObservableProperty]
+    private OpenEyeConfig openEyeConfig = new ();
     
-    public SystemBuilderContentViewModel()
-    {
-        configFile = new();
-        systemBuilder = new();
-    }
-    
+    private readonly SystemBuilder systemBuilder = new();
+
     public IStorageProvider? StorageProvider
     {
         set => ConfigFile.StorageProvider = value;
@@ -71,6 +68,15 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     private Task CopySubModule(SubModule subModule)
     {
         return ConfigFile.CopySubmodule(subModule);
+    }
+
+    [RelayCommand]
+    private Task MakeOpenEye()
+    {
+        OpenEyeConfig.GenerateHeader(projectPath);
+        //TODO: Add the remaining steps here to prepare OpenEye implementation
+        //It should mostly just be calls of python scripts
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

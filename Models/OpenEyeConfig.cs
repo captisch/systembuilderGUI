@@ -8,7 +8,7 @@ namespace systembuilderGUI.Models;
 
 public partial class OpenEyeConfig : ObservableObject
 {
-    public OpenEyeConfig(string templateFile)
+    public OpenEyeConfig()
     {
         Parameters = ReadParameters(new Uri("avares://systembuilderGUI/Assets/openEyeParameterTemplate.vh"));
     }
@@ -17,35 +17,40 @@ public partial class OpenEyeConfig : ObservableObject
 
     private ObservableCollection<Parameter> ReadParameters(Uri templateFile)
     {
+        
         using var stream = AssetLoader.Open(templateFile);
         using var reader = new StreamReader(stream);
-        var verilogHeader = reader.ReadToEnd();
+        var headerText = reader.ReadToEnd();
+        
         
         var parameters = new ObservableCollection<Parameter>();
-        if (!System.IO.File.Exists(verilogHeader) || string.IsNullOrWhiteSpace(verilogHeader) ||
-            !verilogHeader.EndsWith(".vh"))
+        if (string.IsNullOrWhiteSpace(headerText))
         {
             Debug.WriteLine("The requested header file does not exist or is invalid!");
             return parameters;
         }
-
-        string headerText = System.IO.File.ReadAllText(verilogHeader);
         
-        var regexPatternParameterlist = @"(?:#\s*\(\s*(?<parameterlist>[\s\S]*?)\s*\)\s*)";
+        var regexPatternParameterlist = @"(?:parameter(?<parameterlist>\s*\S*\s*=\s*\S*))";
         
         var matches = Regex.Matches(headerText, regexPatternParameterlist);
-
+        Debug.WriteLine($"Found {matches.Count} matches");
+        //Debug.WriteLine("In Text:" + headerText);
+        
         foreach (Match match in matches)
         {
             var parameterlist = match.Groups["parameterlist"].Value;
+            Debug.WriteLine("Using parameterlist: "  + parameterlist);
             var parameterText = parameterlist.Split(',')
-                .Select(p => p.Replace("parameter ", "").Trim())
+                .Select(p => p.Trim())
                 .Where(p => !string.IsNullOrWhiteSpace(p));
             
             foreach (var parameter in parameterText)
             {
                 var parameterName = parameter.Split('=')[0].Trim();
                 var parameterValue = parameter.Split('=')[1].Trim();
+                
+                Debug.WriteLine("Found Parameter: "+parameterName);
+                
                 parameters.Add(new Parameter 
                 {
                     Name = parameterName, 
@@ -53,14 +58,14 @@ public partial class OpenEyeConfig : ObservableObject
                 });
             }
         }
+        Debug.WriteLine("If there are no parameters listed before this message, something went wrong.");
         return parameters;
     }
 
-    public void GenerateHeader(string targetDirectory)
+    public void GenerateHeader(string? targetDirectory = null)
     {
-        //This method will generate the Verilog header file
-        //Can probably be quite simple, something like println("parameter" +name+ "=" +value + ",")
-        //The most complicated part will be the handling of files and paths
+        if (string.IsNullOrWhiteSpace(targetDirectory)) throw new InvalidOperationException("No path was given to save the header file.");
+        
         string outputPath = Path.Combine(targetDirectory, "parameters.vh");
 
         using StreamWriter sw = File.CreateText(outputPath);
