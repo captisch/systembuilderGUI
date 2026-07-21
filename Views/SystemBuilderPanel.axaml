@@ -82,27 +82,41 @@
                         </DockPanel>
                     </TabItem>
                     <TabItem Header="OpenEye">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="200"/>
-                                <ColumnDefinition Width="400"/>
-                                <ColumnDefinition Width="200"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <Button Content="Save Parameters" />
-                                <Button Content="Load Parameters" />
-                                <Panel Margin="10"/>
-                                <Button Content="Set up OpenEye" />
-                                <Button Content="Dummy3" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1">
-                                <TextBox Text="PLACEHOLDER_FOR_TITLE" VerticalAlignment="Center"/>
-                                <ScrollViewer AllowAutoHide="True" 
-                                              Padding="0,0,20,0"
-                                              Grid.IsSharedSizeScope="True">
-                                    <!-- HIER PARAMETERLISTE VON OPENEYE z.B. als ItemsControl -->
+                        <Grid RowDefinitions="20, *, 5" ShowGridLines="True" Margin="2,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    <Button Content="Save Parameters" Command="{Binding SaveOpenEyeHeaderCommand}"/>
+                                    <Button Content="Load Parameters" Command="{Binding LoadOpenEyeParamsCommand}"/>
+                                    <Panel Margin="10"/>
+                                    <Button Content="Set up OpenEye" />
+                                    <Button Content="Dummy3" />
+                                </StackPanel>
+                            
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="OpenEye Parameters" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                       FontSize="16"/>
+                                <ScrollViewer Grid.Row="1" Grid.Column="1">
+                                    <StackPanel>
+                                        <Grid Height="20"
+                                              Margin="2,10"
+                                              ShowGridLines="True"
+                                              Background="{DynamicResource ThemeControlHighlightHighBrush}"
+                                              RowDefinitions="Auto">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamName" Width="*" />
+                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamValue" Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Name"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Text="Value"/>
+                                        </Grid> 
+                                        <ItemsControl  
+                                        ItemsSource="{Binding OpenEyeConfig.Parameters}"
+                                        ItemTemplate="{StaticResource OeParamTemplate}"/>
+                                    </StackPanel>       
                                 </ScrollViewer>
-                            </StackPanel>
                         </Grid>
                     </TabItem>
                 </TabControl>

@@ -185,7 +185,7 @@ public partial class ConfigFile : ObservableObject
 
         var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Moduledatei auswählen",
+            Title = "Choose Verilog File",
             AllowMultiple = true,
             FileTypeFilter = new[]
             {

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -26,16 +27,12 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     private static string? projectPath = activeProject.RootFolderPath;
     
     [ObservableProperty]
-    private ConfigFile configFile;
+    private ConfigFile configFile = new();
     
-    private SystemBuilder systemBuilder;
+    [ObservableProperty] private OpenEyeConfig openEyeConfig = new ();
     
-    public SystemBuilderContentViewModel()
-    {
-        configFile = new();
-        systemBuilder = new();
-    }
-    
+    private readonly SystemBuilder systemBuilder = new();
+
     public IStorageProvider? StorageProvider
     {
         set => ConfigFile.StorageProvider = value;
@@ -72,6 +69,47 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     {
         return ConfigFile.CopySubmodule(subModule);
     }
+
+    [RelayCommand]
+    private async Task SaveOpenEyeHeaderAsync()
+    {
+        var lifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        var window = lifetime?.MainWindow;
+        if (window?.StorageProvider is null)
+            return;
+        var location = await window.StorageProvider.TryGetFolderFromPathAsync(new Uri(projectPath));
+        FilePickerFileType[] filetypes = [new FilePickerFileType("Verilog Header") { Patterns = ["*.vh"] }
+        ];
+        var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "PLACEHOLDER TITLE",
+            SuggestedStartLocation = location,
+            FileTypeChoices = filetypes,
+            DefaultExtension = ".vh",
+            SuggestedFileName = "parameters",
+            ShowOverwritePrompt = true
+        });
+        
+        if (file != null) await OpenEyeConfig.GenerateHeaderAsync(file.TryGetLocalPath());
+        else Debug.WriteLine("Could not save parameter header file for OpenEye!");
+    }
+
+    [RelayCommand]
+    private async Task LoadOpenEyeParamsAsync()
+    {
+         await OpenEyeConfig.LoadParametersFromFileAsync();
+         OpenEyeConfig = new OpenEyeConfig(OpenEyeConfig.Parameters);
+    }
+    
+    /* Derzeit auf Eis wegen konzeptioneller Probleme
+     [RelayCommand]
+    private async Task MakeOpenEyeAsync()
+    {
+        await OpenEyeConfig.GenerateHeaderAsync(projectPath);
+    //This may need some rework for the paths
+        var path = Path.Combine(projectPath, $"parametrs.vh");
+        await OpenEyeConfig.OpenEyeCall(path);
+    }*/
 
     [RelayCommand]
     private async Task GenerateSystem()
