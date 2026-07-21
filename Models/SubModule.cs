@@ -28,7 +28,7 @@ public partial class SubModule : ObservableObject
             .Select((p, index) => new{p, index})
             .ToDictionary(
                 x => "port" +  x.index,
-                x => x.p.ToConfig()
+                x => x.p.ToConfig(this)
                 )
         );
 

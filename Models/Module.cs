@@ -63,12 +63,13 @@ public partial class Port : ObservableObject
     [ObservableProperty] private bool routeToWrapper = false;
     [ObservableProperty] private bool noRoute;
 
-    public Dictionary<dynamic, dynamic> ToConfig()
+    public Dictionary<dynamic, dynamic> ToConfig(SubModule submodule)
     {
+        var helper = new Instance(submodule);
         Dictionary<dynamic, dynamic> dict = new();
         dict.Add("name", Name);
         dict.Add("direction", direction == PortDirections.input ? "in" : direction == PortDirections.output ?  "out" : "inout");
-        dict.Add("size", width);
+        dict.Add("size", helper.ParsePortSize(width));
         return dict;
     }
 }

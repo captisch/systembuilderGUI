@@ -95,7 +95,6 @@ public partial class ConfigFile : ObservableObject
         yml += itemSerializer.Serialize(dictCoreItems);
         yml += itemSerializer.Serialize(dictInterfaces);
         yml += itemSerializer.Serialize(dictSubmodules);
-        submoduleSerializer.SerializeValue();
 
         /*/ ------------------ OLD --------------------------
 
