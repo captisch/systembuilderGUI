@@ -120,6 +120,13 @@
   type          : Boolean
   defaultValue  : True
   access        : True  
+
+#TODO: Add support for this option to the Python part!  
+- name          : hierarchical
+  description   : Generate hierarchical Verilog for Base-SoC
+  type          : Boolean
+  defaultValue  : False
+  access        : True
   
   #Parking lot for currently unused settings
   #- name          : build
