@@ -108,9 +108,11 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition SharedSizeGroup="SizeGroupOeParamName" Width="*" />
                                             <ColumnDefinition SharedSizeGroup="SizeGroupOeParamValue" Width="*" />
+                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamDescription" Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Name"/>
                                         <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Text="Value"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Text="Description"/>
                                         </Grid> 
                                         <ItemsControl  
                                         ItemsSource="{Binding OpenEyeConfig.Parameters}"

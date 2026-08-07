@@ -8,21 +8,26 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace systembuilderGUI.Models;
 
-public partial class OpenEyeConfig : ObservableObject
+public partial class OpenEyeParameter : Parameter
+{
+    [ObservableProperty] private string? description;
+}
+
+public class OpenEyeConfig : ObservableObject
 {
     public OpenEyeConfig()
     {
-        Parameters = ReadParametersFromTemplate(new Uri("avares://systembuilderGUI/Assets/openEyeParameterTemplate.vh"));
+        Parameters = ReadParametersFromTemplate(new Uri("avares://systembuilderGUI/Assets/openEyeParameterTemplate.txt"));
     }
 
-    public OpenEyeConfig(ObservableCollection<Parameter> parameters)
+    public OpenEyeConfig(ObservableCollection<OpenEyeParameter> parameters)
     {
         Parameters = parameters;
     }
     
-    public ObservableCollection<Parameter> Parameters { get; set; }
+    public ObservableCollection<OpenEyeParameter> Parameters { get; set; }
 
-    private ObservableCollection<Parameter> ReadParametersFromTemplate(Uri templateFile)
+    private ObservableCollection<OpenEyeParameter> ReadParametersFromTemplate(Uri templateFile)
     {
         using var stream = AssetLoader.Open(templateFile);
         using var reader = new StreamReader(stream);
@@ -30,9 +35,71 @@ public partial class OpenEyeConfig : ObservableObject
         return ParseParameters(headerText);
     }
     
-    private ObservableCollection<Parameter> ParseParameters(string? fileText)
+    private ObservableCollection<OpenEyeParameter> ParseParameters(string? fileText)
     {
-        var parameters = new ObservableCollection<Parameter>();
+        if (fileText == null)
+        {
+            Debug.WriteLine("ParseParameters: fileText is null!");
+            return [];
+        }
+        // Matches: parameter NAME = VALUE   (optional trailing comma, optional whitespace around '=')
+        var parameterPattern = new Regex(@"^\s*parameter\s+(\S+)\s*=\s*(.+?)\s*,?\s*$", RegexOptions.Compiled);
+
+        // Matches: description NAME = "TEXT"   (optional trailing comma, optional whitespace around '=')
+        var descriptionPattern = new Regex(@"^\s*description\s+(\S+)\s*=\s*""(.*)""\s*,?\s*$", RegexOptions.Compiled);
+
+        var byName = new Dictionary<string, OpenEyeParameter>();
+        var result = new ObservableCollection<OpenEyeParameter>();
+        
+        //spilt input into line to avoid issues due to optional comma
+        var lines = fileText.Split(["\r\n", "\r", "\n"], System.StringSplitOptions.None);
+
+        foreach (var rawLine in lines)
+        {
+            if (string.IsNullOrWhiteSpace(rawLine))
+                continue;
+
+            var paramMatch = parameterPattern.Match(rawLine);
+            if (paramMatch.Success)
+            {
+                string name = paramMatch.Groups[1].Value;
+                string value = paramMatch.Groups[2].Value;
+                
+                //check if name already exists in the list, probably redundant here
+                //TODO: CHeck if the construct checking for existing element of that name is required!
+                if (!byName.TryGetValue(name, out var entry))
+                {
+                    entry = new OpenEyeParameter { Name = name };
+                    byName[name] = entry;
+                    result.Add(entry);
+                }
+                entry.Value = value;
+                continue;
+            }
+
+            var descMatch = descriptionPattern.Match(rawLine);
+            if (descMatch.Success)
+            {
+                string name = descMatch.Groups[1].Value;
+                string description = descMatch.Groups[2].Value;
+                //check if Parameter of that name exists already
+                if (!byName.TryGetValue(name, out var entry))
+                {
+                    continue;   //Skip this description if no value found!
+                    /*
+                    This would create a new Parameter, but we don't want description only Parameters!
+                    entry = new OpenEyeParameter { Name = name };
+                    byName[name] = entry;
+                    result.Add(entry);
+                    */
+                }
+                entry.Description = description;
+            }
+        }
+
+        return result;
+        /*old version, keep around until new version is successfully tested!!
+        var parameters = new ObservableCollection<OpenEyeParameter>();
         if (string.IsNullOrWhiteSpace(fileText))
         {
             Debug.WriteLine("The requested header file does not exist or is invalid!");
@@ -60,7 +127,7 @@ public partial class OpenEyeConfig : ObservableObject
                 
                 Debug.WriteLine("Found Parameter: "+ parameterName);
                 
-                parameters.Add(new Parameter 
+                parameters.Add(new OpenEyeParameter 
                 {
                     Name = parameterName, 
                     Value = parameterValue
@@ -68,7 +135,7 @@ public partial class OpenEyeConfig : ObservableObject
             }
         }
         Debug.WriteLine("If there are no parameters listed before this message, something went wrong.");
-        return parameters;
+        return parameters;*/
     }
 
     public async Task LoadParametersFromFileAsync()
