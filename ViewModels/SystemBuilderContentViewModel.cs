@@ -49,6 +49,13 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private Task LoadConfig()
+    {
+        ConfigFile.loadConfig();
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
     private Task ChooseOutputDirectoryOfConfig(ConfigItem item)
     {
         return ConfigFile.ChooseOutputDirectory(item);
