@@ -42,23 +42,24 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private Task SaveConfig()
+    private async Task SaveConfigAsync()
     {
-        ConfigFile.Save(projectPath);
-        return Task.CompletedTask;
+        await ConfigFile.SaveConfiguration(projectPath);
+        return;
     }
 
     [RelayCommand]
-    private Task LoadConfig()
+    private async Task LoadConfigAsync()
     {
-        ConfigFile.loadConfig();
-        return Task.CompletedTask;
+        await ConfigFile.LoadConfiguration();
+        return;
     }
 
     [RelayCommand]
-    private Task ChooseOutputDirectoryOfConfig(ConfigItem item)
+    private async Task ChooseOutputDirectoryOfConfig(ConfigItem item)
     {
-        return ConfigFile.ChooseOutputDirectory(item);
+        await ConfigFile.ChooseOutputDirectory(item);
+        return;
     }
 
     [RelayCommand]
@@ -83,7 +84,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task GenerateSystem()
     {
-        await SaveConfig();
+        ConfigFile.GenerateLitexInput(projectPath);
 
         string? socName = ConfigFile.GetSOCName();
         

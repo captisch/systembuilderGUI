@@ -52,8 +52,6 @@ public partial class ConfigFile : ObservableObject
         return returnItems;
     }
     
-    
-    
     private string createOutput()
     {
         // Build dictionaries containing only name and value of configuration items
@@ -96,52 +94,6 @@ public partial class ConfigFile : ObservableObject
         yml += itemSerializer.Serialize(dictInterfaces);
         yml += itemSerializer.Serialize(dictSubmodules);
 
-        /*/ ------------------ OLD --------------------------
-
-        foreach (var item in CoreItems)
-        {
-            yml +=  item.Name + ": " + item.Value + "\n";
-        }
-        
-        foreach (var item in Interfaces)
-        {
-            yml +=  item.Name + ": " + item.Value + "\n";
-        }
-        
-        yml += "\nexternal_modules: {\n";
-
-        foreach (var (index, module) in subModules.Index())
-        {
-            Instance helper = new Instance(module);
-            yml += $"{indentBy(1)}\"ext_mod_{index}\":{{\n";
-            var source = module.IsExternalModule ? "None" : $"{module.Filename}" ;
-            yml += $"{indentBy(2)}\"source\": \"{source}\",\n";
-            yml += $"{indentBy(2)}\"module_name\": \"{module.Module.Name}\",\n";
-            yml += $"{indentBy(2)}\"instance_name\": \"{module.Instance}\",\n";
-            yml += $"{indentBy(2)}\"parameters\": {{\n";
-            foreach (var param in module.Module.Parameters)
-            {
-                yml += $"{indentBy(3)}\"{param.Name}\": {param.Value},\n";
-            }
-            yml += $"{indentBy(2)}}},\n";
-            yml += $"{indentBy(2)}\"ports\": {{\n";
-            foreach (var (index_port, port) in module.Module.Ports.Index())
-            {
-                if (module.IsExternalModule && !port.RouteToSOC) continue;
-                yml += $"{indentBy(3)}\"port{index_port}\": {{\n";
-                yml += $"{indentBy(4)}\"name\": \"{port.Name}\",\n";
-                var direction = port.Direction.ToString().ToLower() == "input" ? "in" : 
-                    port.Direction.ToString().ToLower() == "output" ? "out" :
-                    port.Direction.ToString().ToLower();
-                yml += $"{indentBy(4)}\"direction\": \"{direction}\",\n";
-                yml += $"{indentBy(4)}\"size\": {helper.ParsePortSize(port.Width)}\n";
-                yml += $"{indentBy(3)}}},\n";
-            }
-            yml += $"{indentBy(2)}}},\n";
-            yml += $"{indentBy(1)}}},\n";
-        }
-        yml += "}\n";
-        */
         return yml;
     }
     
@@ -159,7 +111,7 @@ public partial class ConfigFile : ObservableObject
     }
 
     
-    public string Save(string? path = null)
+    public async Task GenerateLitexInput(string? path = null)
     {
         var nameItem = FindItemByName("Name");
         if (nameItem is null) throw new InvalidOperationException("No name was found in the SOC config file.");
@@ -171,25 +123,34 @@ public partial class ConfigFile : ObservableObject
         }
         if (string.IsNullOrWhiteSpace(path)) throw new InvalidOperationException("No path was given to save the config file.");
         
-        var saveFilePath = Path.Combine(path, $"configFile_{nameItem.Value}.yaml");
+        var filePath = Path.Combine(path, $"configFile_{nameItem.Value}.yaml");
         var logFilePath = Path.Combine(path, $"container_log_raw.txt");
         
         OutputDirPath = path;
-        OutputFilePath = saveFilePath;
+        OutputFilePath = filePath;
         LogPath = logFilePath;
 
-        if (!Directory.Exists(Path.GetDirectoryName(saveFilePath)))
+        if (!Directory.Exists(Path.GetDirectoryName(filePath)))
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(saveFilePath));
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
         }
 
         File.WriteAllText(logFilePath, "Container has not run yet.");
         
         var yml = createOutput();
         
-        File.WriteAllText(saveFilePath, yml);
-        Debug.WriteLine($"Saving to {saveFilePath}");
-        return saveFilePath;
+        File.WriteAllText(filePath, yml);
+        Debug.WriteLine($"Generated Litex input to {filePath}");
+    }
+
+    public async Task SaveConfiguration(string? path = null)
+    {
+        
+    }
+
+    public async Task LoadConfiguration(string? path = null)
+    {
+        
     }
     
     public async Task ChooseOutputDirectory(ConfigItem item)
