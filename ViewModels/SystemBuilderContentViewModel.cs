@@ -38,7 +38,8 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     
     public IStorageProvider? StorageProvider
     {
-        set => ConfigFile.StorageProvider = value;
+        get;
+        set => field = ConfigFile.StorageProvider = value;
     }
 
     [RelayCommand]
@@ -63,9 +64,23 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private Task AddSubModulesToConfig()
+    private async Task AddSubModulesToConfig()
     {
-        return ConfigFile.AddSubModule();
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Moduledatei auswählen",
+            AllowMultiple = true,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("Verilog-Dateien"){ Patterns = new[] {"*.v"} }
+            }.ToList()
+            
+        });
+        
+        foreach (var file in files)
+        {
+            await ConfigFile.AddSubModuleFromFile(file.TryGetLocalPath() ?? file.Path.LocalPath);
+        }
     }
 
     [RelayCommand]

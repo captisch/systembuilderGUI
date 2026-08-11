@@ -170,47 +170,34 @@ public partial class ConfigFile : ObservableObject
         }
     }
     
-    public async Task AddSubModule()
+    public async Task AddSubModuleFromFile(string filePath)
     {
-        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "Moduledatei auswählen",
-            AllowMultiple = true,
-            FileTypeFilter = new[]
-            {
-                new FilePickerFileType("Verilog-Dateien"){ Patterns = new[] {"*.v"} }
-            }.ToList()
-            
-        });
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+            return;
+
         var verilogParser = new VerilogParser();
-        foreach (var file in files)
+        var modules = verilogParser.ReadVerilog(filePath);
+
+        if (modules.Count > 0)
         {
-            var verilogPath = file.TryGetLocalPath() ?? file.Path.LocalPath;
-            Debug.WriteLine(verilogPath);
-            
-            var modules = verilogParser.ReadVerilog(verilogPath);
-
-            if (modules.Count > 0)
+            foreach (var module in modules)
             {
-                foreach (var module in modules)
+                var instCnt = 0;
+                var instanceName = $"{module.Name}_{instCnt}";
+
+                while (subModules.Any(sm => sm.Instance == instanceName))
                 {
-                    var instCnt = 0;
-                    var instanceName = $"{module.Name}_{instCnt}";
-
-                    while (subModules.Any(sm => sm.Instance == instanceName))
-                    {
-                        instCnt++;
-                        instanceName = $"{module.Name}_{instCnt}";
-                    }
-
-                    subModules.Add(new SubModule()
-                    {
-                        Module = module,
-                        Source = verilogPath,
-                        Filename = Path.GetFileName(verilogPath),
-                        Instance = instanceName,
-                    });
+                    instCnt++;
+                    instanceName = $"{module.Name}_{instCnt}";
                 }
+
+                subModules.Add(new SubModule()
+                {
+                    Module = module,
+                    Source = filePath,
+                    Filename = Path.GetFileName(filePath),
+                    Instance = instanceName,
+                });
             }
         }
     }
