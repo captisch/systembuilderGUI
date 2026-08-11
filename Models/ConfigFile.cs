@@ -22,20 +22,18 @@ public partial class ConfigFile : ObservableObject
     
     public ConfigFile()
     {
-        CoreItems = loadItems(new Uri("avares://systembuilderGUI/Assets/configFile_items_definition.yaml"));
-        Interfaces = loadItems(new Uri("avares://systembuilderGUI/Assets/configFile_interfaces_definition.yaml"));
+        CoreItems = initItems(new Uri("avares://systembuilderGUI/Assets/configFile_coreItems_definition.yaml"));
+        Interfaces = initItems(new Uri("avares://systembuilderGUI/Assets/configFile_interfaces_definition.yaml"));
     }
     public ObservableCollection<ConfigItem> CoreItems { get; set; } = new();
-    
     public ObservableCollection<ConfigItem> Interfaces { get; set; } = new();
-    
     public ObservableCollection<SubModule> subModules { get; set; } = new();
     
     [ObservableProperty] private string? outputDirPath;
     [ObservableProperty] private string? outputFilePath;
     [ObservableProperty] private string? logPath;
     
-    private ObservableCollection<ConfigItem> loadItems(Uri source)
+    private ObservableCollection<ConfigItem> initItems(Uri source)
     {
         using var stream = AssetLoader.Open(source);
         using var reader = new StreamReader(stream);
@@ -158,12 +156,7 @@ public partial class ConfigFile : ObservableObject
         if (item is null)
             return;
 
-        var lifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
-        var window = lifetime?.MainWindow;
-        if (window?.StorageProvider is null)
-            return;
-
-        var result = await window.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        var result = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
             Title = "Ordner auswählen",
             AllowMultiple = false
@@ -173,19 +166,13 @@ public partial class ConfigFile : ObservableObject
         if (folder is not null)
         {
             var path = folder.TryGetLocalPath() ?? folder.Path.LocalPath;
-            
             item.Value = path;
         }
     }
     
     public async Task AddSubModule()
     {
-        var lifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
-        var window = lifetime?.MainWindow;
-        if (window?.StorageProvider is null)
-            return;
-
-        var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Moduledatei auswählen",
             AllowMultiple = true,
@@ -199,9 +186,7 @@ public partial class ConfigFile : ObservableObject
         foreach (var file in files)
         {
             var verilogPath = file.TryGetLocalPath() ?? file.Path.LocalPath;
-            #if DEBUG
-            Console.WriteLine(verilogPath);
-            #endif
+            Debug.WriteLine(verilogPath);
             
             var modules = verilogParser.ReadVerilog(verilogPath);
 
