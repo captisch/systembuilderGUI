@@ -96,30 +96,52 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         return ConfigFile.CopySubmodule(subModule);
     }
 
+    private async Task CopyExternalSources()
+    {
+        // Maybe create directory for external sources so everything is gathered in one place.
+        // An existing directory could alos be wiped to clear unused Verilog files.
+        
+        List<string> externalSources = new List<string>();
+        
+        foreach (var file in ConfigFile.subModules)
+        {
+            string destinationFilePath;
+            if (file.Source is not null)
+            {
+                var fileName = Path.GetFileName(file.Source);
+                Debug.Assert(ConfigFile.OutputDirPath != null, "ConfigFile.OutputDirPath is null!");
+                destinationFilePath = Path.Combine(ConfigFile.OutputDirPath, fileName);
+            }
+            else return;
+
+            if (!externalSources.Contains(file.Source))
+            {
+                externalSources.Add(file.Source);
+                try
+                {
+                    File.Copy(file.Source, destinationFilePath, overwrite: true);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }
+            // Maybe update file.Source to new copy of the verilog file.
+            // BUT there will be possible confusion over modules with same name but different source files. So maybe not.
+        }
+    }
+    
     [RelayCommand]
     private async Task GenerateSystem()
     {
-        ConfigFile.GenerateLitexInput(projectPath);
+        await ConfigFile.GenerateLitexInput(projectPath);
 
         string? socName = ConfigFile.GetSOCName();
         
         await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath, ConfigFile.LogPath);
 
-        List<string> externalSources = new List<string>();
-        
-        foreach (var file in ConfigFile.subModules)
-        {
-            if (file.Source != null && !externalSources.Contains(file.Source))
-            {
-                externalSources.Add(file.Source);
-                
-                string fileName = Path.GetFileName(file.Source);
-                Debug.Assert(ConfigFile.OutputDirPath != null, "ConfigFile.OutputDirPath is null!");
-                string destinationFilePath = Path.Combine(ConfigFile.OutputDirPath, fileName);
-
-                File.Copy(file.Source, destinationFilePath);
-            }
-        }
+        await CopyExternalSources();
         
         WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
         wrapperBuilder.GenerateWrapper(projectPath);
