@@ -52,7 +52,17 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task LoadConfigAsync()
     {
-        await ConfigFile.LoadConfiguration();
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Konfigurationsdatei auswählen",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("YAML-Dateien"){ Patterns = new[] {"*.yaml", "*.yml"} }
+            }.ToList()
+        });
+        
+        await ConfigFile.LoadConfiguration(files.FirstOrDefault()?.TryGetLocalPath() ?? files.FirstOrDefault()?.Path.LocalPath);
         return;
     }
 
@@ -135,7 +145,9 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task GenerateSystem()
     {
-        await ConfigFile.GenerateLitexInput(projectPath);
+        await ConfigFile.SaveConfiguration(projectPath);
+        
+        await ConfigFile.GenerateSystemBuilderInput(projectPath);
 
         string? socName = ConfigFile.GetSOCName();
         
