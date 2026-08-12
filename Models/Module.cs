@@ -63,14 +63,34 @@ public partial class Port : ObservableObject
     [ObservableProperty] private bool routeToWrapper = false;
     [ObservableProperty] private bool noRoute;
 
-    public Dictionary<dynamic, dynamic> ToConfig(SubModule submodule)
+    public Dictionary<dynamic, dynamic> ToDictionary(SubModule submodule, string outputType)
     {
         var helper = new Instance(submodule);
         Dictionary<dynamic, dynamic> dict = new();
         dict.Add("name", Name);
-        dict.Add("direction", direction == PortDirections.input ? "in" : direction == PortDirections.output ?  "out" : "inout");
-        dict.Add("size", helper.ParsePortSize(width));
+
+        if (outputType == "build")
+        {
+            dict.Add("direction",
+                direction == PortDirections.input ? "in" : direction == PortDirections.output ? "out" : "inout");
+            dict.Add("size", helper.ParsePortSize(width));
+        }else if (outputType == "save")
+        {
+            dict.Add("routeToSOC", routeToSOC);
+            dict.Add("routeToWrapper", routeToWrapper);
+        }
+        else
+        {
+            throw new InvalidOperationException($"Unknown output type: {outputType}");
+        }
         return dict;
+    }
+    
+    public void SetRoute(bool routeToSOC, bool routeToWrapper)
+    {
+        RouteToSOC = routeToSOC;
+        RouteToWrapper = routeToWrapper;
+        NoRoute = !routeToSOC && !routeToWrapper;
     }
 }
 
