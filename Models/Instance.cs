@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Avalonia.Controls.Converters;
@@ -478,13 +479,13 @@ public class Instance
                 modPort.RouteToSOC, modPort.RouteToWrapper);
             ports.Add(currentPort);
             //Debug Message:
-            Console.WriteLine("Added Port: " + currentPort.PortName + " with " + currentPort.PortSize + " Pins");
+            Debug.WriteLine("Added Port: " + currentPort.PortName + " with " + currentPort.PortSize + " Pins");
         }
         //Debug Message
-        Console.WriteLine("Return List contains the following "+ ports.Count + " ports:");
+        Debug.WriteLine("Return List contains the following "+ ports.Count + " ports:");
         foreach (var port in ports)
         {
-            Console.WriteLine(port.PortName + " with " + port.PortSize + " Pins");
+            Debug.WriteLine(port.PortName + " with " + port.PortSize + " Pins");
         }
         return ports;
     }

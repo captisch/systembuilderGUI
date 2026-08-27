@@ -60,20 +60,23 @@
 #CSR Settings
 - name          : csr_data_width
   description   : CSR data width in bits
-  type          : Integer
+  type          : OptionList
   defaultValue  : 32
+  options       : [8, 32]
   access        : True
 
 - name          : csr_address_width
   description   : CSR address width in bits
-  type          : Integer
+  type          : OptionList
   defaultValue  : 14
+  options       : [14, 15, 16, 17, 18]
   access        : True
 
 - name          : csr_paging
   description   : CSR paging
-  type          : Integer
+  type          : OptionList
   defaultValue  : 2048
+  options       : [1024, 2048, 4096, 8192, 16384]
   access        : True
 
 - name          : csr_ordering

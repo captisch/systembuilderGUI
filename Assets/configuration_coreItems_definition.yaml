@@ -9,7 +9,7 @@
   description   : CPU type
   type          : OptionList
   defaultValue  : "vexriscv"
-  options       : ["vexriscv", "picorv32", "lm32", "mor1kx", "rocket", "blackparrot", "neorv32", "kianv"]
+  options       : ["vexriscv", "picorv32", "lm32", "mor1kx", "rocket", "blackparrot", "neorv32", "kianv", "None"]
   access        : True  
   
 - name          : compile_software
@@ -47,8 +47,9 @@
 
 - name          : bus_address_width
   description   : Bus address width in bits
-  type          : Integer
+  type          : OptionList
   defaultValue  : 32
+  options       : [32, 64]
   access        : True
 
 - name          : bus_timeout
@@ -83,15 +84,17 @@
 
 #BIOS settings  
 - name          : bios_format
-  description   : Format of the bios
-  type          : OpenString
+  description   : BIOS printf format
+  type          : OptionList
   defaultValue  : "integer"
+  options       : ["integer", "float", "double"]
   access        : True
 
 - name          : bios_console
   description   : Console of the bios
-  type          : OpenString
+  type          : OptionList
   defaultValue  : "full"
+  options       : ["full", "no-history", "no-autocomplete", "lite", "disable"]  
   access        : True  
 
 - name          : bios_lto
@@ -117,6 +120,13 @@
   type          : Boolean
   defaultValue  : True
   access        : True  
+
+#TODO: Add support for this option to the Python part!  
+- name          : hierarchical
+  description   : Generate hierarchical Verilog for Base-SoC
+  type          : Boolean
+  defaultValue  : False
+  access        : True
   
   #Parking lot for currently unused settings
   #- name          : build
