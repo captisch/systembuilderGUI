@@ -29,7 +29,7 @@
         -->
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" Private="true" ExcludeAssets="runtime;Native"/>
         <PackageReference Include="OneWare.Essentials" Version="1.0.0" Private="false" ExcludeAssets="runtime;Native"/>
-        <PackageReference Include="YamlDotNet" Version="16.3.0" Private="true"/>
+        <PackageReference Include="YamlDotNet" Version="18.1.0" Private="true" />
     </ItemGroup>
 
     <!--ItemGroup>

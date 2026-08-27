@@ -9,19 +9,12 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace systembuilderGUI.Models;
 
-enum ConfigItemTypes
-{
-    String,
-    Integer,
-    Boolean,
-    Float,
-    Enum
-};
-
 public partial class ConfigItem : ObservableObject
 {
+    [ObservableProperty] private string? name;
+    
     private string? _value;
-
+    
     public string? Value
     {
         get => _value;
@@ -47,38 +40,6 @@ public partial class ConfigItem : ObservableObject
         }
     }
 
-    private string ValidateEntry(string? entry)
-    {
-        switch (Type)
-        {
-            case "OpenString":
-                if (string.IsNullOrWhiteSpace(entry) && !string.IsNullOrWhiteSpace(DefaultValue)) entry = DefaultValue;
-                return entry;
-            case "OptionList":
-                return entry;
-            case "Integer":
-                if (int.TryParse(entry, NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out int intValue))
-                {
-                    Debug.WriteLine($"Parsed {entry} to {intValue}");
-                    return entry;
-                }
-                else if (!string.IsNullOrWhiteSpace(DefaultValue))
-                {
-                    return DefaultValue;
-                }
-                else return string.Empty;
-            case "Boolean":
-                return entry;
-            case "FilePath":
-                return entry;
-            case "Enum":
-                return entry;
-        }
-        return string.Empty;
-    }
-
-    [ObservableProperty] private string? name;
-
     [ObservableProperty] private string? defaultValue;
 
     [ObservableProperty] private string? type;
@@ -89,6 +50,36 @@ public partial class ConfigItem : ObservableObject
     
     public ObservableCollection<string?> Options { get; set; } = new ();
     
+    private string ValidateEntry(string? entry)
+     {
+         switch (Type)
+         {
+             case "OpenString":
+                 if (string.IsNullOrWhiteSpace(entry) && !string.IsNullOrWhiteSpace(DefaultValue)) entry = DefaultValue;
+                 return entry;
+             case "OptionList":
+                 return entry;
+             case "Integer":
+                 if (int.TryParse(entry, NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out int intValue))
+                 {
+                     Debug.WriteLine($"Parsed {entry} to {intValue}");
+                     return entry;
+                 }
+                 else if (!string.IsNullOrWhiteSpace(DefaultValue))
+                 {
+                     return DefaultValue;
+                 }
+                 else return string.Empty;
+             case "Boolean":
+                 return entry;
+             case "FilePath":
+                 return entry;
+             case "Enum":
+                 return entry;
+         }
+         return string.Empty;
+     }
+   
     partial void OnDefaultValueChanged(string? oldValue, string? newValue)
     {
         if (string.IsNullOrWhiteSpace(Value) && !string.IsNullOrWhiteSpace(newValue))

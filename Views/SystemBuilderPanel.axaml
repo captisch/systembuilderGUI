@@ -42,6 +42,8 @@
                             Spacing="8">
                     <Button Content="Save"
                             Command="{Binding SaveConfigCommand}"/>
+                    <Button Content="Load Config"
+                            Command="{Binding LoadConfigCommand}"/>
                     <Button Content="Run SystemBuilder"
                             Command="{Binding GenerateSystemCommand}"></Button>
                 </StackPanel>

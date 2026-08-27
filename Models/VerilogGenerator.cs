@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 //using SystemBuilder.Types;
 
@@ -33,7 +34,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         File.Create(outputPath);
         */
         //DEBUG:
-        Console.WriteLine("Generating verilog file");
+        Debug.WriteLine("Generating verilog file");
         
         using (StreamWriter sw = File.CreateText(outputPath))
         {
@@ -90,7 +91,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         int portsDone = 0;
         if (numberOfPorts == 0)
         {
-            Console.WriteLine("No ports set for top module!");
+            Debug.WriteLine("No ports set for top module!");
             return;
         }
         
@@ -135,7 +136,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
                     break;
                 default:
                     //TODO: Add proper error handling?
-                    Console.WriteLine("Port with no direction? At this time of year, " +
+                    Debug.WriteLine("Port with no direction? At this time of year, " +
                                       "at this time of day, " +
                                       "in this part of the country," +
                                       "localized entirely within your top module definition!?");
@@ -228,7 +229,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         {
             if (!wireIsVector)  //this is the trickiest bit, vector port connected to whatever wires
             {
-                Console.WriteLine("NO! I CAN'T DO THIS, YET!");
+                Debug.WriteLine("NO! I CAN'T DO THIS, YET!");
             }
             else  //port and wire are vectors, for now we assume they are the same size
             {
@@ -262,7 +263,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
             }
             else
             {
-                Console.WriteLine("But my lord, there is no such wire!");
+                Debug.WriteLine("But my lord, there is no such wire!");
             }
         }
         return false;

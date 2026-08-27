@@ -35,26 +35,59 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
 
     public IStorageProvider? StorageProvider
     {
-        set => ConfigFile.StorageProvider = value;
+        get;
+        set => field = ConfigFile.StorageProvider = value;
     }
 
     [RelayCommand]
-    private Task SaveConfig()
+    private async Task SaveConfigAsync()
     {
-        ConfigFile.Save(projectPath);
-        return Task.CompletedTask;
+        await ConfigFile.SaveConfiguration(projectPath);
+        return;
     }
 
     [RelayCommand]
-    private Task ChooseOutputDirectoryOfConfig(ConfigItem item)
+    private async Task LoadConfigAsync()
     {
-        return ConfigFile.ChooseOutputDirectory(item);
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Konfigurationsdatei auswählen",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("YAML-Dateien"){ Patterns = new[] {"*.yaml", "*.yml"} }
+            }.ToList()
+        });
+        
+        await ConfigFile.LoadConfiguration(files.FirstOrDefault()?.TryGetLocalPath() ?? files.FirstOrDefault()?.Path.LocalPath);
+        return;
     }
 
     [RelayCommand]
-    private Task AddSubModulesToConfig()
+    private async Task ChooseOutputDirectoryOfConfig(ConfigItem item)
     {
-        return ConfigFile.AddSubModule();
+        await ConfigFile.ChooseOutputDirectory(item);
+        return;
+    }
+
+    [RelayCommand]
+    private async Task AddSubModulesToConfig()
+    {
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Moduledatei auswählen",
+            AllowMultiple = true,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("Verilog-Dateien"){ Patterns = new[] {"*.v"} }
+            }.ToList()
+            
+        });
+        
+        foreach (var file in files)
+        {
+            await ConfigFile.AddSubModuleFromFile(file.TryGetLocalPath() ?? file.Path.LocalPath);
+        }
     }
 
     [RelayCommand]
@@ -70,6 +103,42 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         return ConfigFile.CopySubmodule(subModule);
     }
 
+    private async Task CopyExternalSources()
+    {
+        // Maybe create directory for external sources so everything is gathered in one place.
+        // An existing directory could alos be wiped to clear unused Verilog files.
+        
+        List<string> externalSources = new List<string>();
+        
+        foreach (var file in ConfigFile.subModules)
+        {
+            string destinationFilePath;
+            if (file.Source is not null)
+            {
+                var fileName = Path.GetFileName(file.Source);
+                Debug.Assert(ConfigFile.OutputDirPath != null, "ConfigFile.OutputDirPath is null!");
+                destinationFilePath = Path.Combine(ConfigFile.OutputDirPath, fileName);
+            }
+            else return;
+
+            if (!externalSources.Contains(file.Source))
+            {
+                externalSources.Add(file.Source);
+                try
+                {
+                    File.Copy(file.Source, destinationFilePath, overwrite: true);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }
+            // Maybe update file.Source to new copy of the verilog file.
+            // BUT there will be possible confusion over modules with same name but different source files. So maybe not.
+        }
+    }
+    
     [RelayCommand]
     private async Task SaveOpenEyeHeaderAsync()
     {
@@ -114,27 +183,15 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task GenerateSystem()
     {
-        await SaveConfig();
+        await ConfigFile.SaveConfiguration(projectPath);
+        
+        await ConfigFile.GenerateSystemBuilderInput(projectPath);
 
         string? socName = ConfigFile.GetSOCName();
         
         await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath, ConfigFile.LogPath);
 
-        List<string> externalSources = new List<string>();
-        
-        foreach (var file in ConfigFile.subModules)
-        {
-            if (file.Source != null && !externalSources.Contains(file.Source))
-            {
-                externalSources.Add(file.Source);
-                
-                string fileName = Path.GetFileName(file.Source);
-                Debug.Assert(ConfigFile.OutputDirPath != null, "ConfigFile.OutputDirPath is null!");
-                string destinationFilePath = Path.Combine(ConfigFile.OutputDirPath, fileName);
-
-                File.Copy(file.Source, destinationFilePath);
-            }
-        }
+        await CopyExternalSources();
         
         WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
         wrapperBuilder.GenerateWrapper(projectPath);
