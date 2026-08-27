@@ -18,7 +18,7 @@ public class SystemBuilderViewModel : ExtendedTool
 
     public override void InitializeContent()
     {
-        var activeProjectName = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject.Name;
-        Title = activeProjectName + " - SystemBuilder";
+        //var activeProjectName = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject.Name;
+        Title = "SystemBuilder";
     }
 }
