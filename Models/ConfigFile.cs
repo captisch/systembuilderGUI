@@ -187,7 +187,7 @@ public partial class ConfigFile : ObservableObject
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
-        var reader = File.OpenText(path);
+        using var reader = File.OpenText(path);
         var parser = new Parser(reader);
 
         parser.Consume<StreamStart>();
