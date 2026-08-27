@@ -18,7 +18,7 @@
         <Button Name="SystemBuilderButton">
             <StackPanel Orientation="Horizontal">
                 <PathIcon Data="{DynamicResource SystemBuilderSymbol}" Height="15"/>
-                <TextBlock Text="SystemBuilder"
+                <TextBlock Text="Open SystemBuilder"
                            Margin="5, 0"/>
             </StackPanel>
         </Button>
