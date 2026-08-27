@@ -9,52 +9,62 @@
              xmlns:conv="using:systembuilderGUI.Converters"
              x:Class="systembuilderGUI.Views.SystemBuilderPanel"
              x:DataType="vm:SystemBuilderContentViewModel">
-        
-        <UserControl.Resources>
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="avares://systembuilderGUI/Styles/DataTemplates.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
             
-            <ResourceDictionary>
-                
-                <ResourceDictionary.MergedDictionaries>
-                    <MergeResourceInclude Source="avares://systembuilderGUI/Styles/DataTemplates.axaml"/>
-                </ResourceDictionary.MergedDictionaries>
-                
-                <!-- Template-Selector-Instanz -->
-                <t:ConfigItemTemplateSelector
-                    x:Key="ConfigItemTemplateSelector"
-                    OpenStringTemplate="{StaticResource OpenStringItemTemplate}"
-                    BooleanTemplate="{StaticResource BooleanItemTemplate}"
-                    OptionListTemplate="{StaticResource OptionListItemTemplate}"
-                    IntegerTemplate="{StaticResource IntegerItemTemplate}"
-                    FilePathTemplate="{StaticResource FilePathTemplate}"
-                    DefaultTemplate="{StaticResource DefaultItemTemplate}" />
-                
-            </ResourceDictionary>
-            
-        </UserControl.Resources>
+            <!-- Template-Selector-Instanz -->
+            <t:ConfigItemTemplateSelector
+                x:Key="ConfigItemTemplateSelector"
+                OpenStringTemplate="{StaticResource OpenStringItemTemplate}"
+                BooleanTemplate="{StaticResource BooleanItemTemplate}"
+                OptionListTemplate="{StaticResource OptionListItemTemplate}"
+                IntegerTemplate="{StaticResource IntegerItemTemplate}"
+                FilePathTemplate="{StaticResource FilePathTemplate}"
+                DefaultTemplate="{StaticResource DefaultItemTemplate}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <UserControl.Styles>
+        <StyleInclude Source="avares://systembuilderGUI/Styles/ButtonStyles.axaml"/>
+    </UserControl.Styles>
 
-        <Border Margin="5,5,0,5">
+        <Border Margin="0"
+                BorderBrush="Blue"
+                BorderThickness="2">
             
             <DockPanel >
                 
                 <StackPanel Orientation="Horizontal"
                             DockPanel.Dock="Top"
                             Margin="8, 4"
-                            Spacing="8">
-                    <Button Content="Save"
+                            Spacing="4">
+                    <Button Classes = "Menu"
+                            Content="Save"
                             Command="{Binding SaveConfigCommand}"/>
-                    <Button Content="Load Config"
+                    <Button Classes = "Menu"
+                            Content="Load Config"
                             Command="{Binding LoadConfigCommand}"/>
-                    <Button Content="Run SystemBuilder"
-                            Command="{Binding GenerateSystemCommand}"></Button>
+                    <Button Classes = "Menu"
+                            Content="Reset to Defaults"
+                            Command="{Binding ResetDefaultsCommand}"/>
+                    <Button Classes = "Menu"
+                            Content="Run SystemBuilder"
+                            Command="{Binding GenerateSystemCommand}"/>
                 </StackPanel>
                 
                 <Separator DockPanel.Dock="Top" Margin="0" Background="{DynamicResource ThemeAccentBrush}" Height="2" />
                 
-                <TabControl Margin="0,10,0,5">
+                <TabControl Margin="0,5,0,2"
+                            TabStripPlacement="Left">
                     <TabItem Header="Core Configuration">
                         <ScrollViewer AllowAutoHide="True" 
                                       Padding="0,0,20,0"
-                                      Grid.IsSharedSizeScope="True">
+                                      Grid.IsSharedSizeScope="True"
+                                      Background="{DynamicResource ThemeControlLowBrushBrush}">
                             <ItemsControl ItemsSource="{Binding ConfigFile.CoreItems}"
                                           ItemTemplate="{StaticResource ConfigItemTemplateSelector}"/>
                         </ScrollViewer>
