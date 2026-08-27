@@ -198,4 +198,22 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
 
         await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(activeProject);
     }
+
+    [RelayCommand]
+    private Task ResetDefaults()
+    {
+        foreach (var item in ConfigFile.CoreItems)
+        {
+            item.Value = item.DefaultValue ?? string.Empty;
+        }
+        
+        foreach (var item in ConfigFile.Interfaces)
+        {
+            item.Value = item.DefaultValue ?? string.Empty;
+        }
+        
+        ConfigFile.subModules.Clear();
+        
+        return Task.CompletedTask;
+    }
 }
