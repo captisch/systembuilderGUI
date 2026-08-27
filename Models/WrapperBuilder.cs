@@ -424,7 +424,7 @@ public class WrapperBuilder
         foreach (Module module in modulesTemp)
         {
             //Debug:
-            Console.WriteLine("Found module {0} in SoC file" ,module.Name);
+            //Console.WriteLine("Found module {0} in SoC file" ,module.Name);
             
             if (module.Name == socName)
             {

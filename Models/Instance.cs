@@ -153,8 +153,8 @@ public class Instance
         int portIndex = FindPort(portName);
         
         Debug Code
-        Console.WriteLine("looking for pin {0} of port {1}", pinIndex, portName);
-        Console.WriteLine("Index in list of inputs:" + portIndex);
+        Debug.WriteLine("looking for pin {0} of port {1}", pinIndex, portName);
+        Debug.WriteLine("Index in list of inputs:" + portIndex);
         //End of Debug Code
         
         if (portIndex != -1)
@@ -166,7 +166,7 @@ public class Instance
             {
                 if (conWire.HasDriver[wireIndex] == true)
                 {
-                    Console.WriteLine("ERROR: Index {0} of {1} already has driver!", wireIndex, conWire.Name);
+                    Debug.WriteLine("ERROR: Index {0} of {1} already has driver!", wireIndex, conWire.Name);
                     return;
                 }
                 else
@@ -180,7 +180,7 @@ public class Instance
             return;
         }
         //In case Pin can't be found:
-        Console.WriteLine("ERROR! Couldn't find requested Pin: " + portName);
+        Debug.WriteLine("ERROR! Couldn't find requested Pin: " + portName);
     }*/
 
     public void SetParameter(string parameterName, string value)
@@ -194,7 +194,7 @@ public class Instance
             _instanceParams.Insert(parameterIndex, instanceParam);
             return;
         }
-        Console.WriteLine("ERROR! Parameter doesn't exist!");
+        Debug.WriteLine("ERROR! Parameter doesn't exist!");
     }
 
     public int ParsePortSize(string portSize)
@@ -217,11 +217,11 @@ public class Instance
         {
             //For now this is just some debug messages and a null return
             //Long-term it would probably be good to have actual error handling...
-            Console.WriteLine("ERROR: Invalid width format! There should be only 2 substrings.");
-            Console.WriteLine("These substrings have been identified:");
+            Debug.WriteLine("ERROR: Invalid width format! There should be only 2 substrings.");
+            Debug.WriteLine("These substrings have been identified:");
             foreach (string sub in substrings)
             {
-                Console.WriteLine(sub);
+                Debug.WriteLine(sub);
             }
             return 0;   //port of size 0 means error
         }
@@ -242,7 +242,7 @@ public class Instance
             else
             {
                 //I think it's not unreasonable to treat this unlikely case as an error for now
-                Console.WriteLine("ERROR! I don't know what you're trying here but this ain't it.");
+                Debug.WriteLine("ERROR! I don't know what you're trying here but this ain't it.");
                 return 0;
             }
         }
@@ -279,7 +279,7 @@ public class Instance
                             temp = builder.ToString();
                             tokens.Add(temp);
                             builder.Clear();
-                            Console.WriteLine("Saving Operand: {0}", temp);
+                            Debug.WriteLine("Saving Operand: {0}", temp);
                         }
 
                         //Saving current operator
@@ -287,7 +287,7 @@ public class Instance
                         tokens.Add(temp);
 
                         //Debug Code:
-                        //Console.WriteLine("Saving Operator: {0}", temp);
+                        //Debug.WriteLine("Saving Operator: {0}", temp);
                         break;
                     case ' ':
                         //this filters spaces and helps detect invalid syntax
@@ -309,10 +309,10 @@ public class Instance
                                      * I think even this check might be overdoing it, as we expect
                                      * valid Verilog as input.
                                      */
-                            Console.WriteLine("ERROR! Invalid Syntax. Token can't contain spaces.");
+                            Debug.WriteLine("ERROR! Invalid Syntax. Token can't contain spaces.");
                             return 0;
                         }
-                        Console.WriteLine(index);
+                        Debug.WriteLine(index);
                         builder.Append(substrings[0][index]);
                         break;
                 }
@@ -346,11 +346,11 @@ public class Instance
             tempNum = 0;
             isNumber = false;
             //Debug Message
-            //Console.WriteLine("Listing tokens:");
+            //Debug.WriteLine("Listing tokens:");
             foreach (string token in tokens)
             {
                 //Debug Message
-                //Console.WriteLine(token);
+                //Debug.WriteLine(token);
 
                 //length 1 is probably an operator so we check that first
                 switch (token)
@@ -399,7 +399,7 @@ public class Instance
             foreach (string element in postfix)
             {
                 //Debug Message
-                //Console.WriteLine(element);
+                //Debug.WriteLine(element);
 
                 switch (element)
                 {
@@ -446,7 +446,7 @@ public class Instance
                             if (!paramFound)
                             {
                                 //TODO: Proper error message?
-                                Console.WriteLine("ERROR! Parameter '{0}' not found.", element);
+                                Debug.WriteLine("ERROR! Parameter '{0}' not found.", element);
                             }
                             else
                             {
@@ -460,7 +460,7 @@ public class Instance
             widthNum = valueStack.Pop() + 1;
             /*Debug Message:
                     int stacksize = valueStack.Count();
-                    Console.WriteLine("Stack check! Size is: {0}", stacksize);
+                    Debug.WriteLine("Stack check! Size is: {0}", stacksize);
             */
         }
 
