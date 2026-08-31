@@ -84,18 +84,17 @@
                         </DockPanel>
                     </TabItem>
                     <TabItem Header="OpenEye">
-                        <Grid RowDefinitions="20, *, 5" ShowGridLines="True" Margin="2,10">
+                        <Grid RowDefinitions="20, *, 5" Margin="2,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="4*"/>
+                                   
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Row="1" Grid.Column="0">
                                     <Button Content="Save Parameters" Command="{Binding SaveOpenEyeHeaderCommand}"/>
                                     <Button Content="Load Parameters" Command="{Binding LoadOpenEyeParamsCommand}"/>
                                     <Panel Margin="10"/>
                                     <Button Content="Set up OpenEye" />
-                                    <Button Content="Dummy3" />
                                 </StackPanel>
                             
                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="OpenEye Parameters" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -104,13 +103,14 @@
                                     <StackPanel>
                                         <Grid Height="20"
                                               Margin="2,10"
-                                              ShowGridLines="True"
                                               Background="{DynamicResource ThemeControlHighlightHighBrush}"
                                               RowDefinitions="Auto">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamName" Width="*" />
+                                            <!--IMPORTANT: Layout (widths) must match data template for proper alignment.
+                                                There is probably a better way to implement this... -->
+                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamName" Width="2*" />
                                             <ColumnDefinition SharedSizeGroup="SizeGroupOeParamValue" Width="*" />
-                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamDescription" Width="*" />
+                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamDescription" Width="4*" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Name"/>
                                         <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Text="Value"/>
