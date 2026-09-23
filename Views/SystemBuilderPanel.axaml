@@ -33,7 +33,6 @@
     </UserControl.Styles>
 
         <Border Margin="0"
-                BorderBrush="Blue"
                 BorderThickness="2">
             
             <DockPanel >
