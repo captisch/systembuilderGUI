@@ -29,21 +29,13 @@ public class SystemBuilder
             CreateNoWindow = false
         };
 
-        try
-        {
-            using (var process = Process.Start(psi))
-            {
-                if (process is null) return;
-                process.WaitForExit();
-                await Task.Delay(100);
-                //return process.ExitCode;
-            }
+        using var process = Process.Start(psi)
+                            ?? throw new InvalidOperationException("The docker process could not be started.");
+        await process.WaitForExitAsync();
+        await Task.Delay(100);
 
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            throw;
-        }
+        if (process.ExitCode != 0)
+            throw new InvalidOperationException(
+                $"Docker exited with code {process.ExitCode}. See the container log: {logFilePath}");
     }
 }

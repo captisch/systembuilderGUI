@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using systembuilderGUI.Services;
 
 namespace systembuilderGUI.Models;
 
@@ -138,12 +139,13 @@ public class OpenEyeConfig : ObservableObject
         return parameters;*/
     }
 
-    public async Task LoadParametersFromFileAsync()
+    /// <returns>true if parameters were read from the chosen file, false if nothing was loaded.</returns>
+    public async Task<bool> LoadParametersFromFileAsync()
     {
         var lifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
         var window = lifetime?.MainWindow;
         if (window?.StorageProvider is null)
-            return;
+            throw new InvalidOperationException("The main window is not available to choose a header file.");
         FilePickerFileType[] filetypes = [new FilePickerFileType("Verilog Header") { Patterns = ["*.vh"] }
         ];
         var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
@@ -153,23 +155,21 @@ public class OpenEyeConfig : ObservableObject
             FileTypeFilter = filetypes
         });
 
-        if (files.Count != 1)
+        // The picker was cancelled.
+        if (files.Count != 1) return false;
+
+        var filepath = files[0].TryGetLocalPath();
+        var fileText = await File.ReadAllTextAsync(filepath!);
+        var parameters = ParseParameters(fileText);
+
+        if (parameters.Count == 0)
         {
-            Debug.WriteLine("Only one header file can be chosen. You shouldn't be able to get here.");
+            StatusReporter.Warning($"No OpenEye parameters found in {Path.GetFileName(filepath)}. The current parameters were kept.");
+            return false;
         }
-        else
-        {
-            var filepath = files[0].TryGetLocalPath();
-            var fileText = await File.ReadAllTextAsync(filepath);
-            Parameters = ParseParameters(fileText);
-            
-            //Temporary Code for debugging purposes
-            Console.WriteLine("The following parameters were read from the file:");
-            foreach (var parameter in Parameters)
-            {
-                Console.WriteLine(parameter.Name + " = " + parameter.Value);
-            }
-        }
+
+        Parameters = parameters;
+        return true;
     }
 
     public async Task GenerateHeaderAsync(string? path)

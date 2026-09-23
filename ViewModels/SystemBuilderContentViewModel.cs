@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OneWare.Essentials.Models;
 using OneWare.Essentials.Services;
 using systembuilderGUI.Models;
+using systembuilderGUI.Services;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -42,8 +43,9 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task SaveConfigAsync()
     {
-        await ConfigFile.SaveConfiguration(projectPath);
-        return;
+        await StatusReporter.RunAsync("Saving configuration...",
+            () => ConfigFile.SaveConfiguration(projectPath),
+            "Configuration saved.", "Could not save the configuration.");
     }
 
     [RelayCommand]
@@ -59,8 +61,13 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
             }.ToList()
         });
         
-        await ConfigFile.LoadConfiguration(files.FirstOrDefault()?.TryGetLocalPath() ?? files.FirstOrDefault()?.Path.LocalPath);
-        return;
+        var file = files.FirstOrDefault();
+        if (file is null) return; // picker was cancelled
+
+        var path = file.TryGetLocalPath() ?? file.Path.LocalPath;
+        await StatusReporter.RunAsync("Loading configuration...",
+            () => ConfigFile.LoadConfiguration(path),
+            $"Configuration loaded from {Path.GetFileName(path)}.", "Could not load the configuration.");
     }
 
     [RelayCommand]
@@ -86,7 +93,17 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         
         foreach (var file in files)
         {
-            await ConfigFile.AddSubModuleFromFile(file.TryGetLocalPath() ?? file.Path.LocalPath);
+            var path = file.TryGetLocalPath() ?? file.Path.LocalPath;
+            try
+            {
+                var added = await ConfigFile.AddSubModuleFromFile(path);
+                if (added is null || added.Count == 0)
+                    StatusReporter.Warning($"No Verilog module found in {Path.GetFileName(path)}.");
+            }
+            catch (Exception e)
+            {
+                StatusReporter.Error($"Could not read modules from {Path.GetFileName(path)}.", e);
+            }
         }
     }
 
@@ -119,20 +136,12 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
                 Debug.Assert(ConfigFile.OutputDirPath != null, "ConfigFile.OutputDirPath is null!");
                 destinationFilePath = Path.Combine(ConfigFile.OutputDirPath, fileName);
             }
-            else return;
+            else continue;
 
             if (!externalSources.Contains(file.Source))
             {
                 externalSources.Add(file.Source);
-                try
-                {
-                    File.Copy(file.Source, destinationFilePath, overwrite: true);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
+                File.Copy(file.Source, destinationFilePath, overwrite: true);
             }
             // Maybe update file.Source to new copy of the verilog file.
             // BUT there will be possible confusion over modules with same name but different source files. So maybe not.
@@ -183,20 +192,32 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task GenerateSystem()
     {
-        await ConfigFile.SaveConfiguration(projectPath);
-        
-        await ConfigFile.GenerateSystemBuilderInput(projectPath);
+        using var process = StatusReporter.BeginProcess("Saving configuration...");
+        try
+        {
+            await ConfigFile.SaveConfiguration(projectPath);
 
-        string? socName = ConfigFile.GetSOCName();
-        
-        await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath, ConfigFile.LogPath);
+            process.Update("Preparing SystemBuilder input...");
+            await ConfigFile.GenerateSystemBuilderInput(projectPath);
 
-        await CopyExternalSources();
-        
-        WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
-        wrapperBuilder.GenerateWrapper(projectPath);
+            process.Update("Running SystemBuilder in Docker (this can take a while)...");
+            await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath, ConfigFile.LogPath);
 
-        await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(activeProject);
+            process.Update("Copying external sources...");
+            await CopyExternalSources();
+
+            process.Update("Generating wrapper...");
+            WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
+            wrapperBuilder.GenerateWrapper(projectPath);
+
+            await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(activeProject);
+            StatusReporter.Success($"System '{ConfigFile.GetSOCName()}' generated.");
+        }
+        catch (Exception e)
+        {
+            process.FinishMessage = "Failed";
+            StatusReporter.Error("System generation failed.", e);
+        }
     }
 
     [RelayCommand]

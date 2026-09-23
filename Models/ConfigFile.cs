@@ -11,6 +11,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Jint.Runtime;
+using systembuilderGUI.Services;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -179,8 +180,7 @@ public partial class ConfigFile : ObservableObject
     {
         if (path is null || !File.Exists(path))
         {
-            Debug.WriteLine($"Configuration file not found at {path}.");
-            return;
+            throw new FileNotFoundException($"Configuration file not found at {path}.", path);
         }
 
         var deserializer = new DeserializerBuilder()
@@ -236,15 +236,14 @@ public partial class ConfigFile : ObservableObject
                                 addedSubModules = await AddSubModuleFromFile(source?.ToString() ?? string.Empty);
                             } else
                             {
-                                Debug.WriteLine("Missing 'source' property.");
-                                return;
+                                throw new InvalidDataException(
+                                    $"Submodule '{submoduleEntry.Key}' has no 'source' property.");
                             }
 
                             if (addedSubModules is null || addedSubModules.Count == 0)
                             {
-                                // TODO: Add proper error massage in OnwWare
-                                Debug.WriteLine($"Failed to add submodule from source: {source?.ToString()}");
-                                return;
+                                throw new InvalidDataException(
+                                    $"Failed to add submodule from source: {source}. The file is missing or contains no Verilog module.");
                             }
                             
                             SubModule? subModuleToUpdate = null;
@@ -261,8 +260,7 @@ public partial class ConfigFile : ObservableObject
                                         }
                                         else
                                         {
-                                            Debug.WriteLine($"Multiple modules with the same name ({moduleName}) found in source: {source?.ToString()}. Only the first one will be updated.");
-                                            // TODO: Implement proper Error massage in OnwWare
+                                            StatusReporter.Warning($"Multiple modules with the same name ({moduleName}) found in {source}. Only the first one will be updated.");
                                         }
                                     }
                                     else
@@ -270,7 +268,7 @@ public partial class ConfigFile : ObservableObject
                                         subModules.Remove(module);
                                     }
                                 }
-                                Debug.WriteLine($"Multiple submodules found in source: {source?.ToString()}. Only module with matching name ({moduleName}) will be updated.");
+                                Debug.WriteLine($"Multiple modules found in {source}. Only the module with matching name ({moduleName}) will be updated.");
                             }
                             else
                             {
@@ -279,8 +277,8 @@ public partial class ConfigFile : ObservableObject
 
                             if (subModuleToUpdate is null)
                             {
-                                Debug.WriteLine("No matching module found in source");
-                                return;
+                                throw new InvalidDataException(
+                                    $"No matching module found in {source} for submodule '{submoduleEntry.Key}'.");
                             }
                             
                             foreach (var kvp in submoduleData)
