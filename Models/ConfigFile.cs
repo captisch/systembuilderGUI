@@ -72,6 +72,7 @@ public partial class ConfigFile : ObservableObject
                 x => x.Submod.ToDictionary(outputType)
             );
         dictSubmodules.Add("external_modules", valsSubmodules);
+        
 
         var itemSerializer = new SerializerBuilder()
             .WithIndentedSequences()

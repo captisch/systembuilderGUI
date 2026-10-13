@@ -117,3 +117,10 @@
   type          : Boolean
   defaultValue  : False
   access        : True
+  
+- name          : oe_dma_width
+  description   : Width of OpenEye HW accelerator DMA bus
+  type          : OptionList
+  defaultValue  : 0
+  options       : [ 0, 32, 64 ] 
+  access        : True 

@@ -25,6 +25,8 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
 {
     private static readonly IProjectRoot? activeProject = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject;
     private static string? projectPath = activeProject.RootFolderPath;
+
+    private bool openEyeSet = false;  //flag to indicate when an OpenEye instance was prepared 
     
     [ObservableProperty]
     private ConfigFile configFile = new();
@@ -170,15 +172,40 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
          OpenEyeConfig = new OpenEyeConfig(OpenEyeConfig.Parameters);
     }
     
-    /* Derzeit auf Eis wegen konzeptioneller Probleme
-     [RelayCommand]
+    
+    [RelayCommand]
     private async Task MakeOpenEyeAsync()
     {
-        await OpenEyeConfig.GenerateHeaderAsync(projectPath);
-    //This may need some rework for the paths
-        var path = Path.Combine(projectPath, $"parametrs.vh");
-        await OpenEyeConfig.OpenEyeCall(path);
-    }*/
+        var path = Path.Combine(projectPath, "parameters.vh");
+        await OpenEyeConfig.GenerateHeaderAsync(path);
+    
+        await OpenEyeConfig.OpenEyeCall(projectPath, path);
+        //For now I will leave it ot the user to add the interface for the OpenEye
+        //This is done by choosing a non-zero value for oe_dma_width
+    }
+
+    [RelayCommand]
+    private async Task AddOpenEyeToSoc()
+    {
+        /*
+         * This needs to do the following things:
+         * 1. Retrieve relevant information (currently: Is OpenEye prepared? What's the dma width?) 
+         * 2. Set oe_dma_width value accordingly
+         * 3. Add instance of OpenEye_FPGA to SoC-Wrapper
+         * 4. Profit
+         */
+        var path = Path.Combine(projectPath, "parameters.vh");
+        if (File.Exists(path))
+        {
+            //1. Some parsing routine to get the value
+            //2. [WieauchimmerichdaspassendeFeldanspreche]=oe_dma_width_Value
+        }
+        else
+        { 
+            //TODO: Add some form of obvious Notification to the User
+            Debug.WriteLine("Could not find parameter file for OpenEye!");
+        };
+    }
 
     [RelayCommand]
     private async Task GenerateSystem()
