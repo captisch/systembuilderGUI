@@ -46,7 +46,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     private async Task SaveConfigAsync()
     {
         await StatusReporter.RunAsync("Saving configuration...",
-            () => ConfigFile.SaveConfiguration(projectPath),
+            () => ConfigFile.SaveConfigurationAsync(projectPath),
             "Configuration saved.", "Could not save the configuration.");
     }
 
@@ -68,7 +68,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
 
         var path = file.TryGetLocalPath() ?? file.Path.LocalPath;
         await StatusReporter.RunAsync("Loading configuration...",
-            () => ConfigFile.LoadConfiguration(path),
+            () => ConfigFile.LoadConfigurationAsync(path),
             $"Configuration loaded from {Path.GetFileName(path)}.", "Could not load the configuration.");
     }
 
@@ -98,7 +98,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
             var path = file.TryGetLocalPath() ?? file.Path.LocalPath;
             try
             {
-                var added = await ConfigFile.AddSubModuleFromFile(path);
+                var added = await ConfigFile.AddSubModuleFromFileAsync(path);
                 if (added is null || added.Count == 0)
                     StatusReporter.Warning($"No Verilog module found in {Path.GetFileName(path)}.");
             }
@@ -119,7 +119,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private Task CopySubModule(SubModule subModule)
     {
-        return ConfigFile.CopySubmodule(subModule);
+        return ConfigFile.CopySubmoduleAsync(subModule);
     }
 
     private async Task CopyExternalSources()
@@ -222,7 +222,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         using var process = StatusReporter.BeginProcess("Saving configuration...");
         try
         {
-            await ConfigFile.SaveConfiguration(projectPath);
+            await ConfigFile.SaveConfigurationAsync(projectPath);
 
             process.Update("Preparing SystemBuilder input...");
             await ConfigFile.GenerateSystemBuilderInput(projectPath);
@@ -261,6 +261,8 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         }
         
         ConfigFile.subModules.Clear();
+        
+        StatusReporter.Info("All Parameters reset to default values. Removed all Submodules.");
         
         return Task.CompletedTask;
     }
