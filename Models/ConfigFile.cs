@@ -25,8 +25,8 @@ public partial class ConfigFile : ObservableObject
     
     public ConfigFile()
     {
-        CoreItems = initItems(new Uri("avares://systembuilderGUI/Assets/configuration_coreItems_definition.yaml"));
-        Interfaces = initItems(new Uri("avares://systembuilderGUI/Assets/configuration_interfaces_definition.yaml"));
+        CoreItems = InitItems(new Uri("avares://systembuilderGUI/Assets/configuration_coreItems_definition.yaml"));
+        Interfaces = InitItems(new Uri("avares://systembuilderGUI/Assets/configuration_interfaces_definition.yaml"));
     }
     public ObservableCollection<ConfigItem> CoreItems { get; set; } = new();
     public ObservableCollection<ConfigItem> Interfaces { get; set; } = new();
@@ -36,7 +36,7 @@ public partial class ConfigFile : ObservableObject
     [ObservableProperty] private string? outputFilePath;
     [ObservableProperty] private string? logPath;
     
-    private ObservableCollection<ConfigItem> initItems(Uri source)
+    private ObservableCollection<ConfigItem> InitItems(Uri source)
     {
         using var stream = AssetLoader.Open(source);
         using var reader = new StreamReader(stream);
@@ -67,7 +67,7 @@ public partial class ConfigFile : ObservableObject
         var dictSubmodules = new Dictionary<dynamic, dynamic>();
         var valsSubmodules = subModules
             .Select((submod, index) => new { Index = index, Submod = submod })
-            .Where(IdxSm => !string.IsNullOrWhiteSpace(IdxSm.Submod.Instance))
+            .Where(idxSm => !string.IsNullOrWhiteSpace(idxSm.Submod.Instance))
             .ToDictionary(
                 x => "ext_mod_" + x.Index,
                 x => x.Submod.ToDictionary(outputType)
@@ -152,7 +152,7 @@ public partial class ConfigFile : ObservableObject
         Debug.WriteLine($"Generated Litex input to {filePath}");
     }
 
-    public async Task SaveConfiguration(string? path = null)
+    public async Task SaveConfigurationAsync(string? path = null)
     {
         var nameItem = FindItemByName("Name");
         if (nameItem is null) throw new InvalidOperationException("No name was found in the SOC config file.");
@@ -177,7 +177,7 @@ public partial class ConfigFile : ObservableObject
         Debug.WriteLine($"Saved configuration to {filePath}");
     }
 
-    public async Task LoadConfiguration(string? path = null)
+    public async Task LoadConfigurationAsync(string? path = null)
     {
         if (path is null || !File.Exists(path))
         {
@@ -234,7 +234,7 @@ public partial class ConfigFile : ObservableObject
                             List<SubModule?>? addedSubModules = null;
                             if (submoduleData.TryGetValue("source", out var source))
                             {
-                                addedSubModules = await AddSubModuleFromFile(source?.ToString() ?? string.Empty);
+                                addedSubModules = await AddSubModuleFromFileAsync(source?.ToString() ?? string.Empty);
                             } else
                             {
                                 throw new InvalidDataException(
@@ -365,9 +365,9 @@ public partial class ConfigFile : ObservableObject
         }
     }
     
-    public async Task<List<SubModule?>?> AddSubModuleFromFile(string filePath)
+    public async Task<List<SubModule?>?> AddSubModuleFromFileAsync(string filePath)
     {
-        var AddedSubModules = new List<SubModule?>();
+        var addedSubModules = new List<SubModule?>();
         
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             return null;
@@ -397,13 +397,13 @@ public partial class ConfigFile : ObservableObject
                 };
 
                 subModules.Add(subModule);
-                AddedSubModules.Add(subModule);
+                addedSubModules.Add(subModule);
             }
         }
-        return AddedSubModules;
+        return addedSubModules;
     }
 
-    public async Task CopySubmodule(SubModule subModule)
+    public async Task CopySubmoduleAsync(SubModule subModule)
     {
         var instanceName = subModule.Instance;
         var baseInstanceName = instanceName;
