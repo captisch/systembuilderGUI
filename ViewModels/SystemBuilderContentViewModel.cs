@@ -182,16 +182,13 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task MakeOpenEyeAsync()
     {
-        var path = Path.Combine(projectPath, "parameters.vh");
+        var path = Path.Combine(projectPath, "current_openEye_parameters.txt");
         if (File.Exists(path))
         {
             //if previous OpenEye configuration exists, clean up old files
             var headerPath = Path.Combine(projectPath, "OpenEye");
             if (Directory.Exists(headerPath))
                 Directory.Delete(headerPath, true);
-            /*headerPath = Path.Combine(projectPath, "OpenEye", "hdl", "config");
-            if (Directory.Exists(headerPath))
-                Directory.Delete(headerPath, true);*/
         }
         using var process = StatusReporter.BeginProcess("Preparing OpenEye setup...");
         try
@@ -215,7 +212,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddOpenEyeToSoc()
     {
-        var path = Path.Combine(projectPath, "parameters.vh");
+        var path = Path.Combine(projectPath, "current_openEye_parameters.txt");
         using var process = StatusReporter.BeginProcess("Adding OpenEye to the design...");
         try
         {

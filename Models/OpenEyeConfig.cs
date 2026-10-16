@@ -165,12 +165,12 @@ public class OpenEyeConfig : ObservableObject
             Arguments = "run " +
                         "--rm " +   //remove after execution(?)
                         $"-v \"{pathToDir}:/systembuilder/export\" " +  //create shared directory for file transfer 
-                        $"-v \"{pathToParams}:/systembuilder/OpenEye/src/parameters.vh\" " +
+                        $"-v \"{pathToParams}:/systembuilder/OpenEye/src/current_openEye_parameters.txt\" " +
                         "liteximg:latest " +
                         "sh -c " +                                     // run command in shell
                         "\". .venv/bin/activate && " +                  // activate virtual environment
                         "cd /systembuilder/OpenEye/src/ && " +          //change directory to location of python script
-                        "python3 openeye_interface.py parameters.vh && " +  //run the python script         
+                        "python3 openeye_interface.py current_openEye_parameters.txt && " +  //run the python script         
                         "mkdir /systembuilder/export/OpenEye &&" +      //prepare folder in export directory
                         "cp -a /systembuilder/OpenEye/hdl /systembuilder/export/OpenEye\"" +    //copy relevant files
                         //there may be a need to copy more relevant files but this is just initial prototype
@@ -188,7 +188,6 @@ public class OpenEyeConfig : ObservableObject
                 await Task.Delay(100);
                 //return process.ExitCode;
             }
-
         }
         catch (Exception ex)
         {
