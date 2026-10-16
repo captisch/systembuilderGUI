@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices.Marshalling;
 
 
 namespace systembuilderGUI.Models;
@@ -48,7 +49,10 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         
         foreach (Instance currentInstance in Instances)
         {
-            AddModuleInstance(outputPath, currentInstance);
+            //currently special handling only for openEye
+            //may be useful for other cases, but no concept on how to implement that
+            bool withParams = currentInstance.InstanceName() != "openEye";
+            AddModuleInstance(outputPath, currentInstance, withParams);
         }
         
         using (StreamWriter sw = File.AppendText(outputPath))
@@ -166,14 +170,14 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         sw.WriteLine("\nassign OpenEye_rst_ni = openEye_rst_n | ~rst;\n");
     }
 
-    private void AddModuleInstance(string outputPath, Instance currentInstance)
+    private void AddModuleInstance(string outputPath, Instance currentInstance, bool withParams)
     {
         //this method adds a module instance to the output file
         using StreamWriter sw = File.AppendText(outputPath);
         int index = 0;  
         
         //style of instantiation depends on whether there are parameters
-        if (currentInstance.InstanceParams() != null)
+        if (withParams && currentInstance.InstanceParams() != null)
         {
             sw.WriteLine("\n" + currentInstance.ModuleName() + " #(");
             //do parameters stuff

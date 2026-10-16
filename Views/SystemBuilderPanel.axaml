@@ -104,7 +104,7 @@
                                     <Button Content="Load Parameters" Command="{Binding LoadOpenEyeParamsCommand}"/>
                                     <Panel Margin="10"/>
                                     <Button Content="Set up OpenEye" Command="{Binding MakeOpenEyeCommand}" />
-                                    <Button Content="Add current OpenEye to SoC" Command="{Binding AddOpenEyeToSocCommand}"/>
+                                    <Button Content="Add current OpenEye to SoC" Command="{Binding AddOpenEyeToSocCommand}" />
                                 </StackPanel>
                             
                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="OpenEye Parameters" VerticalAlignment="Center" HorizontalAlignment="Center"

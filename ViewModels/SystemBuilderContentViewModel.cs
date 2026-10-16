@@ -160,11 +160,11 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         ];
         var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "PLACEHOLDER TITLE",
+            Title = "Saving Parameters",
             SuggestedStartLocation = location,
             FileTypeChoices = filetypes,
             DefaultExtension = ".vh",
-            SuggestedFileName = "parameters",
+            SuggestedFileName = "openEye_parameters",
             ShowOverwritePrompt = true
         });
         
@@ -183,45 +183,72 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     private async Task MakeOpenEyeAsync()
     {
         var path = Path.Combine(projectPath, "parameters.vh");
-        await OpenEyeConfig.GenerateHeaderAsync(path);
-    
-        await OpenEyeConfig.OpenEyeCall(projectPath, path);
-        //For now I will leave it ot the user to add the interface for the OpenEye
-        //This is done by choosing a non-zero value for oe_dma_width
+        if (File.Exists(path))
+        {
+            //if previous OpenEye configuration exists, clean up old files
+            var headerPath = Path.Combine(projectPath, "OpenEye", "hdl", "include");
+            if (Directory.Exists(headerPath))
+                Directory.Delete(headerPath, true);
+            headerPath = Path.Combine(projectPath, "OpenEye", "hdl", "config");
+            if (Directory.Exists(headerPath))
+                Directory.Delete(headerPath, true);
+        }
+        using var process = StatusReporter.BeginProcess("Preparing OpenEye setup...");
+        try
+        {
+            await OpenEyeConfig.GenerateHeaderAsync(path); 
+
+            process.Update("Running...");
+            await OpenEyeConfig.OpenEyeCall(projectPath, path);
+            
+            await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(activeProject);
+            StatusReporter.Success($"OpenEye setup successful!.");
+        }
+        catch (Exception e)
+        {
+            process.FinishMessage = "Failed";
+            StatusReporter.Error("OpenEye setup failed!", e);
+        }
+        
     }
 
     [RelayCommand]
     private async Task AddOpenEyeToSoc()
     {
-        /*
-         * This needs to do the following things:
-         * 1. Retrieve relevant information (currently: Is OpenEye prepared? What's the dma width?) 
-         * 2. Set oe_dma_width value accordingly
-         * 3. Add instance of OpenEye_FPGA to SoC-Wrapper
-         */
         var path = Path.Combine(projectPath, "parameters.vh");
-        if (File.Exists(path))
+        using var process = StatusReporter.BeginProcess("Adding OpenEye to the design...");
+        try
         {
-            //Retrieve Value for DMA width
-            var stream = File.OpenRead(path);
-            using var reader = new StreamReader(stream);
-            var headerText = await reader.ReadToEndAsync();
-            var paramVals = OpenEyeConfig.ParseParameters(headerText);
-            
-            foreach (var value in paramVals)
+            if (File.Exists(path))
             {
-                if (value.Name == "DMA_BITWIDTH")
+                //Retrieve Value for DMA width
+                var stream = File.OpenRead(path);
+                using var reader = new StreamReader(stream);
+                var headerText = await reader.ReadToEndAsync();
+                var paramVals = OpenEyeConfig.ParseParameters(headerText);
+            
+                foreach (var value in paramVals)
                 {
-                    ConfigFile.FindItemByName("oe_dma_width").Value = value.Value;
+                    if (value.Name == "DMA_BITWIDTH")
+                    {
+                        ConfigFile.FindItemByName("oe_dma_width").Value = value.Value;
+                    }
                 }
+                //The wrapper builder can now see the value in the config and add the OE Instance
+                StatusReporter.Success($"OpenEye successfully added to the design!");
             }
-            //The wrapper builder can now see the value in the config and add the OE Instance
+            else
+            { 
+                StatusReporter.Success($"Could not find parameter file for OpenEye. Run setup first!");
+            };
         }
-        else
-        { 
-            //TODO: Add some form of obvious Notification to the User
-            Debug.WriteLine("Could not find parameter file for OpenEye!");
-        };
+        catch (Exception e)
+        {
+            process.FinishMessage = "Failed";
+            StatusReporter.Error(
+                "Unexpected error occured! Try cleaning up the project directory and running the setup again.", e);
+        }
+        
     }
 
     [RelayCommand]

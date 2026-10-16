@@ -13,7 +13,7 @@ public class WrapperBuilder
     private List<Instance> instanceList = new List<Instance>();
     private List<Wire> wireList = new List<Wire>();
     private Module? wrapperDefinition;
-    private bool withOpenEye = false;
+    private bool withOpenEye;
     
     /*
      * This class contains the methods to prepare the input of the input of the VerilogGenerator.
@@ -434,12 +434,27 @@ public class WrapperBuilder
             {
                 if (module.Name == "OpenEye_FPGA")
                 {
+                    foreach (Port port in module.Ports)
+                    {
+                        if (port.Name is "data_dma_i" or "data_dma_o")
+                        {
+                            switch (value)  //value contains the width information from configFile!
+                            {
+                                case "32": 
+                                    port.Width = "[31:0]";
+                                    break;
+                                case "64":
+                                    port.Width = "[63:0]";
+                                    break;
+                            }
+                        }
+                    }
                     SubModule tempSubMod = new SubModule()
                     {
                         Module = module,
                         Source = null, //not used here, maybe in the future?
                         Filename = null, //I hope this doesn't cause problems...
-                        Instance = "OpenEye",
+                        Instance = "openEye",
                     };
 
                     Instance openEye = new Instance(tempSubMod);
@@ -481,7 +496,79 @@ public class WrapperBuilder
 
     private void MakeWiring()
     {
-        void ConnectBusInterface()
+        //This creates the wiring between the module instances
+        //MakeTopModule and MakeInstances must be run before this.
+
+        //ConnectBusInterface();    deactivated until the function is fixed!     
+        
+        foreach (Instance instance in instanceList)
+        {
+            if (instance.InstanceName() == "openEye")
+            {
+                //make wires for ALL ports
+                foreach (InstPort port in instance.GetPorts())
+                {
+                    string wireName = instance.InstanceName() + "_" + port.PortName;
+                    Wire tempWire = new Wire(wireName, port.PortSize, false, false);
+                    wireList.Add(tempWire);
+                    instance.SetConnection(port.PortName, tempWire);
+                } 
+                continue;   //skip rest of the loop content
+            }
+            if (instance.InstanceName() != "main_soc")
+            {
+                //Routine for every instance but the main SoC
+                foreach (InstPort port in instance.GetPorts())
+                {
+                    if (!port.ConnectToSoC) continue;
+                    string wireName = instance.InstanceName() + "_" + port.PortName;
+                    Wire tempWire = new Wire(wireName, port.PortSize, false, false);
+                    wireList.Add(tempWire);
+                    instance.SetConnection(port.PortName, tempWire);
+                }    
+            }
+            else
+            {
+                //Routine for main_soc
+                //WARNING! This assumes main_soc IS ALWAYS LAST in instanceList (see "MakeInstances" method)
+                //Reason: Wires are created per instance, except for main_soc, where only existing wires are connected
+                foreach (InstPort port in instance.GetPorts())
+                {
+                    //Special handling for clk and reset ports of OpenEye
+                    if (port.PortName == "openEye_rst_n")
+                    {
+                        string wireName = "openEye_rst_n";
+                        Wire tempWire = new Wire(wireName, port.PortSize, false, false);
+                        wireList.Add(tempWire);
+                        instance.SetConnection(port.PortName, tempWire);
+                        continue;
+                    }
+                    if (port.PortName == "openEye_clk")
+                    {
+                        foreach (Wire wire in wireList)
+                        {
+                            if (wire.Name == "openEye_clk_i")
+                            {
+                                instance.SetConnection(port.PortName, wire);
+                            }
+                        }
+                        continue;
+                    }
+                    //default case
+                    foreach (Wire wire in wireList)
+                    {
+                        if (wire.Name == port.PortName)
+                        {
+                            instance.SetConnection(port.PortName, wire);
+                        }
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+     void ConnectBusInterface()
         {
             foreach (ConfigItem item in configFile.Interfaces)
             {
@@ -550,58 +637,4 @@ public class WrapperBuilder
                 } 
             }
         }
-
-        //This creates the wiring between the module instances
-        //MakeTopModule and MakeInstances must be run before this.
-
-        //ConnectBusInterface();    deactivated until the function is fixed!     
-        
-        foreach (Instance instance in instanceList)
-        {
-            if (instance.InstanceName() == "OpenEye")
-            {
-                //make wires for ALL ports
-                foreach (InstPort port in instance.GetPorts())
-                {
-                    string wireName = instance.InstanceName() + "_" + port.PortName;
-                    Wire tempWire = new Wire(wireName, port.PortSize, false, false);
-                    wireList.Add(tempWire);
-                    instance.SetConnection(port.PortName, tempWire);
-                }    
-                continue;   //skip rest of the loop content
-            }
-            if (instance.InstanceName() != "main_soc")
-            {
-                //Routine for every instance but the main SoC
-                foreach (InstPort port in instance.GetPorts())
-                {
-                    if (!port.ConnectToSoC) continue;
-                    string wireName = instance.InstanceName() + "_" + port.PortName;
-                    Wire tempWire = new Wire(wireName, port.PortSize, false, false);
-                    wireList.Add(tempWire);
-                    instance.SetConnection(port.PortName, tempWire);
-                }    
-            }
-            else
-            {
-                //Routine for main_soc
-                //WARNING! THIS ASSUMES main_soc IS ALWAYS LAST IN instanceList (see "MakeInstances" method)
-                //Reason: Wires are created per instance, except for main_soc, where only existing wires are connected
-                foreach (InstPort port in instance.GetPorts())
-                {
-                    foreach (Wire wire in wireList)
-                    {
-                        if (wire.Name == port.PortName)
-                        {
-                            instance.SetConnection(port.PortName, wire);
-                        }
-                    }
-                    
-                    
-                    
-                }
-            }
-        }
-    }
-
 }

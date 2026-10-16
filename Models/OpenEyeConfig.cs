@@ -74,7 +74,7 @@ public class OpenEyeConfig : ObservableObject
                     result.Add(entry);
                 }
                 entry.Value = value;
-                continue;
+                //continue;
             }
 
             var descMatch = descriptionPattern.Match(rawLine);
@@ -94,6 +94,7 @@ public class OpenEyeConfig : ObservableObject
                     */
                 }
                 entry.Description = description;
+                //Debug.WriteLine("Description for parameter "++" is "+description);
             }
         }
 
@@ -145,14 +146,12 @@ public class OpenEyeConfig : ObservableObject
             await sw.WriteLineAsync("parameter " + parameter.Name + "=" + parameter.Value + ",");    
         }
         
-        await sw.WriteLineAsync("/*");
+        await sw.WriteLineAsync("");
         
         foreach (var parameter in Parameters)
         {
-            await sw.WriteLineAsync("description " + parameter.Name + "=" + parameter.Description + ",");
+            await sw.WriteLineAsync("description " + parameter.Name + " = \"" + parameter.Description + "\",");
         }
-        
-        await sw.WriteLineAsync("*/");
     }
 
     
@@ -163,7 +162,8 @@ public class OpenEyeConfig : ObservableObject
         var psi = new ProcessStartInfo
         {
             FileName = "docker",
-            Arguments = "run " +          
+            Arguments = "run " +
+                        "--rm " +   //remove after execution(?)
                         $"-v \"{pathToDir}:/systembuilder/export\" " +  //create shared directory for file transfer 
                         $"-v \"{pathToParams}:/systembuilder/OpenEye/src/parameters.vh\" " +
                         "liteximg:latest " +
@@ -197,8 +197,4 @@ public class OpenEyeConfig : ObservableObject
         }
     }
 }
-
-
- 
- //"--rm " +                                                       // and remove it after execution
  
