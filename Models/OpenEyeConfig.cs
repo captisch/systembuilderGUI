@@ -167,9 +167,9 @@ public class OpenEyeConfig : ObservableObject
                         $"-v \"{pathToDir}:/systembuilder/export\" " +  //create shared directory for file transfer 
                         $"-v \"{pathToParams}:/systembuilder/OpenEye/src/parameters.vh\" " +
                         "liteximg:latest " +
-                        "sh -c " +                          // run command in shell
-                        "\". .venv/bin/activate && " +      // activate virtual environment
-                        "cd /systembuilder/OpenEye/src/ && " +  //change directory to location of python script
+                        "sh -c " +                                     // run command in shell
+                        "\". .venv/bin/activate && " +                  // activate virtual environment
+                        "cd /systembuilder/OpenEye/src/ && " +          //change directory to location of python script
                         "python3 openeye_interface.py parameters.vh && " +  //run the python script         
                         "mkdir /systembuilder/export/OpenEye &&" +      //prepare folder in export directory
                         "cp -a /systembuilder/OpenEye/hdl /systembuilder/export/OpenEye\"" +    //copy relevant files

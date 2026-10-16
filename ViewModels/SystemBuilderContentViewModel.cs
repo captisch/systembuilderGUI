@@ -186,12 +186,12 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         if (File.Exists(path))
         {
             //if previous OpenEye configuration exists, clean up old files
-            var headerPath = Path.Combine(projectPath, "OpenEye", "hdl", "include");
+            var headerPath = Path.Combine(projectPath, "OpenEye");
             if (Directory.Exists(headerPath))
                 Directory.Delete(headerPath, true);
-            headerPath = Path.Combine(projectPath, "OpenEye", "hdl", "config");
+            /*headerPath = Path.Combine(projectPath, "OpenEye", "hdl", "config");
             if (Directory.Exists(headerPath))
-                Directory.Delete(headerPath, true);
+                Directory.Delete(headerPath, true);*/
         }
         using var process = StatusReporter.BeginProcess("Preparing OpenEye setup...");
         try
