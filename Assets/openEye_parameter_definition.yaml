@@ -1,0 +1,116 @@
+# OpenEye parameter configuration
+
+- name          : DMA_BITWIDTH
+  description   : Width of DMA stream interface, 32 or 64
+  type          : OptionList
+  defaultValue  : 64
+  options       : [64, 32]
+  access        : True
+
+- name          : CLUSTER_ROWS
+  description   : Number of cluster rows
+  type          : Integer
+  defaultValue  : 2
+  access        : True
+
+- name          : CLUSTER_COLUMNS
+  description   : Number of cluster columns
+  type          : Integer
+  defaultValue  : 2
+  access        : True
+
+- name          : NUM_GLB_IACT
+  description   : Number of activation global buffers
+  type          : Integer
+  defaultValue  : 3
+  access        : True
+
+- name          : NUM_GLB_PSUM
+  description   : Number of partial-sum global buffers
+  type          : Integer
+  defaultValue  : 4
+  access        : True
+
+- name          : NUM_GLB_WGHT
+  description   : Number of weight global buffers
+  type          : Integer
+  defaultValue  : 3
+  access        : True
+
+- name          : IACT_RAM_CELLS
+  description   : Number of RAM cells used for buffering
+  type          : Integer
+  defaultValue  : 8
+  access        : True
+
+- name          : BRANCHES
+  description   : Number of branch paths in the storage structure
+  type          : Integer
+  defaultValue  : 1
+  access        : True
+
+- name          : BUFFER_WIDTH
+  description   : Width of the buffering datapath
+  type          : Integer
+  defaultValue  : 10
+  access        : True
+
+- name          : BUFFER_WIDTH_PSUM
+  description   : Width of the partial-sum buffering datapath
+  type          : Integer
+  defaultValue  : 14
+  access        : True
+
+- name          : BUFFER_WIDTH_WGHT
+  description   : Width of the weight buffering datapath
+  type          : Integer
+  defaultValue  : 12
+  access        : True
+
+- name          : QUANT_AMOUNT
+  description   : Quantization-related parameter count?
+  type          : Integer
+  defaultValue  : 32
+  access        : True
+
+- name          : DATA_PSUM_BITWIDTH
+  description   : Width of the partial-sum data path
+  type          : Integer
+  defaultValue  : 32
+  access        : True
+
+- name          : PARALLEL_MACS
+  description   : Number of parallel MAC (Multiply-Accumulate) units
+  type          : Integer
+  defaultValue  : 2
+  access        : True
+
+- name          : TRANS_BITWIDTH_IACT
+  description   : DMA bit width for activation data
+  type          : Integer
+  defaultValue  : 24
+  access        : True
+
+- name          : TRANS_BITWIDTH_WGHT
+  description   : DMA bit width for weight data
+  type          : Integer
+  defaultValue  : 8
+  access        : True
+
+- name          : TRANS_WORDS
+  description   : Number of DMA transfer words (Leave at 4, unless you really need to change this)
+  type          : Integer
+  defaultValue  : 4
+  access        : True
+
+- name          : SPARSITY_EN
+  description   : 1=sparse mode (default), 0=dense mode
+  type          : Boolean
+  defaultValue  : 1
+  access        : True
+
+- name          : STRIDE_ENABLED
+  description   : Enable stride support (1=enabled, 0=disabled)
+  type          : Boolean
+  defaultValue  : 0
+  access        : True
