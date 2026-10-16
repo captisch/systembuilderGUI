@@ -106,7 +106,7 @@ public partial class ConfigFile : ObservableObject
         return yml;
     }
     
-    private ConfigItem? FindItemByName(string name)
+    public ConfigItem? FindItemByName(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return null;
         return CoreItems.FirstOrDefault(item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase))
@@ -372,8 +372,9 @@ public partial class ConfigFile : ObservableObject
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             return null;
 
-        var verilogParser = new VerilogParser();
-        var modules = verilogParser.ReadVerilog(filePath);
+        //var verilogParser = new VerilogParser();
+        //var modules = verilogParser.ReadVerilog(filePath);
+        var modules = VerilogParser.ParseVerilogModules(filePath);
 
         if (modules.Count > 0)
         {

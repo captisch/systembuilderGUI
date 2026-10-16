@@ -209,7 +209,7 @@ public class Instance
             widthNum = 1;
             return widthNum;
         }
-
+        Debug.WriteLine("Current port width input is: "  + tempWidth);
         char[] separators = ['[', ']', ':'];
         string[] substrings = tempWidth.Split(separators, StringSplitOptions.RemoveEmptyEntries);
 

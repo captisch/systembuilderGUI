@@ -13,6 +13,7 @@ public class WrapperBuilder
     private List<Instance> instanceList = new List<Instance>();
     private List<Wire> wireList = new List<Wire>();
     private Module? wrapperDefinition;
+    private bool withOpenEye = false;
     
     /*
      * This class contains the methods to prepare the input of the input of the VerilogGenerator.
@@ -32,7 +33,7 @@ public class WrapperBuilder
         MakeWrapperDefinition();
         MakeWiring();
         VerilogGenerator generator = new VerilogGenerator(instanceList, wrapperDefinition, wireList);
-        generator.GenerateVerilog(outputPath);
+        generator.GenerateVerilog(outputPath, withOpenEye);
     }
 
     private void MakeWrapperDefinition()
@@ -413,19 +414,56 @@ public class WrapperBuilder
             }
         }
         
+        //Check for OpenEye and instantiate accordingly
+        //VerilogParser parser = new VerilogParser();
+        List<Module> modulesTemp = new List<Module>();
+        
+        string? value = configFile.FindItemByName("oe_dma_width")?.Value;
+        if (value is "32" or "64")
+        {
+            //do OpenEye stuff
+            var openEyePath = Path.Combine(configFile.OutputDirPath,"OpenEye","hdl", "OpenEye_FPGA.v" );
+            withOpenEye = true;
+            
+            Debug.WriteLine(openEyePath);
+            
+            //modulesTemp = parser.ReadVerilog(openEyePath);
+            modulesTemp = VerilogParser.ParseVerilogModules(openEyePath);
+            
+            foreach (Module module in modulesTemp)
+            {
+                if (module.Name == "OpenEye_FPGA")
+                {
+                    SubModule tempSubMod = new SubModule()
+                    {
+                        Module = module,
+                        Source = null, //not used here, maybe in the future?
+                        Filename = null, //I hope this doesn't cause problems...
+                        Instance = "OpenEye",
+                    };
+
+                    Instance openEye = new Instance(tempSubMod);
+                    instanceList.Add(openEye); 
+                }
+            }
+        }
+        else if (value != null)
+        {
+            //don't do openEye stuff and...
+            //TODO: Add meaningful user notification if this is reached somehow!
+            Debug.WriteLine("Something's gone very wrong trying to consider OpenEye in the Wrapper!");   
+        }
+        
         //Then add the SoC module created by LiteX
-        VerilogParser parser = new VerilogParser();
         var socName = configFile.GetSOCName();   //Find SoC Name in config
         
         var socFilePath = Path.Combine(configFile.OutputDirPath, socName, "gateware", socName + ".v" );
         
-        List<Module> modulesTemp = parser.ReadVerilog(socFilePath);
+        //modulesTemp = parser.ReadVerilog(socFilePath);
+        modulesTemp = VerilogParser.ParseVerilogModules(socFilePath);
          
         foreach (Module module in modulesTemp)
         {
-            //Debug:
-            //Console.WriteLine("Found module {0} in SoC file" ,module.Name);
-            
             if (module.Name == socName)
             {
                 SubModule tempSubMod = new SubModule()
@@ -520,6 +558,18 @@ public class WrapperBuilder
         
         foreach (Instance instance in instanceList)
         {
+            if (instance.InstanceName() == "OpenEye")
+            {
+                //make wires for ALL ports
+                foreach (InstPort port in instance.GetPorts())
+                {
+                    string wireName = instance.InstanceName() + "_" + port.PortName;
+                    Wire tempWire = new Wire(wireName, port.PortSize, false, false);
+                    wireList.Add(tempWire);
+                    instance.SetConnection(port.PortName, tempWire);
+                }    
+                continue;   //skip rest of the loop content
+            }
             if (instance.InstanceName() != "main_soc")
             {
                 //Routine for every instance but the main SoC
@@ -536,6 +586,7 @@ public class WrapperBuilder
             {
                 //Routine for main_soc
                 //WARNING! THIS ASSUMES main_soc IS ALWAYS LAST IN instanceList (see "MakeInstances" method)
+                //Reason: Wires are created per instance, except for main_soc, where only existing wires are connected
                 foreach (InstPort port in instance.GetPorts())
                 {
                     foreach (Wire wire in wireList)
@@ -545,6 +596,9 @@ public class WrapperBuilder
                             instance.SetConnection(port.PortName, wire);
                         }
                     }
+                    
+                    
+                    
                 }
             }
         }

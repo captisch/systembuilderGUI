@@ -26,8 +26,6 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
 {
     private static readonly IProjectRoot? activeProject = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject;
     private static string? projectPath = activeProject.RootFolderPath;
-
-    private bool openEyeSet = false;  //flag to indicate when an OpenEye instance was prepared 
     
     [ObservableProperty]
     private ConfigFile configFile = new();
@@ -181,7 +179,6 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
          OpenEyeConfig = new OpenEyeConfig(OpenEyeConfig.Parameters);
     }
     
-    
     [RelayCommand]
     private async Task MakeOpenEyeAsync()
     {
@@ -201,13 +198,24 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
          * 1. Retrieve relevant information (currently: Is OpenEye prepared? What's the dma width?) 
          * 2. Set oe_dma_width value accordingly
          * 3. Add instance of OpenEye_FPGA to SoC-Wrapper
-         * 4. Profit
          */
         var path = Path.Combine(projectPath, "parameters.vh");
         if (File.Exists(path))
         {
-            //1. Some parsing routine to get the value
-            //2. [WieauchimmerichdaspassendeFeldanspreche]=oe_dma_width_Value
+            //Retrieve Value for DMA width
+            var stream = File.OpenRead(path);
+            using var reader = new StreamReader(stream);
+            var headerText = await reader.ReadToEndAsync();
+            var paramVals = OpenEyeConfig.ParseParameters(headerText);
+            
+            foreach (var value in paramVals)
+            {
+                if (value.Name == "DMA_BITWIDTH")
+                {
+                    ConfigFile.FindItemByName("oe_dma_width").Value = value.Value;
+                }
+            }
+            //The wrapper builder can now see the value in the config and add the OE Instance
         }
         else
         { 

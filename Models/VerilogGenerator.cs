@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-//using SystemBuilder.Types;
+
 
 namespace systembuilderGUI.Models;
 //Maybe this should be put elsewhere in the project structure...
@@ -23,16 +23,10 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
     private Module TopModule { get; } = topModule;
     private List<Wire> ConWires { get; } = wires; 
     
-    public void GenerateVerilog(string targetDirectory)
+    public void GenerateVerilog(string targetDirectory, bool withOpenEye)
     {
         string outputPath = Path.Combine(targetDirectory, TopModule.Name + ".v");
-
-        /*if (File.Exists(outputPath))
-        {
-            File.Delete(outputPath);
-        }
-        File.Create(outputPath);
-        */
+        
         //DEBUG:
         Debug.WriteLine("Generating verilog file");
         
@@ -47,6 +41,10 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
         //AddParams(outputPath, TopModule.Parameters);
         AddPorts(outputPath, TopModule.Ports);
         AddWires(outputPath, ConWires);
+        if (withOpenEye)
+        {
+            AssignOpenEyeReset(outputPath);
+        }
         
         foreach (Instance currentInstance in Instances)
         {
@@ -160,6 +158,12 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
             }
         } 
         sw.WriteLine("\n//-----------------------------------------");
+    }
+
+    private void AssignOpenEyeReset(string outputPath)
+    {
+        using StreamWriter sw = File.AppendText(outputPath);
+        sw.WriteLine("\nassign OpenEye_rst_ni = openEye_rst_n | ~rst;\n");
     }
 
     private void AddModuleInstance(string outputPath, Instance currentInstance)

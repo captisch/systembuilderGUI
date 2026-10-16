@@ -10,7 +10,6 @@ public class Module
 {
     public string Name { get; set; }
     public List<Port>? Ports { get; set; }
-    public string? Logic { get; set; }
     public List<Parameter>? Parameters { get; set; }
 
     public Module Copy()
@@ -18,7 +17,6 @@ public class Module
         return new Module
         {
             Name = this.Name,
-            Logic = this.Logic,
             Parameters = this.Parameters
                 .Select(p => new Parameter { Name = p.Name, Value = p.Value })
                 .ToList(),
@@ -100,7 +98,7 @@ public partial class Parameter : ObservableObject
     [ObservableProperty] private string? value;
 }
 
-public class VerilogParser
+/*public class VerilogParser
 {
     public List<Module> ReadVerilog(string verilogFile)
     {
@@ -113,7 +111,7 @@ public class VerilogParser
         string verilogText = System.IO.File.ReadAllText(verilogFile);
         
         var patternSingleLineComment = @"//.*";
-        var patternMultiLineComment = @"/\*[\s\S]*?\*/";
+        var patternMultiLineComment = @"/\*[\s\S]*?\*REMOVE_THIS_TEXT_WHEN_REACTIVATING/";    
         
         var verilogTextNoComments = Regex.Replace(
             (Regex.Replace (verilogText, patternMultiLineComment, "")),
@@ -131,7 +129,7 @@ public class VerilogParser
         foreach (Match match in matchModule)
         {
             var modulename = match.Groups["modulename"].Value;
-            var modulelogic = match.Groups["logic"].Value;
+            //var modulelogic = match.Groups["logic"].Value;
             
             var moduleparameters = new List<Parameter>();
             var parameterlist = match.Groups["parameterlist"].Value;
@@ -243,11 +241,10 @@ public class VerilogParser
             {
                 Name = modulename,
                 Parameters = moduleparameters,
-                Ports = moduleports,
-                Logic = modulelogic
+                Ports = moduleports
             });
         }
         
         return modules;
     }
-}
+}*/

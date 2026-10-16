@@ -19,7 +19,7 @@ public partial class SubModule : ObservableObject
     {
         Dictionary<string, dynamic> dict = new();
         
-        dict.Add("source", outputType == "save" ? source : isExternalModule ? source : "None"); // Maybe always hand over source path and external flag, would need adjustment in generator script
+        dict.Add("source", outputType == "save" ? Source : IsExternalModule ? "None" : Source); // Maybe always hand over source path and external flag, would need adjustment in generator script
         dict.Add("module_name", module.Name);
         dict.Add("instance_name", instance);
         dict.Add("parameters", module.Parameters.ToDictionary(x => x.Name, x => x.Value));

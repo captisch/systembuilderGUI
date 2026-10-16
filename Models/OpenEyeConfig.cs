@@ -35,8 +35,8 @@ public class OpenEyeConfig : ObservableObject
         var headerText = reader.ReadToEnd();
         return ParseParameters(headerText);
     }
-    
-    private ObservableCollection<OpenEyeParameter> ParseParameters(string? fileText)
+
+    public ObservableCollection<OpenEyeParameter> ParseParameters(string? fileText)
     {
         if (fileText == null)
         {
@@ -66,8 +66,7 @@ public class OpenEyeConfig : ObservableObject
                 string name = paramMatch.Groups[1].Value;
                 string value = paramMatch.Groups[2].Value;
                 
-                //check if name already exists in the list, probably redundant here
-                //TODO: Check if the construct checking for existing element of that name is required!
+                //check if name already exists in the list, might be redundant here
                 if (!byName.TryGetValue(name, out var entry))
                 {
                     entry = new OpenEyeParameter { Name = name };
@@ -99,44 +98,6 @@ public class OpenEyeConfig : ObservableObject
         }
 
         return result;
-        /*old version, keep around until new version is successfully tested!!
-        var parameters = new ObservableCollection<OpenEyeParameter>();
-        if (string.IsNullOrWhiteSpace(fileText))
-        {
-            Debug.WriteLine("The requested header file does not exist or is invalid!");
-            return parameters;
-        }
-        
-        var regexPatternParameterlist = @"(?:parameter(?<parameterlist>\s*\S*\s*=\s*\S*))";
-        
-        var matches = Regex.Matches(fileText, regexPatternParameterlist);
-        Debug.WriteLine($"Found {matches.Count} matches");
-        //Debug.WriteLine("In Text:" + headerText);
-        
-        foreach (Match match in matches)
-        {
-            var parameterlist = match.Groups["parameterlist"].Value;
-            Debug.WriteLine("Using parameterlist: "  + parameterlist);
-            var parameterText = parameterlist.Split(',')
-                .Select(p => p.Trim())
-                .Where(p => !string.IsNullOrWhiteSpace(p));
-            
-            foreach (var parameter in parameterText)
-            {
-                var parameterName = parameter.Split('=')[0].Trim();
-                var parameterValue = parameter.Split('=')[1].Trim();
-                
-                Debug.WriteLine("Found Parameter: "+ parameterName);
-                
-                parameters.Add(new OpenEyeParameter 
-                {
-                    Name = parameterName, 
-                    Value = parameterValue
-                });
-            }
-        }
-        Debug.WriteLine("If there are no parameters listed before this message, something went wrong.");
-        return parameters;*/
     }
 
     /// <returns>true if parameters were read from the chosen file, false if nothing was loaded.</returns>
@@ -210,8 +171,8 @@ public class OpenEyeConfig : ObservableObject
                         "\". .venv/bin/activate && " +      // activate virtual environment
                         "cd /systembuilder/OpenEye/src/ && " +  //change directory to location of python script
                         "python3 openeye_interface.py parameters.vh && " +  //run the python script         
-                        "mkdir /systembuilder/export/OpenEye_hdl &&" +      //prepare folder in export directory
-                        "cp -a /systembuilder/OpenEye/hdl /systembuilder/export/OpenEye_hdl\"" +    //copy relevant files
+                        "mkdir /systembuilder/export/OpenEye &&" +      //prepare folder in export directory
+                        "cp -a /systembuilder/OpenEye/hdl /systembuilder/export/OpenEye\"" +    //copy relevant files
                         //there may be a need to copy more relevant files but this is just initial prototype
                         "\n",   // end of command
             UseShellExecute = true,
