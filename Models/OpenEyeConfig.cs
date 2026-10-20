@@ -154,7 +154,7 @@ public class OpenEyeConfig : ObservableObject
         }
     }
 
-    
+
     public async Task OpenEyeCall(string? pathToDir, string? pathToParams)
     {
         if (string.IsNullOrWhiteSpace(pathToDir)) return;
@@ -163,37 +163,46 @@ public class OpenEyeConfig : ObservableObject
         {
             FileName = "docker",
             Arguments = "run " +
-                        "--rm " +   //remove after execution(?)
-                        $"-v \"{pathToDir}:/systembuilder/export\" " +  //create shared directory for file transfer 
+                        "--rm " + //remove after execution(?)
+                        $"-v \"{pathToDir}:/systembuilder/export\" " + //create shared directory for file transfer 
                         $"-v \"{pathToParams}:/systembuilder/OpenEye/src/current_openEye_parameters.txt\" " +
                         "liteximg:latest " +
-                        "sh -c " +                                     // run command in shell
-                        "\". .venv/bin/activate && " +                  // activate virtual environment
-                        "cd /systembuilder/OpenEye/src/ && " +          //change directory to location of python script
-                        "python3 openeye_interface.py current_openEye_parameters.txt && " +  //run the python script         
-                        "mkdir /systembuilder/export/OpenEye &&" +      //prepare folder in export directory
-                        "cp -a /systembuilder/OpenEye/hdl /systembuilder/export/OpenEye\"" +    //copy relevant files
+                        "sh -c " + // run command in shell
+                        "\". .venv/bin/activate && " + // activate virtual environment
+                        "cd /systembuilder/OpenEye/src/ && " + //change directory to location of python script
+                        "python3 openeye_interface.py current_openEye_parameters.txt && " + //run the python script         
+                        "mkdir /systembuilder/export/OpenEye &&" + //prepare folder in export directory
+                        "cp -a /systembuilder/OpenEye/hdl /systembuilder/export/OpenEye\"" + //copy relevant files
                         //there may be a need to copy more relevant files but this is just initial prototype
-                        "\n",   // end of command
+                        "\n", // end of command
             UseShellExecute = true,
             CreateNoWindow = false
         };
 
-        try
+        using var process = Process.Start(psi)
+                            ?? throw new InvalidOperationException("The docker process could not be started.");
+        await process.WaitForExitAsync();
+        await Task.Delay(100);
+
+        if (process.ExitCode != 0)
+            throw new InvalidOperationException(
+                $"Docker exited with code {process.ExitCode}");
+
+    /*try
+    {
+        using (var process = Process.Start(psi))
         {
-            using (var process = Process.Start(psi))
-            {
-                if (process is null) return;
-                process.WaitForExit();
-                await Task.Delay(100);
-                //return process.ExitCode;
-            }
+            if (process is null) return;
+            process.WaitForExit();
+            await Task.Delay(100);
+            //return process.ExitCode;
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            throw;
-        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+        throw;
+    }*/
     }
 }
  
