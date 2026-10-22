@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:models="clr-namespace:systembuilderGUI.Models"
-             xmlns:t="using:systembuilderGUI.Templates"
              xmlns:conv="using:systembuilderGUI.Converters"
              x:Class="systembuilderGUI.Views.SystemBuilderPanel"
              x:DataType="vm:SystemBuilderContentViewModel">
@@ -15,16 +14,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <MergeResourceInclude Source="avares://systembuilderGUI/Styles/DataTemplates.axaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
-            <!-- Template-Selector-Instanz -->
-            <t:ConfigItemTemplateSelector
-                x:Key="ConfigItemTemplateSelector"
-                OpenStringTemplate="{StaticResource OpenStringItemTemplate}"
-                BooleanTemplate="{StaticResource BooleanItemTemplate}"
-                OptionListTemplate="{StaticResource OptionListItemTemplate}"
-                IntegerTemplate="{StaticResource IntegerItemTemplate}"
-                FilePathTemplate="{StaticResource FilePathTemplate}"
-                DefaultTemplate="{StaticResource DefaultItemTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     
@@ -65,7 +54,7 @@
                                       Grid.IsSharedSizeScope="True"
                                       Background="{DynamicResource ThemeControlLowBrushBrush}">
                             <ItemsControl ItemsSource="{Binding ConfigFile.CoreItems}"
-                                          ItemTemplate="{StaticResource ConfigItemTemplateSelector}"/>
+                                          ItemTemplate="{StaticResource ConfigItemTemplate}"/>
                         </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Interface Configuration">
@@ -73,7 +62,7 @@
                                       Padding="0,0,20,0"
                                       Grid.IsSharedSizeScope="True">
                             <ItemsControl ItemsSource="{Binding ConfigFile.Interfaces}"
-                                          ItemTemplate="{StaticResource ConfigItemTemplateSelector}"/>
+                                          ItemTemplate="{StaticResource ConfigItemTemplate}"/>
                         </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Submodules">
