@@ -6,7 +6,7 @@
 
     <conv:StringToBoolConverter x:Key="StringToBoolConverter" />
     
-    <!-- Templates of editable Fields -->
+    <!-- Templates for editable Fields -->
     
     <!-- OpenString -->
     <DataTemplate x:Key="OpenString" x:DataType="models:ConfigItem">
@@ -41,7 +41,7 @@
                  VerticalAlignment="Center"/>
     </DataTemplate>
     
-    <!-- FilePath -->
+    <!-- FilePath | Deactivated for now-->
     <DataTemplate x:Key="FilePath" x:DataType="models:ConfigItem">
         <StackPanel Orientation="Horizontal">
             <Button Content="Choose..."
@@ -49,7 +49,6 @@
                     CommandParameter="{Binding .}"
                     VerticalAlignment="Center"
                     IsEnabled="False"/>
-            <!-- Deaktiviert für WSL workaround -->
             <TextBox IsEnabled="False" 
                      Text="{Binding Value, Mode=TwoWay}"
                      VerticalAlignment="Center"/>
@@ -71,14 +70,32 @@
         Default="{StaticResource Default}"
         />
     
+    <DataTemplate x:Key="ConfigHeaderTemplate">
+        <Grid Background="{StaticResource ThemeElevatedBrush}"
+              DockPanel.Dock="Top"
+              ColumnSpacing="8"
+              Margin="2"
+              ShowGridLines="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="ItemName"/>
+                <ColumnDefinition Width="400" SharedSizeGroup="ItemValue"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="ItemDefinition"/>
+            </Grid.ColumnDefinitions>
+                                
+            <TextBlock Grid.Column="0" Text="Parameter" FontSize="16" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="Value" FontSize="16" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="2" Text="Description" FontSize="16" HorizontalAlignment="Center"/>
+        </Grid>
+    </DataTemplate>
+    
     <!-- Template for Configuration Items -->
     <DataTemplate x:Key="ConfigItemTemplate" DataType="models:ConfigItem">
-        <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2">
+        <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2" ShowGridLines="True">
             
             <Grid.ColumnDefinitions>
-                <ColumnDefinition SharedSizeGroup="ItemName"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition SharedSizeGroup="ItemDefinition"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="ItemName"/>
+                <ColumnDefinition Width="400" SharedSizeGroup="ItemValue"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="ItemDefinition"/>
             </Grid.ColumnDefinitions>
             
             <TextBlock 

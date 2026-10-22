@@ -46,16 +46,37 @@
                 
                 <Separator DockPanel.Dock="Top" Margin="0" Background="{DynamicResource ThemeAccentBrush}" Height="2" />
                 
+                
+                
                 <TabControl Margin="0,5,0,2"
                             TabStripPlacement="Left">
                     <TabItem Header="Core Configuration">
-                        <ScrollViewer AllowAutoHide="True" 
-                                      Padding="0,0,20,0"
-                                      Grid.IsSharedSizeScope="True"
-                                      Background="{DynamicResource ThemeControlLowBrushBrush}">
-                            <ItemsControl ItemsSource="{Binding ConfigFile.CoreItems}"
-                                          ItemTemplate="{StaticResource ConfigItemTemplate}"/>
-                        </ScrollViewer>
+                        <DockPanel Grid.IsSharedSizeScope="True">
+                            
+                            <Grid Background="{StaticResource ThemeElevatedBrush}"
+                                  DockPanel.Dock="Top"
+                                  ColumnSpacing="8"
+                                  Margin="2"
+                                  ShowGridLines="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ItemName"/>
+                                    <ColumnDefinition Width="400" SharedSizeGroup="ItemValue"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ItemDefinition"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Column="0" Text="Parameter" FontSize="16" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Value" FontSize="16" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="Description" FontSize="16" HorizontalAlignment="Center"/>
+                            </Grid>    
+                                
+                            <ScrollViewer AllowAutoHide="True" 
+                                          Padding="0,0,20,0"
+                                          Background="{DynamicResource ThemeControlLowBrushBrush}">
+                                <ItemsControl ItemsSource="{Binding ConfigFile.CoreItems}"
+                                              ItemTemplate="{StaticResource ConfigItemTemplate}"/>
+                            </ScrollViewer>
+                            
+                        </DockPanel>
                     </TabItem>
                     <TabItem Header="Interface Configuration">
                         <ScrollViewer AllowAutoHide="True" 
