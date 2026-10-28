@@ -187,22 +187,6 @@ public class OpenEyeConfig : ObservableObject
         if (process.ExitCode != 0)
             throw new InvalidOperationException(
                 $"Docker exited with code {process.ExitCode}");
-
-    /*try
-    {
-        using (var process = Process.Start(psi))
-        {
-            if (process is null) return;
-            process.WaitForExit();
-            await Task.Delay(100);
-            //return process.ExitCode;
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex.Message);
-        throw;
-    }*/
     }
 }
  

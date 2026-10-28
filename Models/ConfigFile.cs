@@ -49,6 +49,28 @@ public partial class ConfigFile : ObservableObject
 
         foreach (var item in returnItems.Where(i => string.IsNullOrWhiteSpace(i.Value) && !string.IsNullOrWhiteSpace(i.DefaultValue)))
             item.Value = item.DefaultValue;
+        /*
+         * Handling of "user access" dependency between configItems comes here. Currently, each item can have one other
+         * item control whether the user can access it.
+         * Default case handles simple dependency on Boolean variables. More complex conditions, e.g. for option lists
+         * must be added as an explicit case (see "device" example).
+         */
+        foreach (var item in returnItems)
+        {
+            switch (item.DependsOn)
+            {
+                case null:
+                    continue;
+                case "device":
+                    var device = returnItems.FirstOrDefault(i => i.Name == item.DependsOn) ?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");
+                    item.EnableWhen(device, v => v is not "Generic");
+                    break;
+                default:
+                    var boolDependency = returnItems.FirstOrDefault(i => i.Name == item.DependsOn);
+                    item.EnableWhen(boolDependency, v => v == "True");
+                    break;
+            }
+        }
         
         return returnItems;
     }

@@ -13,19 +13,41 @@
   type          : OptionList
   defaultValue  : "vexriscv"
   options       : ["vexriscv", "picorv32", "lm32", "mor1kx", "rocket", "blackparrot", "neorv32", "kianv", "None"]
-  access        : True  
+  access        : True
   
 - name          : compile_software
   description   : Compile Software 
   type          : Boolean
   defaultValue  : True
-  access        : True  
+  access        : True
+  dependsOn     :
   
 - name          : sys_clk_freq
   description   : System clock frequency
   type          : Integer
-  defaultValue  : 60e6
+  defaultValue  : 50e6
   access        : True
+  
+- name          : device
+  description   : Target FPGA device family
+  type          : OptionList
+  defaultValue  : "Generic"
+  options       : ["Generic","LatticeECP5","Gatemate","XilinxS7","XilinxS6", "XilinxUS", "XilinxUSP"]
+  access        : True 
+
+- name          : auto_pll
+  description   : Automatically instantiate PLL
+  type          : Boolean
+  defaultValue  : False
+  access        : False
+  dependsOn     : "device"
+  
+- name          : ref_clk_freq
+  description   : Reference clock frequency
+  type          : Integer
+  defaultValue  : 10e6
+  access        : False
+  dependsOn     : "device"
 
 - name          : bus_standard
   description   : Bus standard
@@ -39,7 +61,7 @@
   type          : OptionList
   defaultValue  : "shared"
   options       : ["shared", "crossbar"]
-  access        : True
+  access        : True  
 
 - name          : bus_data_width
   description   : Bus data width in bits
@@ -92,43 +114,50 @@
   defaultValue  : "integer"
   options       : ["integer", "float", "double"]
   access        : True
+  dependsOn     : "compile_software"
 
 - name          : bios_console
   description   : Console of the bios
   type          : OptionList
   defaultValue  : "full"
   options       : ["full", "no-history", "no-autocomplete", "lite", "disable"]  
-  access        : True  
+  access        : True
+  dependsOn     : "compile_software"
 
 - name          : bios_lto
   description   : Use link time optimization for the bios
   type          : Boolean
   defaultValue  : False
   access        : True
+  dependsOn     : "compile_software"
   
 - name          : no_ident_version
   description   : Disable identification version
   type          : Boolean
   defaultValue  : False
   access        : True
+  dependsOn     :
 
 - name          : no_ctrl
   description   : Disable control
   type          : Boolean
   defaultValue  : False
   access        : True
+  dependsOn     :
   
 - name          : doc
   description   : Generate documentation
   type          : Boolean
   defaultValue  : True
-  access        : True  
+  access        : True
+  dependsOn     :
  
 - name          : hierarchical
   description   : Generate hierarchical Verilog for Base-SoC
   type          : Boolean
   defaultValue  : False
   access        : True
+  dependsOn     :
   
   
   #Parking lot for currently unused settings

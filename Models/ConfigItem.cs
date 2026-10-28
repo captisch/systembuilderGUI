@@ -48,6 +48,8 @@ public partial class ConfigItem : ObservableObject
 
     [ObservableProperty] private bool? access;
     
+    [ObservableProperty] private string? dependsOn;
+    
     public ObservableCollection<string?> Options { get; set; } = new ();
     
     private string ValidateEntry(string? entry)
@@ -86,6 +88,19 @@ public partial class ConfigItem : ObservableObject
         {
             Value = newValue;
         }
+    }
+    
+    //Method to control access depending on other config elements
+    public void EnableWhen(ConfigItem source, Func<string?, bool> condition)
+    {
+        // Set the initial state manually
+        Access = condition(source.Value);
+
+        source.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(Value))
+                Access = condition(source.Value);
+        };
     }
 }
 
