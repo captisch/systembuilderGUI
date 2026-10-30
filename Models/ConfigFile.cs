@@ -65,6 +65,18 @@ public partial class ConfigFile : ObservableObject
                     var device = returnItems.FirstOrDefault(i => i.Name == item.DependsOn) ?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");
                     item.EnableWhen(device, v => v is not "Generic");
                     break;
+                case "cpu_type":
+                    if (item.Name == "compile_software")
+                    {
+                        var cpuType = returnItems.FirstOrDefault(i => i.Name == item.DependsOn) ?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");
+                        item.SetValueOnCondition(cpuType, v => v is "None", "False");
+                        item.EnableWhen(cpuType, v => v is not "None");
+                    }
+                    break;
+                case "no_uart":
+                    var uartArg = returnItems.FirstOrDefault(i => i.Name == item.DependsOn)?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");
+                    item.EnableWhen(uartArg, v => v == "False");
+                    break;
                 default:
                     var boolDependency = returnItems.FirstOrDefault(i => i.Name == item.DependsOn);
                     item.EnableWhen(boolDependency, v => v == "True");

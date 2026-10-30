@@ -20,7 +20,7 @@
   type          : Boolean
   defaultValue  : True
   access        : True
-  dependsOn     :
+  dependsOn     : "cpu_type"
   
 - name          : sys_clk_freq
   description   : System clock frequency
@@ -32,7 +32,7 @@
   description   : Target FPGA device family
   type          : OptionList
   defaultValue  : "Generic"
-  options       : ["Generic","LatticeECP5","Gatemate","XilinxS7","XilinxS6", "XilinxUS", "XilinxUSP"]
+  options       : ["Generic","Gatemate","LatticeECP5","XilinxS7","XilinxS6", "XilinxUS", "XilinxUSP"]
   access        : True 
 
 - name          : auto_pll
@@ -148,7 +148,7 @@
 - name          : doc
   description   : Generate documentation
   type          : Boolean
-  defaultValue  : True
+  defaultValue  : False
   access        : True
   dependsOn     :
  

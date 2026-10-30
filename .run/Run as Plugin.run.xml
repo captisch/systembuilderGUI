@@ -4,9 +4,10 @@
     <option name="PROGRAM_PARAMETERS" value="--modules ./" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/bin/Debug/net10.0" />
     <option name="PASS_PARENT_ENVS" value="1" />
+    <option name="USE_EXTERNAL_CONSOLE" value="1" />
     <option name="ENV_FILE_PATHS" value="" />
     <option name="REDIRECT_INPUT_PATH" value="" />
-    <option name="TERMINAL_MODE" value="ExternalConsole" />
+    <option name="PTY_MODE" value="Auto" />
     <option name="MIXED_MODE_DEBUG" value="0" />
     <option name="USE_MONO" value="0" />
     <option name="RUNTIME_ARGUMENTS" value="" />

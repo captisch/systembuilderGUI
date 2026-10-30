@@ -102,6 +102,16 @@ public partial class ConfigItem : ObservableObject
                 Access = condition(source.Value);
         };
     }
+    //Experimental method to set Values based on other items
+    public void SetValueOnCondition(ConfigItem source, Func<string?, bool> condition, string? value)
+    {
+        Value = value ?? string.Empty;
+        source.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(Value) && condition(source.Value))
+                Value = value;
+        };
+    }
 }
 
     
