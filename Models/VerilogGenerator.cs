@@ -167,7 +167,7 @@ public class VerilogGenerator(List<Instance> instances, Module topModule, List<W
     private void AssignOpenEyeReset(string outputPath)
     {
         using StreamWriter sw = File.AppendText(outputPath);
-        sw.WriteLine("\nassign OpenEye_rst_ni = openEye_rst_n | ~rst;\n");
+        sw.WriteLine("\nassign openEye_rst_ni = openEye_rst_n | ~rst;\n");
     }
 
     private void AddModuleInstance(string outputPath, Instance currentInstance, bool withParams)

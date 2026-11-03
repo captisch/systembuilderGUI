@@ -59,7 +59,7 @@ public partial class Port : ObservableObject
     [ObservableProperty] private string? name;
     [ObservableProperty] private bool routeToSOC = false;
     [ObservableProperty] private bool routeToWrapper = false;
-    [ObservableProperty] private bool noRoute;
+    [ObservableProperty] private bool noRoute = true;
 
     public Dictionary<dynamic, dynamic> ToDictionary(SubModule submodule, string outputType)
     {

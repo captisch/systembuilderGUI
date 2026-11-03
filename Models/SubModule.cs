@@ -13,7 +13,7 @@ public partial class SubModule : ObservableObject
 
     [ObservableProperty] private string? instance;
     
-    [ObservableProperty] private bool isExternalModule;
+    [ObservableProperty] private bool isExternalModule = true;
 
     public Dictionary<string, dynamic> ToDictionary(string outputType)
     {
