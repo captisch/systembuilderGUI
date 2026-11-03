@@ -103,45 +103,42 @@
                         </DockPanel>
                     </TabItem>
                     <TabItem Header="OpenEye">
-                        <Grid RowDefinitions="20, *, 5" Margin="2,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="4*"/>
-                                   
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Row="1" Grid.Column="0">
-                                    <Button Content="Save Parameters" Command="{Binding SaveOpenEyeHeaderCommand}"/>
-                                    <Button Content="Load Parameters" Command="{Binding LoadOpenEyeParamsCommand}"/>
-                                    <Panel Margin="10"/>
-                                    <Button Content="Set up OpenEye" Command="{Binding MakeOpenEyeCommand}" />
-                                    <Button Content="Add current OpenEye to SoC" Command="{Binding AddOpenEyeToSocCommand}" />
-                                </StackPanel>
+                        <DockPanel >
+                            <StackPanel DockPanel.Dock="Top">
+                                <Button Content="Save Parameters" Command="{Binding SaveOpenEyeHeaderCommand}"/>
+                                <Button Content="Load Parameters" Command="{Binding LoadOpenEyeParamsCommand}"/>
+                                <Panel Margin="10"/>
+                                <Button Content="Set up OpenEye" Command="{Binding MakeOpenEyeCommand}" />
+                                <Button Content="Add current OpenEye to SoC" Command="{Binding AddOpenEyeToSocCommand}" />
+                            </StackPanel>
+                        
+                            <DockPanel DockPanel.Dock="Top" Grid.IsSharedSizeScope="True">
                             
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="OpenEye Parameters" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                       FontSize="16"/>
-                                <ScrollViewer Grid.Row="1" Grid.Column="1">
-                                    <StackPanel>
-                                        <Grid Height="20"
-                                              Margin="2,10"
-                                              Background="{DynamicResource ThemeControlHighlightHighBrush}"
-                                              RowDefinitions="Auto">
-                                        <Grid.ColumnDefinitions>
-                                            <!--IMPORTANT: Layout (widths) must match data template for proper alignment.
-                                                There is probably a better way to implement this... -->
-                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamName" Width="2*" />
-                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamValue" Width="*" />
-                                            <ColumnDefinition SharedSizeGroup="SizeGroupOeParamDescription" Width="4*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Name"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Text="Value"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Text="Description"/>
-                                        </Grid> 
-                                        <ItemsControl  
-                                        ItemsSource="{Binding OpenEyeConfig.Parameters}"
-                                        ItemTemplate="{StaticResource OeParamTemplate}"/>
-                                    </StackPanel>       
+                                <Grid Background="{StaticResource ThemeElevatedBrush}"
+                                      DockPanel.Dock="Top"
+                                      ColumnSpacing="8"
+                                      Margin="2"
+                                      ShowGridLines="True">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ItemName"/>
+                                        <ColumnDefinition Width="400" SharedSizeGroup="ItemValue"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ItemDefinition"/>
+                                    </Grid.ColumnDefinitions>
+                                
+                                    <TextBlock Grid.Column="0" Text="Parameter" FontSize="16" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="Value" FontSize="16" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Description" FontSize="16" HorizontalAlignment="Center"/>
+                                </Grid>    
+                                
+                                <ScrollViewer AllowAutoHide="True" 
+                                              Padding="0,0,20,0"
+                                              Background="{DynamicResource ThemeControlLowBrushBrush}">
+                                    <ItemsControl ItemsSource="{Binding OpenEyeConfig.Parameters}"
+                                                  ItemTemplate="{StaticResource ConfigItemTemplate}"/>
                                 </ScrollViewer>
-                        </Grid>
+                            
+                            </DockPanel>
+                        </DockPanel>
                     </TabItem>
                 </TabControl>
             </DockPanel>

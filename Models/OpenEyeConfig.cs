@@ -6,52 +6,97 @@ using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using systembuilderGUI.Services;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace systembuilderGUI.Models;
-
-public partial class OpenEyeParameter : Parameter
-{
-    [ObservableProperty] private string? description;
-}
 
 public class OpenEyeConfig : ObservableObject
 {
     public OpenEyeConfig()
     {
-        Parameters = ReadParametersFromTemplate(new Uri("avares://systembuilderGUI/Assets/openEyeParameterTemplate.txt"));
+        Parameters = InitItems(new Uri("avares://systembuilderGUI/Assets/openEye_parameter_definition.yaml"));
+        foreach (var parameter in Parameters)
+        {
+            Debug.WriteLine($"{parameter.Name}: {parameter.Value}");
+        }
     }
 
-    public OpenEyeConfig(ObservableCollection<OpenEyeParameter> parameters)
+    public OpenEyeConfig(ObservableCollection<ConfigItem> parameters)
     {
         Parameters = parameters;
     }
     
-    public ObservableCollection<OpenEyeParameter> Parameters { get; set; }
+    public ObservableCollection<ConfigItem> Parameters { get; set; }
 
-    private ObservableCollection<OpenEyeParameter> ReadParametersFromTemplate(Uri templateFile)
+    private ObservableCollection<ConfigItem> InitItems(Uri source)
     {
-        using var stream = AssetLoader.Open(templateFile);
+        using var stream = AssetLoader.Open(source);
         using var reader = new StreamReader(stream);
-        var headerText = reader.ReadToEnd();
-        return ParseParameters(headerText);
+        var yml = reader.ReadToEnd();
+
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.CamelCaseNamingConvention.Instance)
+            .Build();
+        var returnItems = deserializer.Deserialize<ObservableCollection<ConfigItem>>(yml);
+
+        foreach (var item in returnItems.Where(i => string.IsNullOrWhiteSpace(i.Value) && !string.IsNullOrWhiteSpace(i.DefaultValue)))
+            item.Value = item.DefaultValue;
+        /*
+         * Handling of "user access" dependency between configItems comes here. Currently, each item can have one other
+         * item control whether the user can access it.
+         * Default case handles simple dependency on Boolean variables. More complex conditions, e.g. for option lists
+         * must be added as an explicit case (see "device" example).
+         */
+        foreach (var item in returnItems)
+        {
+            switch (item.DependsOn)
+            {
+                case null:
+                    continue;
+                case "device":
+                    var device = returnItems.FirstOrDefault(i => i.Name == item.DependsOn) ?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");
+                    item.EnableWhen(device, v => v is not "Generic");
+                    break;
+                case "cpu_type":
+                    if (item.Name == "compile_software")
+                    {
+                        var cpuType = returnItems.FirstOrDefault(i => i.Name == item.DependsOn) ?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");
+                        item.SetValueOnCondition(cpuType, v => v is "None", "False");
+                        item.EnableWhen(cpuType, v => v is not "None");
+                    }
+                    break;
+                case "no_uart":
+                    var uartArg = returnItems.FirstOrDefault(i => i.Name == item.DependsOn)?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");
+                    item.EnableWhen(uartArg, v => v == "False");
+                    break;
+                default:
+                    var boolDependency = returnItems.FirstOrDefault(i => i.Name == item.DependsOn);
+                    item.EnableWhen(boolDependency, v => v == "True");
+                    break;
+            }
+        }
+        
+        return returnItems;
     }
 
-    public ObservableCollection<OpenEyeParameter> ParseParameters(string? fileText)
+    public ObservableCollection<ConfigItem> ParseParameters(string? fileText)
     {
         if (fileText == null)
         {
             Debug.WriteLine("ParseParameters: fileText is null!");
             return [];
         }
+
         // Matches: parameter NAME = VALUE   (optional trailing comma, optional whitespace around '=')
         var parameterPattern = new Regex(@"^\s*parameter\s+(\S+)\s*=\s*(.+?)\s*,?\s*$", RegexOptions.Compiled);
 
         // Matches: description NAME = "TEXT"   (optional trailing comma, optional whitespace around '=')
         var descriptionPattern = new Regex(@"^\s*description\s+(\S+)\s*=\s*""(.*)""\s*,?\s*$", RegexOptions.Compiled);
 
-        var byName = new Dictionary<string, OpenEyeParameter>();
-        var result = new ObservableCollection<OpenEyeParameter>();
-        
+        var byName = new Dictionary<string, ConfigItem>();
+        var result = new ObservableCollection<ConfigItem>();
+
         //spilt input into line to avoid issues due to optional comma
         var lines = fileText.Split(["\r\n", "\r", "\n"], System.StringSplitOptions.None);
 
@@ -65,11 +110,11 @@ public class OpenEyeConfig : ObservableObject
             {
                 string name = paramMatch.Groups[1].Value;
                 string value = paramMatch.Groups[2].Value;
-                
+
                 //check if name already exists in the list, might be redundant here
                 if (!byName.TryGetValue(name, out var entry))
                 {
-                    entry = new OpenEyeParameter { Name = name };
+                    entry = new ConfigItem() { Name = name };
                     byName[name] = entry;
                     result.Add(entry);
                 }
@@ -145,9 +190,9 @@ public class OpenEyeConfig : ObservableObject
         {
             await sw.WriteLineAsync("parameter " + parameter.Name + "=" + parameter.Value + ",");    
         }
-        
+
         await sw.WriteLineAsync("");
-        
+
         foreach (var parameter in Parameters)
         {
             await sw.WriteLineAsync("description " + parameter.Name + " = \"" + parameter.Description + "\",");

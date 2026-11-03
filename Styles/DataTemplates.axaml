@@ -315,7 +315,7 @@
     </DataTemplate>
     
     <!-- Template for OpenEye Parameter -->
-    <DataTemplate x:Key="OeParamTemplate" DataType="models:OpenEyeParameter">
+    <DataTemplate x:Key="OeParamTemplate" DataType="models:ConfigItem">
         <Grid Margin="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition SharedSizeGroup="SizeGroupOeParamName" Width="2*"/>
