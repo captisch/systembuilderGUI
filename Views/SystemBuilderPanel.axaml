@@ -53,21 +53,9 @@
                     <TabItem Header="Core Configuration">
                         <DockPanel Grid.IsSharedSizeScope="True">
                             
-                            <Grid Background="{StaticResource ThemeElevatedBrush}"
-                                  DockPanel.Dock="Top"
-                                  ColumnSpacing="8"
-                                  Margin="2"
-                                  ShowGridLines="True">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ItemName"/>
-                                    <ColumnDefinition Width="400" SharedSizeGroup="ItemValue"/>
-                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ItemDefinition"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="Parameter" FontSize="16" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="Value" FontSize="16" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="Description" FontSize="16" HorizontalAlignment="Center"/>
-                            </Grid>    
+                            <ContentControl DockPanel.Dock="Top"
+                                            Content="{Binding ConfigFile}"
+                                            ContentTemplate="{StaticResource ConfigHeaderTemplate}"/>
                                 
                             <ScrollViewer AllowAutoHide="True" 
                                           Padding="0,0,20,0"
@@ -79,12 +67,18 @@
                         </DockPanel>
                     </TabItem>
                     <TabItem Header="Interface Configuration">
-                        <ScrollViewer AllowAutoHide="True" 
-                                      Padding="0,0,20,0"
-                                      Grid.IsSharedSizeScope="True">
-                            <ItemsControl ItemsSource="{Binding ConfigFile.Interfaces}"
-                                          ItemTemplate="{StaticResource ConfigItemTemplate}"/>
-                        </ScrollViewer>
+                        <DockPanel Grid.IsSharedSizeScope="True">
+                            
+                            <ContentControl DockPanel.Dock="Top"
+                                            Content="{Binding ConfigFile}"
+                                            ContentTemplate="{StaticResource ConfigHeaderTemplate}"/>
+                            
+                            <ScrollViewer AllowAutoHide="True" 
+                                          Padding="0,0,20,0">
+                                <ItemsControl ItemsSource="{Binding ConfigFile.Interfaces}"
+                                              ItemTemplate="{StaticResource ConfigItemTemplate}"/>
+                            </ScrollViewer>
+                        </DockPanel>
                     </TabItem>
                     <TabItem Header="Submodules">
                         <DockPanel>
@@ -103,7 +97,7 @@
                         </DockPanel>
                     </TabItem>
                     <TabItem Header="OpenEye">
-                        <DockPanel >
+                        <DockPanel Grid.IsSharedSizeScope="True">
                             <StackPanel DockPanel.Dock="Top">
                                 <Button Content="Save Parameters" Command="{Binding SaveOpenEyeHeaderCommand}"/>
                                 <Button Content="Load Parameters" Command="{Binding LoadOpenEyeParamsCommand}"/>
@@ -112,27 +106,15 @@
                                 <Button Content="Add current OpenEye to SoC" Command="{Binding AddOpenEyeToSocCommand}" />
                             </StackPanel>
                         
-                            <DockPanel DockPanel.Dock="Top" Grid.IsSharedSizeScope="True">
+                            <DockPanel DockPanel.Dock="Top">
                             
-                                <Grid Background="{StaticResource ThemeElevatedBrush}"
-                                      DockPanel.Dock="Top"
-                                      ColumnSpacing="8"
-                                      Margin="2"
-                                      ShowGridLines="True">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ItemName"/>
-                                        <ColumnDefinition Width="400" SharedSizeGroup="ItemValue"/>
-                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ItemDefinition"/>
-                                    </Grid.ColumnDefinitions>
-                                
-                                    <TextBlock Grid.Column="0" Text="Parameter" FontSize="16" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="Value" FontSize="16" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2" Text="Description" FontSize="16" HorizontalAlignment="Center"/>
-                                </Grid>    
+                                <ContentControl DockPanel.Dock="Top"
+                                                Content="{Binding OpenEyeConfig}"
+                                                ContentTemplate="{StaticResource ConfigHeaderTemplate}"/>
                                 
                                 <ScrollViewer AllowAutoHide="True" 
                                               Padding="0,0,20,0"
-                                              Background="{DynamicResource ThemeControlLowBrushBrush}">
+                                              Background="{DynamicResource ThemeControlLowBrush}">
                                     <ItemsControl ItemsSource="{Binding OpenEyeConfig.Parameters}"
                                                   ItemTemplate="{StaticResource ConfigItemTemplate}"/>
                                 </ScrollViewer>

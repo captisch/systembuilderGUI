@@ -77,9 +77,9 @@
               Margin="2"
               ShowGridLines="True">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="ItemName"/>
-                <ColumnDefinition Width="400" SharedSizeGroup="ItemValue"/>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="ItemDefinition"/>
+                <ColumnDefinition Width="Auto" MinWidth="100" SharedSizeGroup="ItemName"/>
+                <ColumnDefinition Width="*" MinWidth="50" SharedSizeGroup="ItemValue"/>
+                <ColumnDefinition Width="Auto" MinWidth="200" SharedSizeGroup="ItemDefinition"/>
             </Grid.ColumnDefinitions>
                                 
             <TextBlock Grid.Column="0" Text="Parameter" FontSize="16" HorizontalAlignment="Center"/>
@@ -93,18 +93,21 @@
         <Grid ColumnSpacing="8" IsEnabled="{Binding Access}" Margin="2" ShowGridLines="True">
             
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="ItemName"/>
-                <ColumnDefinition Width="400" SharedSizeGroup="ItemValue"/>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="ItemDefinition"/>
+                <ColumnDefinition SharedSizeGroup="ItemName"/>
+                <ColumnDefinition SharedSizeGroup="ItemValue"/>
+                <ColumnDefinition SharedSizeGroup="ItemDefinition"/>
             </Grid.ColumnDefinitions>
             
             <TextBlock 
                 Grid.Column="0" 
-                Text="{Binding Name}" 
+                Text="{Binding Name}"
+                ToolTip.Tip="{Binding Name}"
+                ContextFlyout="{Binding Name}"
                 VerticalAlignment="Center"/>
             <TextBlock 
                 Grid.Column="2" 
                 Text="{Binding Description}" 
+                ToolTip.Tip="{Binding Description}"
                 VerticalAlignment="Center"/>
             <ContentControl 
                 Grid.Column="1" 
@@ -314,7 +317,7 @@
         </Expander>
     </DataTemplate>
     
-    <!-- Template for OpenEye Parameter -->
+    <!-- Template for OpenEye Parameter - -> DEPRECATED
     <DataTemplate x:Key="OeParamTemplate" DataType="models:ConfigItem">
         <Grid Margin="2">
             <Grid.ColumnDefinitions>
@@ -329,6 +332,6 @@
             <TextBlock Grid.Column="2" HorizontalAlignment="Center" 
                        Text="{Binding Description}" TextWrapping="Wrap"/>
         </Grid>
-    </DataTemplate>
+    </DataTemplate> -->
     
 </ResourceDictionary>
