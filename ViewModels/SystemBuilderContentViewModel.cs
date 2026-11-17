@@ -24,8 +24,9 @@ namespace systembuilderGUI.ViewModels;
 
 public partial class SystemBuilderContentViewModel : ViewModelBase
 {
-    private static readonly IProjectRoot? activeProject = ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject;
-    private static string? projectPath = activeProject.RootFolderPath;
+    private IProjectRoot? ActiveProject => ContainerLocator.Current.Resolve<IProjectExplorerService>().ActiveProject;
+
+    private string? ProjectPath => ActiveProject?.RootFolderPath;
     
     [ObservableProperty]
     private ConfigFile configFile = new();
@@ -44,7 +45,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     private async Task SaveConfigAsync()
     {
         await StatusReporter.RunAsync("Saving configuration...",
-            () => ConfigFile.SaveConfigurationAsync(projectPath),
+            () => ConfigFile.SaveConfigurationAsync(ProjectPath),
             "Configuration saved.", "Could not save the configuration.");
     }
 
@@ -155,7 +156,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         var window = lifetime?.MainWindow;
         if (window?.StorageProvider is null)
             return;
-        var location = await window.StorageProvider.TryGetFolderFromPathAsync(new Uri(projectPath));
+        var location = await window.StorageProvider.TryGetFolderFromPathAsync(new Uri(ProjectPath));
         FilePickerFileType[] filetypes = [new FilePickerFileType("Verilog Header") { Patterns = ["*.vh"] }
         ];
         var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
@@ -182,11 +183,11 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task MakeOpenEyeAsync()
     {
-        var path = Path.Combine(projectPath, "current_openEye_parameters.txt");
+        var path = Path.Combine(ProjectPath, "current_openEye_parameters.txt");
         if (File.Exists(path))
         {
             //if previous OpenEye configuration exists, clean up old files
-            var headerPath = Path.Combine(projectPath, "OpenEye");
+            var headerPath = Path.Combine(ProjectPath, "OpenEye");
             if (Directory.Exists(headerPath))
                 Directory.Delete(headerPath, true);
         }
@@ -196,9 +197,9 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
             await OpenEyeConfig.GenerateHeaderAsync(path); 
 
             process.Update("Running...");
-            await OpenEyeConfig.OpenEyeCall(projectPath, path);
+            await OpenEyeConfig.OpenEyeCall(ProjectPath, path);
             
-            await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(activeProject);
+            await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(ActiveProject);
             StatusReporter.Success($"OpenEye setup successful!.");
         }
         catch (Exception e)
@@ -212,7 +213,7 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddOpenEyeToSoc()
     {
-        var path = Path.Combine(projectPath, "current_openEye_parameters.txt");
+        var path = Path.Combine(ProjectPath, "current_openEye_parameters.txt");
         using var process = StatusReporter.BeginProcess("Adding OpenEye to the design...");
         try
         {
@@ -254,10 +255,10 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
         using var process = StatusReporter.BeginProcess("Saving configuration...");
         try
         {
-            await ConfigFile.SaveConfigurationAsync(projectPath);
+            await ConfigFile.SaveConfigurationAsync(ProjectPath);
 
             process.Update("Preparing SystemBuilder input...");
-            await ConfigFile.GenerateSystemBuilderInput(projectPath);
+            await ConfigFile.GenerateSystemBuilderInput(ProjectPath);
 
             process.Update("Running SystemBuilder in Docker (this can take a while)...");
             await systemBuilder.call(ConfigFile.OutputFilePath, ConfigFile.OutputDirPath, ConfigFile.LogPath);
@@ -267,9 +268,9 @@ public partial class SystemBuilderContentViewModel : ViewModelBase
 
             process.Update("Generating wrapper...");
             WrapperBuilder wrapperBuilder = new WrapperBuilder(ConfigFile);
-            wrapperBuilder.GenerateWrapper(projectPath);
+            wrapperBuilder.GenerateWrapper(ProjectPath);
 
-            await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(activeProject);
+            await ContainerLocator.Current.Resolve<IProjectExplorerService>().ReloadProjectAsync(ActiveProject);
             StatusReporter.Success($"System '{ConfigFile.GetSOCName()}' generated.");
         }
         catch (Exception e)
