@@ -72,6 +72,22 @@ public partial class ConfigFile : ObservableObject
                         item.SetValueOnCondition(cpuType, v => v is "None", "False");
                         item.EnableWhen(cpuType, v => v is not "None");
                     }
+
+                    if (item.Name == "cpu_variant")
+                    {
+                        var cpuType = returnItems.FirstOrDefault(i => i.Name == item.DependsOn) ?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");
+                        item.EnableWhen(cpuType, v => v is not "None");
+                        var variants = new Dictionary<string, string[]>
+                        {
+                            ["vexriscv"]  = ["standard", "minimal", "lite", "full", "linux", "secure"],
+                            ["picorv32"]   = ["standard", "minimal"],
+                            ["serv"]   = ["standard", "mdu"],
+                            ["None"] = ["standard"],
+                        };
+                        item.OptionsFrom(cpuType, v => v is not null &&
+                                                       variants.TryGetValue(v, out var list) ? list : []);
+                        item.SetValueOnCondition(cpuType, v => v == v, "standard");
+                    }
                     break;
                 case "no_uart":
                     var uartArg = returnItems.FirstOrDefault(i => i.Name == item.DependsOn)?? throw new ArgumentNullException("returnItems.FirstOrDefault(i => i.Value == item.DependsOn)");

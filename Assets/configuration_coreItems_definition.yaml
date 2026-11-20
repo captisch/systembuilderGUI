@@ -12,8 +12,16 @@
   description   : CPU type
   type          : OptionList
   defaultValue  : "vexriscv"
-  options       : ["vexriscv", "picorv32", "lm32", "mor1kx", "rocket", "blackparrot", "neorv32", "kianv", "None"]
+  options       : ["vexriscv", "picorv32", "serv", "None"]
   access        : True
+  
+- name          : cpu_variant
+  description   : CPU variant
+  type          : OptionList
+  defaultValue  : "standard"
+  options       : ["standard","minimal"]
+  access        : True
+  dependsOn     : "cpu_type"
   
 - name          : compile_software
   description   : Compile Software 
@@ -32,7 +40,7 @@
   description   : Target FPGA device family
   type          : OptionList
   defaultValue  : "Generic"
-  options       : ["Generic","Gatemate","LatticeECP5","XilinxS7","XilinxS6", "XilinxUS", "XilinxUSP"]
+  options       : ["Generic","Gatemate","LatticeECP5","iCE40","XilinxS7","XilinxS6", "XilinxUS", "XilinxUSP"]
   access        : True 
 
 - name          : auto_pll
@@ -145,7 +153,7 @@
   access        : True
   dependsOn     :
   
-- name          : doc
+- name          : generate_doc
   description   : Generate documentation
   type          : Boolean
   defaultValue  : False

@@ -112,6 +112,31 @@ public partial class ConfigItem : ObservableObject
                 Value = value;
         };
     }
+    
+    public void OptionsFrom(ConfigItem source,
+        Func<string?, IEnumerable<string>> optionsProvider)
+    {
+        void Update()
+        {
+            var newOptions = optionsProvider(source.Value).ToList();
+
+            Options.Clear();
+            foreach (var o in newOptions)
+                Options.Add(o);
+
+            // If old value is no longer valid, reset
+            if (Value is not null && !newOptions.Contains(Value))
+                Value = null;
+        }
+
+        Update(); // Initial assignment
+
+        source.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(Value))
+                Update();
+        };
+    }
 }
 
     
