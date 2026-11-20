@@ -102,6 +102,7 @@
                 <ColumnDefinition SharedSizeGroup="SizeGroupWidth" />
                 <ColumnDefinition SharedSizeGroup="SizeGroupName"/>
                 <ColumnDefinition Width="175" />
+                <ColumnDefinition Width="75" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" Text="{Binding Direction}"/>
@@ -122,6 +123,11 @@
                              GroupName="{Binding Name}"
                              IsEnabled="{Binding $parent[ItemsControl].((models:SubModule)DataContext).IsExternalModule}"/>
             </Grid>
+            <CheckBox Grid.Column="5" 
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Center"
+                      IsChecked="{Binding Interrupt}"
+                      IsEnabled ="{Binding CanInterrupt}"/>
         </Grid>
     </DataTemplate>
     
@@ -251,6 +257,7 @@
                                 <ColumnDefinition SharedSizeGroup="SizeGroupWidth"/>
                                 <ColumnDefinition SharedSizeGroup="SizeGroupName"/>
                                 <ColumnDefinition Width="175" />
+                                <ColumnDefinition Width="75" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Direction" />
@@ -265,7 +272,9 @@
                                     <TextBlock Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Ignore"/>
                                 </Grid>
                             </Grid>
-                            <TextBlock Grid.Column="5" Background="{DynamicResource ThemeBackgroundBrush}" />
+                            <TextBlock Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                       Text="Make Interrupt" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="6" Background="{DynamicResource ThemeBackgroundBrush}" />
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Module.Ports}"
                                       ItemTemplate="{StaticResource PortTemplate}"/>

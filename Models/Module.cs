@@ -60,6 +60,8 @@ public partial class Port : ObservableObject
     [ObservableProperty] private bool routeToSOC = false;
     [ObservableProperty] private bool routeToWrapper = false;
     [ObservableProperty] private bool noRoute = true;
+    [ObservableProperty] private bool interrupt = false;
+    public bool CanInterrupt => (Direction == PortDirections.output && Width == "1");
 
     public Dictionary<dynamic, dynamic> ToDictionary(SubModule submodule, string outputType)
     {
@@ -70,12 +72,13 @@ public partial class Port : ObservableObject
         if (outputType == "build")
         {
             dict.Add("direction",
-                direction == PortDirections.input ? "in" : direction == PortDirections.output ? "out" : "inout");
-            dict.Add("size", helper.ParsePortSize(width));
+                Direction == PortDirections.input ? "in" : Direction == PortDirections.output ? "out" : "inout");
+            dict.Add("size", helper.ParsePortSize(Width));
+            dict.Add("interrupt", Interrupt ? "True" : "False");
         }else if (outputType == "save")
         {
-            dict.Add("routeToSOC", routeToSOC);
-            dict.Add("routeToWrapper", routeToWrapper);
+            dict.Add("routeToSOC", RouteToSOC);
+            dict.Add("routeToWrapper", RouteToWrapper);
         }
         else
         {
