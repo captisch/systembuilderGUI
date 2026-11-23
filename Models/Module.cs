@@ -79,6 +79,7 @@ public partial class Port : ObservableObject
         {
             dict.Add("routeToSOC", RouteToSOC);
             dict.Add("routeToWrapper", RouteToWrapper);
+            dict.Add("interrupt", Interrupt);
         }
         else
         {
